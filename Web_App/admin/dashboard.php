@@ -10,7 +10,7 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 // Require the database connection (directa sa XAMPP)
-require_once '../includes/db_connect.php';
+require_once __DIR__ . '/../includes/db_connect.php';
 
 // Retrieve session variables for display and Role-Based Access Control
 $admin_username = $_SESSION['admin_username'];

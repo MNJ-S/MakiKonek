@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'includes/db_connect.php';
+require_once __DIR__ . '/includes/db_connect.php';
 
 // If the resident is already logged in, push them straight to their dashboard
 if (isset($_SESSION['resident_id'])) {
