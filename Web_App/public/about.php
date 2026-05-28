@@ -11,29 +11,24 @@
 </head>
 <body>
     <!-- Public navigation  -->
-    <header class="site-header" id="home">
-        <nav class="nav-shell" aria-label="Primary navigation">
-            <a class="brand-link" href="index.php" aria-label="MakiKonek home">
-                <img src="../assets/img/logo-makikonek.png" alt="MakiKonek logo">
-            </a>
+    <header class="site-header">
+    <nav class="nav-shell" aria-label="Primary navigation">
+        <a class="brand-link" href="index.php">
+            <img src="../assets/img/logo-makikonek.png" alt="MakiKonek logo">
+        </a>
 
-            <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
+        <div class="nav-menu">
+            <a href="index.php">Home</a>
+            <a href="about.php" class="active">About</a>
+            <a href="services.php">Services</a>
+            <a href="index.php#announcements">Announcements</a>
+            <a href="index.php#transparency">Transparency</a>
+            <a href="index.php#contact">Contact</a>
+        </div>
 
-            <div class="nav-menu" data-nav-menu>
-                <a href="index.php">Home</a>
-                <a href="about.php" class="active">About</a>
-                <a href="index.php#services">Services</a>
-                <a href="index.php#announcements">Announcements</a>
-                <a href="index.php#contact">Contact</a>
-            </div>
-
-            <a class="btn btn-small btn-primary nav-login" href="../login_reg.php">Login</a>
-        </nav>
-    </header>
+        <a class="btn btn-small btn-primary nav-login" href="../login_reg.php">Login</a>
+    </nav>
+</header>
 
     <!-- wrapper ID para hindi maapektuhan o magalaw ang global code sa index section -->
     <main id="about-custom-scope">
