@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MakiKonek | Barangay Makiling Digital Service Portal</title>
-    <link rel="stylesheet" href="../assets/css/home.css?v=20260528g">
-    <script defer src="../assets/js/public.js?v=20260528g"></script>
+    <link rel="stylesheet" href="../assets/css/home.css?v=20260529a">
+    <script defer src="../assets/js/public.js?v=20260529a"></script>
 </head>
 <body>
     <!-- Public navigation -->
@@ -26,6 +26,7 @@
                 <a href="#about">About</a>
                 <a href="#services">Services</a>
                 <a href="#announcements">Announcements</a>
+                <a href="#transparency">Transparency</a>
                 <a href="#contact">Contact</a>
             </div>
 
@@ -40,11 +41,25 @@
             <div class="hero-overlay"></div>
             <div class="hero-content">
                 <p class="eyebrow">Welcome to</p>
-                <h1 id="hero-title">MakiKonek</h1>
-                <p>Your easy access to Barangay Makiling services, announcements, emergency contacts, and community information.</p>
+                <h1 id="hero-title"><span>MakiKonek</span>Digital Services for Barangay Makiling</h1>
+                <p>Request barangay documents, check announcements, and access community information in one online portal.</p>
                 <div class="hero-actions">
                     <a class="btn btn-primary" href="../login_reg.php">Request a Service</a>
-                    <a class="btn btn-light" href="#announcements">View Announcements</a>
+                    <a class="btn btn-glass" href="#announcements">View Announcements</a>
+                </div>
+                <div class="hero-status" aria-label="Quick portal highlights">
+                    <article>
+                        <strong>5+</strong>
+                        <span>Online services</span>
+                    </article>
+                    <article>
+                        <strong>24/7</strong>
+                        <span>Portal access</span>
+                    </article>
+                    <article>
+                        <strong>2026</strong>
+                        <span>Community updates</span>
+                    </article>
                 </div>
             </div>
             <div class="hero-wave" aria-hidden="true"></div>
@@ -172,10 +187,10 @@
             <div class="calendar-panel">
                 <div class="calendar-top">
                     <h3>May 2026</h3>
-                    <div class="calendar-controls" aria-label="Calendar controls">
-                        <button type="button">Today</button>
-                        <button type="button">Prev</button>
-                        <button type="button">Next</button>
+                <div class="calendar-controls" aria-label="Calendar controls">
+                    <button type="button">Today</button>
+                    <button type="button">Prev</button>
+                    <button type="button">Next</button>
                     </div>
                 </div>
                 <div class="calendar-grid" aria-label="May 2026 calendar">
