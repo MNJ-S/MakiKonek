@@ -1,0 +1,80 @@
+RESIDENT PORTAL
+
+========================================
+RESIDENT DASHBOARD
+========================================
+
+- Welcome Panel
+- Request Status Overview
+- Notifications
+- Recent Requests
+- Upcoming Appointments
+- Quick Action Buttons
+
+
+========================================
+MY PROFILE
+========================================
+
+- Personal Information
+- Household Information
+- Change Password
+- Uploaded IDs / Documents
+
+
+========================================
+SUBMIT SERVICE REQUEST
+========================================
+
+AVAILABLE SERVICE FORMS
+
+- Barangay Clearance Form
+- Certificate of Residency Form
+- Business Clearance Form
+- Indigency Certificate Form
+- Incident Report Form
+- Cedula Request
+- Barangay ID Request
+
+
+========================================
+TRACK MY REQUEST
+========================================
+
+- Reference Number Tracking
+- Request Status Labels
+- Processing Timeline
+- Status History Logs
+- Estimated Processing Time
+
+
+========================================
+APPOINTMENT / RESERVATION
+========================================
+
+- Appointment Scheduling
+- Time Slot Reservation
+- Event Hall Reservation
+- Court Reservation
+- Appointment Confirmation
+
+
+========================================
+UPLOAD DOCUMENTS
+========================================
+
+- Valid ID Upload
+- Supporting Documents Upload
+- File Validation
+- Preview Uploaded Files
+
+
+========================================
+PAYMENT / RECEIPT
+========================================
+
+- Payment Information
+- Upload Proof of Payment
+- Payment Verification Status
+- Official Receipt Download
+- Transaction History

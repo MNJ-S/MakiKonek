@@ -1,0 +1,78 @@
+ADMIN PORTAL
+
+========================================
+ADMIN DASHBOARD
+========================================
+
+- Total Requests Summary
+- Pending Requests
+- Resident Statistics
+- Appointment Overview
+- Payment Overview
+- Dashboard Analytics
+
+
+========================================
+MANAGE RESIDENTS
+========================================
+
+- View Resident Accounts
+- Verify Resident Accounts
+- Edit Resident Information
+- Manage User Roles
+- Search / Filter Residents
+
+
+========================================
+MANAGE REQUESTS
+========================================
+
+- View Submitted Requests
+- Approve / Deny Requests
+- Update Request Status
+- Review Uploaded Documents
+- Generate Reference Numbers
+
+
+========================================
+MANAGE APPOINTMENTS
+========================================
+
+- View Reservations
+- Approve / Cancel Appointments
+- Manage Schedules
+- Reservation Calendar
+
+
+========================================
+MANAGE ANNOUNCEMENTS
+========================================
+
+- Create Announcements
+- Edit Announcements
+- Delete Announcements
+- Post Advisories / Events
+- Upload Downloadable Forms
+
+
+========================================
+MANAGE PAYMENTS & RECEIPTS
+========================================
+
+- Verify Proof of Payment
+- Record Payments
+- Generate Receipts
+- View Transaction Records
+
+
+========================================
+REPORTS / ANALYTICS
+========================================
+
+- Generate Reports
+- Request Analytics
+- Resident Statistics
+- Payment Reports
+- Appointment Reports
+- Download / Print Reports
+```
