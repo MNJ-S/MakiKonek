@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | MakiKonek</title>
-    <link rel="stylesheet" href="assets/css/login.css?v=20260528o">
+    <link rel="stylesheet" href="assets/css/login.css?v=20260529d">
     <script defer src="assets/js/public.js?v=20260528k"></script>
 </head>
 <body class="auth-page">
@@ -13,30 +13,24 @@
         <section class="auth-intro" aria-label="MakiKonek introduction">
             <img class="intro-logo" src="assets/img/logo-makikonek.png" alt="MakiKonek logo">
             <div class="intro-copy">
-                <p class="intro-pill">MALIGAYANG PAGDATING!</p>
                 <h1>
                     <span class="brand-word">
                         <span class="maki">Maki</span><span class="konek">Konek</span>
                     </span>
-                    Para sa Makiling, Para sa Atin.
+                    Serbisyong Barangay, Mas Madali.
                 </h1>
-                <p>Ang iyong digital na tulay sa mabilis, madaling, at transparent na serbisyo ng Barangay Makiling.</p>
+                <p>Mag-login para ma-access ang mga serbisyo, anunsyo, at impormasyon ng Barangay Makiling.</p>
             </div>
-
-            <!-- <div class="intro-features" aria-label="MakiKonek benefits">
-                <article><span>▤</span><strong>Mabilis</strong><small>Pinasimpleng proseso para sa mas mabilis na serbisyo.</small></article>
-                <article><span>🛡</span><strong>Maaasahan</strong><small>Ligtas at maaasahang sistema para sa lahat ng residente.</small></article>
-                <article><span>👥</span><strong>Transparent</strong><small>Mas malinaw na impormasyon at update sa komunidad.</small></article>
-                <article><span>♡</span><strong>Nakatutulong</strong><small>Serbisyong nakatuon sa pangangailangan ng bawat Makiling.</small></article>
-            </div> -->
 
             <div class="community-card">
                 <div class="community-logos">
                     <img src="assets/img/Barangay_Makiling_Seal.png" alt="Barangay Makiling seal">
                     <img src="assets/img/Barangay_Makiling_SK.jpg" alt="Sangguniang Kabataan Makiling logo">
                 </div>
-                <strong>Isang Barangay, Isang Komunidad, Isang Makiling.</strong>
-                <span>Tayo ay magkakonek para sa mas maunlad na kinabukasan.</span>
+                <div>
+                    <strong>Barangay Makiling at SK Makiling</strong>
+                    <span>Mabilis, maaasahan, at mas madaling transaksyon para sa komunidad.</span>
+                </div>
             </div>
         </section>
 

@@ -41,7 +41,11 @@ input {
     position: relative;
     min-height: 100vh;
     overflow-x: hidden;
-    background: #eef7ff url("../img/starting_background.png") center top / 125% auto no-repeat;
+    background-color: #eef7ff;
+    background-image: url("../img/starting_background.png");
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 
 .auth-page::before {
@@ -57,64 +61,41 @@ input {
     z-index: 1;
     display: grid;
     min-height: 100vh;
-    grid-template-columns: minmax(0, 1fr) minmax(470px, 520px);
+    grid-template-columns: minmax(0, 1fr) minmax(440px, 500px);
     align-items: center;
     gap: clamp(32px, 4.2vw, 64px);
-    width: min(1180px, calc(100% - 48px));
+    width: min(1120px, calc(100% - 48px));
     margin: 0 auto;
     padding: 28px 0 46px;
 }
 
 .auth-intro {
     display: flex;
-    max-width: 560px;
+    width: min(500px, 100%);
+    max-width: 500px;
     flex-direction: column;
-    gap: 20px;
+    gap: 18px;
     justify-self: start;
     text-align: left;
     overflow: visible;
 }
 
 .intro-logo {
-    width: min(365px, 64vw);
+    width: min(300px, 56vw);
     margin-left: 0;
 }
 
 .intro-copy {
+    width: min(560px, 100%);
     max-width: 560px;
     text-align: left;
 }
 
-.intro-pill {
-    display: flex;
-    position: relative;
-    width: min(500px, 100%);
-    height: 150px;
-    align-items: center;
-    justify-content: center;
-    margin: 0 0 12px;
-    padding: 0 46px 4px 104px;
-    color: #fff;
-    background: url("../img/green-eco_ribbon.png") center / 100% 100% no-repeat;
-    filter: drop-shadow(0 14px 26px rgba(32, 133, 42, 0.18));
-    font-size: 18px;
-    font-weight: 900;
-    text-transform: uppercase;
-}
-
-.intro-pill::before {
-    content: none;
-}
-
-.intro-pill::after {
-    content: none;
-}
-
 .intro-copy h1 {
     margin: 0;
-    max-width: 560px;
-    font-size: clamp(38px, 4vw, 56px);
-    line-height: 1.02;
+    max-width: 480px;
+    font-size: clamp(29px, 2.5vw, 38px);
+    line-height: 1.08;
     letter-spacing: 0;
 }
 
@@ -144,93 +125,35 @@ input {
 }
 
 .intro-copy p:last-child {
-    max-width: 560px;
-    margin: 16px 0 0;
+    max-width: 440px;
+    margin: 12px 0 0;
     border-left: 3px solid var(--green);
     padding-left: 18px;
     color: #233852;
-    font-size: 18px;
+    font-size: 15px;
     font-weight: 600;
-}
-
-.intro-features {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-}
-
-.intro-features article {
-    min-height: 150px;
-    border: 1px solid rgba(216, 225, 234, 0.9);
-    border-radius: 8px;
-    padding: 18px 14px;
-    background: rgba(255, 255, 255, 0.84);
-    box-shadow: 0 16px 34px rgba(17, 50, 83, 0.1);
-    text-align: center;
-}
-
-.intro-features span {
-    display: inline-flex;
-    width: 52px;
-    height: 52px;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    color: #fff;
-    background: var(--green);
-    font-size: 23px;
-    font-weight: 900;
-}
-
-.intro-features article:nth-child(2) span {
-    background: var(--blue);
-}
-
-.intro-features article:nth-child(3) span {
-    background: #ef9b16;
-}
-
-.intro-features article:nth-child(4) span {
-    background: #6544d9;
-}
-
-.intro-features strong,
-.intro-features small {
-    display: block;
-}
-
-.intro-features strong {
-    margin-top: 14px;
-    font-size: 17px;
-}
-
-.intro-features small {
-    margin-top: 6px;
-    color: var(--muted);
-    font-size: 13px;
 }
 
 .community-card {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: 14px 18px;
-    width: min(560px, 100%);
+    gap: 12px;
+    width: min(440px, 100%);
     align-items: center;
     border-radius: 8px;
-    padding: 18px 22px;
+    padding: 13px 16px;
     color: #fff;
-    background: linear-gradient(105deg, rgba(10, 28, 49, 0.94), rgba(4, 92, 58, 0.86));
-    box-shadow: 0 22px 50px rgba(10, 28, 49, 0.28);
+    background: linear-gradient(105deg, rgba(10, 28, 49, 0.92), rgba(4, 92, 58, 0.82));
+    box-shadow: 0 16px 32px rgba(10, 28, 49, 0.2);
 }
 
 .community-logos {
     display: flex;
-    grid-row: span 2;
 }
 
 .community-logos img {
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
     border: 2px solid rgba(255, 255, 255, 0.78);
     border-radius: 50%;
     background: #fff;
@@ -241,19 +164,25 @@ input {
     margin-left: -10px;
 }
 
+.community-card strong,
+.community-card span {
+    display: block;
+}
+
 .community-card strong {
-    font-size: 19px;
+    font-size: 15px;
 }
 
 .community-card span {
+    margin-top: 3px;
     color: rgba(255, 255, 255, 0.82);
-    font-size: 15px;
+    font-size: 13px;
 }
 
 .auth-card {
     border: 1px solid rgba(255, 255, 255, 0.85);
     border-radius: 18px;
-    padding: clamp(26px, 2.8vw, 38px);
+    padding: clamp(26px, 2.1vw, 32px);
     background: rgba(255, 255, 255, 0.94);
     box-shadow: var(--shadow);
 }
@@ -321,10 +250,12 @@ input {
 }
 
 .btn-outline {
-    width: 100%;
+    width: auto;
+    min-height: 36px;
     color: var(--green-dark);
-    background: #fff;
-    border-color: var(--line);
+    background: transparent;
+    border-color: transparent;
+    padding: 0;
 }
 
 .auth-switch {
@@ -338,20 +269,18 @@ input {
 }
 
 @media (max-width: 1040px) {
-    .auth-page {
-        background-size: cover;
-    }
-
     .auth-shell {
         grid-template-columns: 1fr;
         width: min(100% - 40px, 900px);
     }
 
     .auth-intro {
+        width: 100%;
         max-width: none;
         justify-self: stretch;
     }
 
+    .intro-copy,
     .intro-copy h1,
     .intro-copy p:last-child {
         max-width: 680px;
@@ -359,46 +288,25 @@ input {
 }
 
 @media (max-width: 760px) {
-    .auth-page {
-        background-position: center top;
-    }
-
     .auth-shell {
         width: min(100% - 28px, 1280px);
         padding: 30px 0 60px;
     }
 
     .intro-logo {
-        width: 260px;
-    }
-
-    .intro-pill {
-        width: min(430px, 94vw);
-        height: 82px;
-        padding-left: 92px;
-        padding-right: 34px;
-        font-size: 15px;
+        width: 240px;
     }
 
     .intro-copy h1 {
-        font-size: 36px;
+        font-size: 34px;
     }
 
     .intro-copy h1 .brand-word {
         white-space: nowrap;
     }
 
-    .intro-features,
     .form-grid {
         grid-template-columns: repeat(2, 1fr);
-    }
-
-    .community-card {
-        grid-template-columns: 1fr;
-    }
-
-    .community-logos {
-        grid-row: auto;
     }
 
     .auth-card {
@@ -407,7 +315,6 @@ input {
 }
 
 @media (max-width: 520px) {
-    .intro-features,
     .form-grid {
         grid-template-columns: 1fr;
     }
@@ -416,15 +323,7 @@ input {
         padding: 28px 20px;
     }
 
-    .intro-pill {
-        width: min(360px, 100%);
-        height: 72px;
-        padding-left: 76px;
-        padding-right: 28px;
-        font-size: 13px;
-    }
-
     .intro-copy h1 {
-        font-size: 34px;
+        font-size: 30px;
     }
 }
