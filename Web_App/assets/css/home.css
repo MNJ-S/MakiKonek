@@ -139,7 +139,7 @@ input {
     color: var(--green-dark);
 }
 
-.nav-menu a:first-child::after {
+.nav-menu a.active::after {
     position: absolute;
     right: 0;
     bottom: 2px;

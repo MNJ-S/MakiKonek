@@ -22,9 +22,9 @@
             </button>
 
             <div class="nav-menu" data-nav-menu>
-                <a href="#home">Home</a>
-                <a href="#about">About</a>
-                <a href="#services">Services</a>
+                <a href="index.php" class="active">Home</a>
+                <a href="about.php">About</a>
+                <a href="services.php">Services</a>
                 <a href="#announcements">Announcements</a>
                 <a href="#contact">Contact</a>
             </div>
@@ -280,9 +280,9 @@
             </div>
             <div>
                 <h3>Quick Links</h3>
-                <a href="#home">Home</a>
-                <a href="#about">About</a>
-                <a href="#services">Services</a>
+                <a href="index.php">Home</a>
+                <a href="about.php">About</a>
+                <a href="services.php">Services</a>
                 <a href="#announcements">Announcements</a>
                 <a href="#transparency">Transparency</a>
                 <a href="#contact">Contact</a>
