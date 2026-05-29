@@ -22,8 +22,30 @@ document.addEventListener("DOMContentLoaded", () => {
     roleInputs.forEach((input) => {
         input.addEventListener("change", () => {
             if (loginButton && input.checked) {
-                loginButton.textContent = `Mag-login bilang ${input.value}`;
+                loginButton.textContent = "Mag-login";
             }
         });
     });
+
+    if (document.body.classList.contains("auth-page")) {
+        requestAnimationFrame(() => {
+            document.body.classList.add("auth-ready");
+        });
+
+        document.querySelectorAll("[data-auth-transition]").forEach((link) => {
+            link.addEventListener("click", (event) => {
+                const target = link.getAttribute("href");
+
+                if (!target || link.target || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                    return;
+                }
+
+                event.preventDefault();
+                document.body.classList.add("auth-morphing");
+                window.setTimeout(() => {
+                    window.location.href = target;
+                }, 190);
+            });
+        });
+    }
 });

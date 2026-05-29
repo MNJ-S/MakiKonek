@@ -4,32 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up | MakiKonek</title>
-    <link rel="stylesheet" href="assets/css/signup.css?v=20260529d">
-    <script defer src="assets/js/public.js?v=20260528k"></script>
+    <link rel="stylesheet" href="assets/css/signup.css?v=20260529j">
+    <script defer src="assets/js/public.js?v=20260529c"></script>
 </head>
 <body class="auth-page">
     <main class="auth-shell signup-shell">
         <!-- Community intro -->
         <section class="auth-intro" aria-label="MakiKonek introduction">
-            <img class="intro-logo" src="assets/img/logo-makikonek.png" alt="MakiKonek logo">
+            <div class="welcome-ribbon" aria-label="Welcome message">
+                <img src="assets/img/green-eco-banner.png" alt="" aria-hidden="true">
+            </div>
+
+            <img class="intro-logo" src="assets/img/logo2-makikonek.png" alt="MakiKonek logo">
             <div class="intro-copy">
-                <h1>
-                    <span class="brand-word">
-                        <span class="maki">Maki</span><span class="konek">Konek</span>
-                    </span>
-                    Serbisyong Barangay, Mas Madali.
-                </h1>
                 <p>Gumawa ng account para makagamit ng online services at updates ng Barangay Makiling.</p>
             </div>
 
-            <div class="community-card">
-                <div class="community-logos">
+            <div class="assistance-card">
+                <div class="assistance-logos">
                     <img src="assets/img/Barangay_Makiling_Seal.png" alt="Barangay Makiling seal">
                     <img src="assets/img/Barangay_Makiling_SK.jpg" alt="Sangguniang Kabataan Makiling logo">
                 </div>
-                <div>
-                    <strong>Barangay Makiling at SK Makiling</strong>
-                    <span>Mabilis, maaasahan, at mas madaling transaksyon para sa komunidad.</span>
+                <div class="assistance-info">
+                    <strong>Need Assistance?</strong>
+                    <span>☎ (049) 123-4567</span>
+                    <span>✉ makiling.barangay@gmail.com</span>
+                    <span>◷ Monday - Friday, 8:00 AM - 5:00 PM</span>
                 </div>
             </div>
         </section>
@@ -72,7 +72,7 @@
                 <input id="confirm_password" name="confirm_password" type="password" placeholder="********" autocomplete="new-password">
 
                 <button class="btn btn-primary auth-submit" type="submit">Gumawa ng Account</button>
-                <p class="auth-switch">May account na? <a href="login_reg.php">Mag-login dito.</a></p>
+                <p class="auth-switch">May account na? <a href="login_reg.php" data-auth-transition>Mag-login dito.</a></p>
                 <a class="btn btn-outline auth-back" href="public/index.php">← Bumalik sa Homepage</a>
             </form>
         </section>

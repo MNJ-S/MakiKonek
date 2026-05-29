@@ -4,35 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MakiKonek | Barangay Makiling Digital Service Portal</title>
-    <link rel="stylesheet" href="../assets/css/home.css?v=20260529a">
+    <link rel="stylesheet" href="../assets/css/home.css?v=20260529g">
+    <link rel="stylesheet" href="../assets/css/header.css?v=20260529e">
+    <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <script defer src="../assets/js/public.js?v=20260529a"></script>
 </head>
 <body>
-    <!-- Public navigation -->
-    <header class="site-header" id="home">
-        <nav class="nav-shell" aria-label="Primary navigation">
-            <a class="brand-link" href="#home" aria-label="MakiKonek home">
-                <img src="../assets/img/logo-makikonek.png" alt="MakiKonek logo">
-            </a>
-
-            <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-
-            <div class="nav-menu" data-nav-menu>
-                <a href="index.php" class="active">Home</a>
-                <a href="about.php">About</a>
-                <a href="services.php">Services</a>
-                <a href="#announcements">Announcements</a>
-                <a href="#transparency">Transparency</a>
-                <a href="#contact">Contact</a>
-            </div>
-
-            <a class="btn btn-small btn-primary nav-login" href="../login_reg.php">Login</a>
-        </nav>
-    </header>
+    <?php include '../includes/header.php'; ?>
 
     <main>
         <!-- Hero section -->
@@ -40,27 +19,34 @@
             <div class="hero-media" role="img" aria-label="Mt. Makiling landscape and Barangay Makiling community"></div>
             <div class="hero-overlay"></div>
             <div class="hero-content">
-                <p class="eyebrow">Welcome to</p>
-                <h1 id="hero-title"><span>MakiKonek</span>Digital Services for Barangay Makiling</h1>
-                <p>Request barangay documents, check announcements, and access community information in one online portal.</p>
-                <div class="hero-actions">
-                    <a class="btn btn-primary" href="../login_reg.php">Request a Service</a>
-                    <a class="btn btn-glass" href="#announcements">View Announcements</a>
+                <div class="hero-copy">
+                    <p class="eyebrow">Digital Service Portal</p>
+                    <h1 id="hero-title">
+                        <span class="brand-word"><span class="maki">Maki</span><span class="konek">Konek</span></span>
+                        sa Barangay Makiling Online
+                    </h1>
+                    <p>Mag-request ng dokumento, i-track ang aplikasyon, at manatiling updated sa isang digital platform.</p>
+                    <div class="hero-actions">
+                        <a class="btn btn-primary" href="../login_reg.php">Request Service</a>
+                        <a class="btn btn-glass" href="#announcements">Browse Announcements</a>
+                    </div>
+                    <div class="hero-status" aria-label="Quick portal highlights">
+                        <article>
+                            <strong>5</strong>
+                            <span>Available services</span>
+                        </article>
+                        <article>
+                            <strong>24/7</strong>
+                            <span>Online access</span>
+                        </article>
+                        <article>
+                            <strong>Active</strong>
+                            <span>Announcements</span>
+                        </article>
+                    </div>
                 </div>
-                <div class="hero-status" aria-label="Quick portal highlights">
-                    <article>
-                        <strong>5+</strong>
-                        <span>Online services</span>
-                    </article>
-                    <article>
-                        <strong>24/7</strong>
-                        <span>Portal access</span>
-                    </article>
-                    <article>
-                        <strong>2026</strong>
-                        <span>Community updates</span>
-                    </article>
-                </div>
+
+                
             </div>
             <div class="hero-wave" aria-hidden="true"></div>
         </section>
@@ -280,44 +266,6 @@
         </section>
     </main>
 
-    <!-- Footer -->
-    <footer class="site-footer">
-        <div class="footer-grid">
-            <div>
-                <img class="footer-logo" src="../assets/img/logo-makikonek.png" alt="MakiKonek logo">
-                <p>MakiKonek is your digital gateway to faster, easier, and more transparent barangay service.</p>
-                <div class="social-row" aria-label="Social links">
-                    <a href="#home" aria-label="Facebook">f</a>
-                    <a href="#home" aria-label="Messenger">m</a>
-                    <a href="#home" aria-label="Email">@</a>
-                    <a href="#home" aria-label="Website">w</a>
-                </div>
-            </div>
-            <div>
-                <h3>Quick Links</h3>
-                <a href="index.php">Home</a>
-                <a href="about.php">About</a>
-                <a href="services.php">Services</a>
-                <a href="#announcements">Announcements</a>
-                <a href="#transparency">Transparency</a>
-                <a href="#contact">Contact</a>
-            </div>
-            <div>
-                <h3>Other Links</h3>
-                <a href="#home">Privacy Policy</a>
-                <a href="#home">Terms of Use</a>
-                <a href="#home">FAQ</a>
-                <a href="#home">Sitemap</a>
-            </div>
-            <div>
-                <h3>Contact Us</h3>
-                <p>Purok 1, Barangay Makiling, City of Calamba, Laguna</p>
-                <p>(049) 123-4567</p>
-                <p>makiling.barangay@gmail.com</p>
-                <p>Monday - Friday<br>8:00 AM - 5:00 PM</p>
-            </div>
-        </div>
-        <p class="copyright">© 2026 Barangay Makiling. All rights reserved.</p>
-    </footer>
+    <?php include '../includes/footer.php'; ?>
 </body>
 </html>
