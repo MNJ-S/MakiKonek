@@ -13,7 +13,7 @@
 .ann-hero {
     position: relative;
     display: grid;
-    min-height: 300px;
+    min-height: 320px;
     grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
     align-items: center;
     gap: 34px;
@@ -44,7 +44,7 @@
     max-width: 680px;
     margin: 0;
     color: var(--ann-ink);
-    font-size: clamp(42px, 5vw, 64px);
+    font-size: clamp(42px, 4.6vw, 60px);
     font-weight: 900;
     line-height: 1.05;
     letter-spacing: 0;
@@ -77,56 +77,77 @@
     inset: 0 -40px 0 0;
     border-radius: 36px;
     background:
-        linear-gradient(90deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.28) 48%, rgba(255, 255, 255, 0.02)),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.46) 48%, rgba(255, 255, 255, 0.12)),
         url("../img/hero-mt-makiling.png") center / cover no-repeat;
 }
 
-.megaphone {
+.featured-announcement {
     position: absolute;
-    top: 104px;
-    left: 112px;
+    right: 34px;
+    bottom: 34px;
     display: grid;
-    width: 124px;
-    height: 124px;
-    place-items: center;
-    border-radius: 50%;
-    color: #0f72d2;
-    background: rgba(255, 255, 255, 0.76);
+    width: min(360px, calc(100% - 68px));
+    gap: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.74);
+    border-radius: 14px;
+    padding: 22px;
+    color: #fff;
+    background: linear-gradient(135deg, rgba(11, 38, 64, 0.94), rgba(10, 126, 52, 0.86));
     box-shadow: var(--ann-shadow);
-    transform: rotate(-10deg);
+    backdrop-filter: blur(10px);
 }
 
-.megaphone i {
-    font-size: 70px;
+.featured-announcement span {
+    color: #bff4c8;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
 }
 
-.float-badge {
-    position: absolute;
-    display: grid;
-    width: 66px;
-    height: 66px;
-    place-items: center;
-    border-radius: 18px;
-    color: var(--ann-blue);
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: var(--ann-shadow);
+.featured-announcement h2 {
+    margin: 0;
+    font-size: 25px;
+    line-height: 1.12;
 }
 
-.float-badge.bell {
-    top: 44px;
-    left: 92px;
+.featured-announcement p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 14px;
+    font-weight: 600;
 }
 
-.float-badge.doc {
-    right: 134px;
-    bottom: 56px;
+.featured-announcement div {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.featured-announcement small {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255, 255, 255, 0.88);
+    font-weight: 800;
+}
+
+.featured-announcement a {
+    display: inline-flex;
+    width: max-content;
+    min-height: 36px;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0 18px;
+    color: #0d7430;
+    background: #fff;
+    font-weight: 900;
 }
 
 .ann-tools {
     display: grid;
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: minmax(340px, 420px) 1fr;
     align-items: center;
-    gap: 44px;
+    gap: 32px;
     margin: 24px 0 42px;
 }
 
@@ -151,8 +172,8 @@
 
 .ann-search input {
     width: 100%;
-    min-height: 44px;
-    border: 1px solid var(--ann-line);
+    min-height: 50px;
+    border: 1px solid #c9d8e6;
     border-radius: 999px;
     padding: 0 18px 0 48px;
     color: var(--ann-ink);
@@ -186,8 +207,8 @@
 
 .ann-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 380px;
-    gap: 48px;
+    grid-template-columns: minmax(0, 1fr) 400px;
+    gap: 36px;
     align-items: start;
 }
 
@@ -225,33 +246,53 @@
 }
 
 .post-media {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 8px;
     min-height: 176px;
+    padding: 24px;
+    color: #fff;
     background-size: cover;
     background-position: center;
 }
 
+.post-media strong,
+.post-media span {
+    display: block;
+    max-width: 210px;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.24);
+}
+
+.post-media strong {
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 0.98;
+    text-transform: uppercase;
+}
+
+.post-media span {
+    font-size: 14px;
+    font-weight: 800;
+}
+
 .cleanup-poster {
-    background:
-        linear-gradient(90deg, rgba(6, 132, 39, 0.9), rgba(6, 132, 39, 0.25)),
-        url("../img/Barangay_Makiling_Cover.jpg") center / cover;
+    background: linear-gradient(135deg, #087f2e, #1fb54b 58%, #d9ffe0);
 }
 
 .power-poster {
-    background:
-        linear-gradient(135deg, rgba(245, 250, 255, 0.94), rgba(52, 142, 230, 0.24)),
-        url("../img/hero-mt-makiling.png") right center / cover;
+    background: linear-gradient(135deg, #f6fbff, #badcff 48%, #1c63ad);
+    color: #0b448f;
 }
 
 .food-poster {
-    background:
-        linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(40, 157, 63, 0.18)),
-        url("../img/Barangay_Makiling_Cover.jpg") center / cover;
+    background: linear-gradient(135deg, #f9fff4, #c9f2d1 45%, #24a044);
+    color: #0b6723;
 }
 
 .flag-poster {
-    background:
-        linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(18, 120, 223, 0.2)),
-        url("../img/hero-mt-makiling.png") center / cover;
+    background: linear-gradient(135deg, #f5fbff, #d8ecff 44%, #1278df);
+    color: #0d58ad;
 }
 
 .post-body {
@@ -284,6 +325,11 @@
 .tag.blue {
     color: #0d58ad;
     background: #dcecff;
+}
+
+.tag.orange {
+    color: #9a4a00;
+    background: #ffead2;
 }
 
 .post-top button {
@@ -349,27 +395,27 @@
 
 .ann-sidebar {
     display: grid;
-    gap: 22px;
+    gap: 18px;
 }
 
 .sidebar-block,
 .subscribe-card {
     display: grid;
-    gap: 20px;
+    gap: 16px;
 }
 
 .fb-card,
 .subscribe-card {
     border: 1px solid rgba(223, 232, 241, 0.92);
     border-radius: 14px;
-    padding: 18px;
+    padding: 20px;
     background: rgba(255, 255, 255, 0.9);
     box-shadow: 0 12px 30px rgba(20, 46, 76, 0.08);
 }
 
 .fb-heading {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: 58px minmax(0, 1fr) auto;
     gap: 12px;
     align-items: center;
 }
@@ -390,6 +436,7 @@
 .fb-heading strong {
     color: var(--ann-ink);
     font-size: 15px;
+    line-height: 1.2;
 }
 
 .fb-heading span,
@@ -404,18 +451,14 @@
     font-size: 28px;
 }
 
-.fb-preview {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
-    margin: 16px 0;
-}
-
-.fb-preview img {
+.fb-cover {
     width: 100%;
-    height: 78px;
-    border-radius: 8px;
+    aspect-ratio: 16 / 7;
+    margin: 16px 0 18px;
+    border-radius: 10px;
     object-fit: cover;
+    object-position: center;
+    box-shadow: inset 0 0 0 1px rgba(223, 232, 241, 0.72);
 }
 
 .fb-card a,
@@ -439,12 +482,12 @@
 .subscribe-card button {
     position: relative;
     display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 12px;
-    align-items: center;
+    grid-template-columns: 44px minmax(0, 1fr) 16px;
+    gap: 14px;
+    align-items: start;
     border: 0;
     border-radius: 12px;
-    padding: 14px;
+    padding: 16px;
     color: var(--ann-ink);
     background: #fff;
     text-align: left;
@@ -462,6 +505,16 @@
     font-size: 20px;
 }
 
+.subscribe-card button > i {
+    align-self: center;
+    color: var(--ann-ink);
+    font-size: 14px;
+}
+
+.subscribe-card button div {
+    min-width: 0;
+}
+
 .subscribe-card button strong,
 .subscribe-card button small {
     display: block;
@@ -469,18 +522,52 @@
 
 .subscribe-card button strong {
     font-size: 14px;
+    line-height: 1.25;
 }
 
 .subscribe-card button small {
-    margin-top: 3px;
+    margin-top: 5px;
     color: var(--ann-muted);
+    font-size: 12px;
     font-weight: 700;
+    line-height: 1.35;
 }
 
 .subscribe-card > a {
     border-color: var(--ann-green);
     color: var(--ann-green);
     background: #fff;
+}
+
+.emergency-list {
+    display: grid;
+    gap: 8px;
+    border-top: 1px solid rgba(17, 149, 54, 0.18);
+    padding-top: 14px;
+}
+
+.emergency-list strong,
+.emergency-list span {
+    display: block;
+}
+
+.emergency-list strong {
+    color: var(--ann-ink);
+    font-size: 14px;
+}
+
+.emergency-list span {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #2d465f;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.emergency-list i {
+    color: var(--ann-green);
+    width: 16px;
 }
 
 @media (max-width: 980px) {

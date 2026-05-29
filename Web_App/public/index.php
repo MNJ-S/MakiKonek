@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MakiKonek | Barangay Makiling Digital Service Portal</title>
-    <link rel="stylesheet" href="../assets/css/home.css?v=20260529g">
+    <link rel="stylesheet" href="../assets/css/home.css?v=20260530a">
     <link rel="stylesheet" href="../assets/css/header.css?v=20260529e">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
@@ -135,10 +135,10 @@
         <section class="section announcement-section" id="announcements">
             <div class="section-heading split">
                 <div>
-                    <p class="eyebrow">Latest announcements</p>
+                    <p class="eyebrow">Latest Announcements</p>
                     <h2>Stay Updated</h2>
                 </div>
-                <a href="#announcements" class="text-link">View All Announcements</a>
+                <a href="announcements.php" class="text-link">View All Announcements</a>
             </div>
 
             <div class="announcement-grid">

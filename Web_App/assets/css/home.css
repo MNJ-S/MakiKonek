@@ -593,6 +593,19 @@ input {
     line-height: 1.2;
 }
 
+.announcement-card h3 {
+    margin-top: 34px;
+    margin-bottom: 18px;
+    font-size: 21px;
+    line-height: 1.18;
+}
+
+.announcement-card p {
+    color: #66768b;
+    font-size: 17px;
+    line-height: 1.55;
+}
+
 .service-card p,
 .announcement-card p,
 .hotline-card p {
@@ -674,9 +687,30 @@ input {
 .announcement-section {
     width: 100%;
     max-width: none;
-    padding-right: max(20px, calc((100% - 1120px) / 2));
-    padding-left: max(20px, calc((100% - 1120px) / 2));
-    background: linear-gradient(180deg, #fff 0%, #f7fbff 100%);
+    padding: 72px max(20px, calc((100% - 1120px) / 2)) 86px;
+    background: linear-gradient(180deg, #fff 0%, #f6fbff 100%);
+}
+
+.announcement-section .section-heading {
+    margin-bottom: 34px;
+}
+
+.announcement-section .eyebrow {
+    margin-bottom: 18px;
+    color: #304a66;
+    font-size: 14px;
+    letter-spacing: 0.18em;
+}
+
+.announcement-section .section-heading h2 {
+    font-size: clamp(48px, 5vw, 72px);
+    line-height: 0.98;
+}
+
+.announcement-section .text-link {
+    align-self: center;
+    color: #0b4ea2;
+    font-size: 18px;
 }
 
 .announcement-grid {
@@ -686,7 +720,12 @@ input {
 }
 
 .announcement-card {
-    padding: 24px;
+    min-height: 252px;
+    border: 1px solid #dbe5ef;
+    border-radius: 8px;
+    padding: 34px 34px 30px;
+    background: #fff;
+    box-shadow: 0 18px 42px rgba(20, 46, 76, 0.08);
 }
 
 .announcement-card:first-child {
@@ -697,9 +736,9 @@ input {
 .badge {
     display: inline-flex;
     border-radius: 999px;
-    padding: 4px 9px;
+    padding: 7px 14px;
     color: #fff;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 900;
     text-transform: uppercase;
 }
@@ -710,9 +749,10 @@ input {
 
 .announcement-card time {
     display: block;
-    margin-top: 18px;
-    color: #77879a;
-    font-size: 12px;
+    margin-top: 28px;
+    color: #75869b;
+    font-size: 14px;
+    font-weight: 700;
 }
 
 /* Calendar */
