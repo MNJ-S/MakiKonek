@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="../assets/css/header.css?v=20260529e">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
-    <script defer src="../assets/js/public.js?v=20260529a"></script>
+    <script defer src="../assets/js/public.js?v=20260530a"></script>
 </head>
 <body>
     <?php include '../includes/header.php'; ?>
@@ -64,13 +64,13 @@
         <section class="section service-section" id="services">
             <div class="service-toolbar">
                 <div>
-                    <p class="eyebrow">Serbisyong Makukuha</p>
-                    <h2>Mga Serbisyong Barangay Online</h2>
-                    <p>Mabilis, madali, at maaasahang serbisyo para sa bawat residente ng Barangay Makiling.</p>
+                    <p class="eyebrow">Available Services</p>
+                    <h2>Online Barangay Services</h2>
+                    <p>Fast, convenient, and reliable services for every resident of Barangay Makiling.</p>
                 </div>
                 <form class="service-search" action="#services" role="search">
-                    <label for="service_search">Maghanap ng serbisyo</label>
-                    <input id="service_search" type="search" placeholder="Maghanap ng serbisyo...">
+                    <label for="service_search">Search services</label>
+                    <input id="service_search" type="search" placeholder="Search services...">
                     <button type="submit">Search</button>
                 </form>
             </div>
@@ -79,54 +79,54 @@
                 <article class="service-card">
                     <div class="service-icon green">▣</div>
                     <h3>Barangay Clearance</h3>
-                    <p>Mag-request ng Barangay Clearance online.</p>
-                    <a href="../login_reg.php">Alamin pa</a>
+                    <p>Request a Barangay Clearance online.</p>
+                    <a href="../login_reg.php">Learn more</a>
                 </article>
                 <article class="service-card">
                     <div class="service-icon blue">⌂</div>
                     <h3>Certificate of Residency</h3>
-                    <p>Kumuha ng patunay ng pagka-residente.</p>
-                    <a href="../login_reg.php">Alamin pa</a>
+                    <p>Get proof of residency for official transactions.</p>
+                    <a href="../login_reg.php">Learn more</a>
                 </article>
                 <article class="service-card">
                     <div class="service-icon orange">●</div>
                     <h3>Indigency Certificate</h3>
-                    <p>Mag-request ng Indigency Certificate.</p>
-                    <a href="../login_reg.php">Alamin pa</a>
+                    <p>Request an Indigency Certificate for assistance programs.</p>
+                    <a href="../login_reg.php">Learn more</a>
                 </article>
                 <article class="service-card">
                     <div class="service-icon green">▦</div>
                     <h3>Event Permit</h3>
-                    <p>Mag-apply ng permit para sa inyong mga event.</p>
-                    <a href="../login_reg.php">Alamin pa</a>
+                    <p>Apply for permits for community and private events.</p>
+                    <a href="../login_reg.php">Learn more</a>
                 </article>
                 <article class="service-card">
                     <div class="service-icon violet">▤</div>
                     <h3>Business Permit</h3>
-                    <p>Mag-apply para sa business permit at registration.</p>
-                    <a href="../login_reg.php">Alamin pa</a>
+                    <p>Apply for business permits and barangay registration.</p>
+                    <a href="../login_reg.php">Learn more</a>
                 </article>
                 <article class="service-card">
                     <div class="service-icon blue">•••</div>
-                    <h3>Iba Pang Serbisyo</h3>
-                    <p>Tuklasin ang iba pang serbisyong handog namin.</p>
-                    <a href="../login_reg.php">Tingnan lahat</a>
+                    <h3>Other Services</h3>
+                    <p>Explore additional services offered by the barangay.</p>
+                    <a href="../login_reg.php">View all</a>
                 </article>
             </div>
 
             <div class="process-section">
                 <div class="section-heading split compact-left">
                     <div>
-                        <p class="eyebrow">Paano ito gumagana?</p>
-                        <h2>Simple ang pag-request</h2>
+                        <p class="eyebrow">How it works</p>
+                        <h2>Simple request process</h2>
                     </div>
                 </div>
                 <div class="process-grid">
-                    <article><span>1</span><strong>Piliin ang Serbisyo</strong><p>Pumili ng kailangan mo mula sa listahan.</p></article>
-                    <article><span>2</span><strong>Mag-fill up ng Form</strong><p>Sagutan ang detalye at i-upload ang dokumento.</p></article>
-                    <article><span>3</span><strong>Ipadala ang Request</strong><p>I-review at isumite para sa pagsusuri.</p></article>
-                    <article><span>4</span><strong>Hintayin ang Update</strong><p>Makakatanggap ka ng status update.</p></article>
-                    <article><span>5</span><strong>Kunin ang Resulta</strong><p>Kunin ang dokumento kapag nakumpleto na.</p></article>
+                    <article><span>1</span><strong>Choose a Service</strong><p>Select the service you need from the list.</p></article>
+                    <article><span>2</span><strong>Fill Out the Form</strong><p>Enter your details and upload required documents.</p></article>
+                    <article><span>3</span><strong>Submit Request</strong><p>Review and submit your request for processing.</p></article>
+                    <article><span>4</span><strong>Wait for Updates</strong><p>Receive status updates from the barangay office.</p></article>
+                    <article><span>5</span><strong>Claim Result</strong><p>Claim your document once processing is complete.</p></article>
                 </div>
             </div>
         </section>
@@ -172,35 +172,14 @@
 
             <div class="calendar-panel">
                 <div class="calendar-top">
-                    <h3>May 2026</h3>
-                <div class="calendar-controls" aria-label="Calendar controls">
-                    <button type="button">Today</button>
-                    <button type="button">Prev</button>
-                    <button type="button">Next</button>
+                    <h3 data-calendar-title>May 2026</h3>
+                    <div class="calendar-controls" aria-label="Calendar controls">
+                        <button type="button" data-calendar-today>Today</button>
+                        <button type="button" data-calendar-prev>Prev</button>
+                        <button type="button" data-calendar-next>Next</button>
                     </div>
                 </div>
-                <div class="calendar-grid" aria-label="May 2026 calendar">
-                    <div class="day-label">Sun</div><div class="day-label">Mon</div><div class="day-label">Tue</div><div class="day-label">Wed</div><div class="day-label">Thu</div><div class="day-label">Fri</div><div class="day-label">Sat</div>
-                    <div class="day muted"></div><div class="day muted"></div><div class="day muted"></div><div class="day muted"></div><div class="day muted"></div>
-                    <div class="day"><span>1</span></div>
-                    <div class="day"><span>2</span><strong class="event green">Community Clean-up<br>6:00 AM</strong><strong class="event green">Zumba Session<br>4:00 PM</strong></div>
-                    <div class="day"><span>3</span></div>
-                    <div class="day"><span>4</span><strong class="event green">Basketball League<br>5:00 PM</strong></div>
-                    <div class="day"><span>5</span></div><div class="day"><span>6</span></div><div class="day"><span>7</span></div><div class="day"><span>8</span></div>
-                    <div class="day"><span>9</span><strong class="event green">Town Hall Meeting<br>3:00 PM</strong></div>
-                    <div class="day"><span>10</span></div>
-                    <div class="day"><span>11</span><strong class="event green">Free Check-up<br>9:30 AM</strong></div>
-                    <div class="day"><span>12</span></div><div class="day"><span>13</span></div><div class="day"><span>14</span></div><div class="day"><span>15</span></div>
-                    <div class="day"><span>16</span><strong class="event green">Summer Festival<br>8:00 AM</strong></div>
-                    <div class="day"><span>17</span></div>
-                    <div class="day"><span>18</span><strong class="event green">Cooking Workshop<br>1:00 PM</strong></div>
-                    <div class="day"><span>19</span></div><div class="day"><span>20</span></div><div class="day"><span>21</span></div>
-                    <div class="day"><span>22</span><strong class="event blue">Environment Day<br>7:00 AM</strong><strong class="event blue">Tree Planting<br>8:00 AM</strong></div>
-                    <div class="day"><span>23</span></div><div class="day"><span>24</span></div>
-                    <div class="day"><span>25</span><strong class="event blue">Barangay Assembly<br>2:00 PM</strong></div>
-                    <div class="day"><span>26</span><strong class="event blue">Youth Council<br>4:00 PM</strong></div>
-                    <div class="day"><span>27</span><strong class="event blue">Senior Program<br>10:00 AM</strong></div>
-                    <div class="day today"><span>28</span></div><div class="day"><span>29</span></div><div class="day"><span>30</span></div><div class="day"><span>31</span></div>
+                <div class="calendar-grid" data-calendar-grid aria-label="Activities calendar">
                 </div>
             </div>
         </section>

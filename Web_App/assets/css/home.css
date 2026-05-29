@@ -757,7 +757,7 @@ input {
 
 /* Calendar */
 .calendar-panel {
-    overflow: auto;
+    overflow: hidden;
     border: 1px solid var(--line);
     border-radius: var(--radius);
     background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
@@ -796,7 +796,6 @@ input {
 
 .calendar-grid {
     display: grid;
-    min-width: 880px;
     grid-template-columns: repeat(7, 1fr);
     gap: 1px;
     padding: 0 28px 28px;
@@ -812,7 +811,7 @@ input {
 }
 
 .day {
-    min-height: 122px;
+    min-height: clamp(86px, 9vw, 122px);
     border: 1px solid #e7edf4;
     background: rgba(255, 255, 255, 0.92);
     padding: 8px;
@@ -836,6 +835,7 @@ input {
     color: #fff;
     font-size: 11px;
     line-height: 1.25;
+    overflow-wrap: anywhere;
 }
 
 .event.green { background: linear-gradient(90deg, #4f9e32, #75b742); }
@@ -1171,6 +1171,35 @@ input {
     .calendar-grid {
         padding-right: 16px;
         padding-left: 16px;
+    }
+
+    .calendar-top {
+        gap: 14px;
+    }
+
+    .calendar-controls {
+        flex-wrap: wrap;
+    }
+
+    .calendar-grid {
+        gap: 0;
+        padding-bottom: 16px;
+    }
+
+    .day-label {
+        padding: 8px 2px;
+        font-size: 10px;
+    }
+
+    .day {
+        min-height: 74px;
+        padding: 5px;
+        font-size: 12px;
+    }
+
+    .event {
+        padding: 5px;
+        font-size: 9px;
     }
 
     .auth-page {

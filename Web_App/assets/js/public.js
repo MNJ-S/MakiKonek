@@ -27,6 +27,126 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    const calendarGrid = document.querySelector("[data-calendar-grid]");
+    const calendarTitle = document.querySelector("[data-calendar-title]");
+    const calendarPrev = document.querySelector("[data-calendar-prev]");
+    const calendarNext = document.querySelector("[data-calendar-next]");
+    const calendarToday = document.querySelector("[data-calendar-today]");
+
+    if (calendarGrid && calendarTitle) {
+        const today = new Date(2026, 4, 30);
+        let visibleDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const events = {
+            "2026-05-02": [
+                { title: "Community Clean-up", time: "6:00 AM", type: "green" },
+                { title: "Zumba Session", time: "4:00 PM", type: "green" },
+            ],
+            "2026-05-04": [{ title: "Basketball League", time: "5:00 PM", type: "green" }],
+            "2026-05-09": [{ title: "Town Hall Meeting", time: "3:00 PM", type: "green" }],
+            "2026-05-11": [{ title: "Free Check-up", time: "9:30 AM", type: "green" }],
+            "2026-05-16": [{ title: "Summer Festival", time: "8:00 AM", type: "green" }],
+            "2026-05-18": [{ title: "Cooking Workshop", time: "1:00 PM", type: "green" }],
+            "2026-05-22": [
+                { title: "Environment Day", time: "7:00 AM", type: "blue" },
+                { title: "Tree Planting", time: "8:00 AM", type: "blue" },
+            ],
+            "2026-05-25": [{ title: "Barangay Assembly", time: "2:00 PM", type: "blue" }],
+            "2026-05-26": [{ title: "Youth Council", time: "4:00 PM", type: "blue" }],
+            "2026-05-27": [{ title: "Senior Program", time: "10:00 AM", type: "blue" }],
+            "2026-05-30": [{ title: "Clean-Up Drive", time: "6:00 AM", type: "green" }],
+            "2026-06-12": [{ title: "Kalayaan Day Program", time: "7:00 AM", type: "blue" }],
+        };
+
+        const formatKey = (date) => {
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+            return `${date.getFullYear()}-${month}-${day}`;
+        };
+
+        const renderCalendar = () => {
+            const year = visibleDate.getFullYear();
+            const month = visibleDate.getMonth();
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const previousLastDay = new Date(year, month, 0).getDate();
+            const cells = [];
+
+            calendarTitle.textContent = visibleDate.toLocaleDateString("en-US", {
+                month: "long",
+                year: "numeric",
+            });
+            calendarGrid.setAttribute("aria-label", `${calendarTitle.textContent} activities calendar`);
+
+            dayLabels.forEach((label) => {
+                const dayLabel = document.createElement("div");
+                dayLabel.className = "day-label";
+                dayLabel.textContent = label;
+                cells.push(dayLabel);
+            });
+
+            for (let index = firstDay.getDay() - 1; index >= 0; index -= 1) {
+                const day = previousLastDay - index;
+                const cell = document.createElement("div");
+                cell.className = "day muted";
+                cell.innerHTML = `<span>${day}</span>`;
+                cells.push(cell);
+            }
+
+            for (let day = 1; day <= lastDay.getDate(); day += 1) {
+                const cellDate = new Date(year, month, day);
+                const cell = document.createElement("div");
+                const key = formatKey(cellDate);
+                cell.className = "day";
+
+                if (formatKey(cellDate) === formatKey(today)) {
+                    cell.classList.add("today");
+                }
+
+                const dateLabel = document.createElement("span");
+                dateLabel.textContent = String(day);
+                cell.append(dateLabel);
+
+                (events[key] || []).forEach((event) => {
+                    const eventNode = document.createElement("strong");
+                    eventNode.className = `event ${event.type}`;
+                    eventNode.innerHTML = `${event.title}<br>${event.time}`;
+                    cell.append(eventNode);
+                });
+
+                cells.push(cell);
+            }
+
+            const totalCellsWithoutLabels = cells.length - dayLabels.length;
+            const trailingCells = (7 - (totalCellsWithoutLabels % 7)) % 7;
+            for (let day = 1; day <= trailingCells; day += 1) {
+                const cell = document.createElement("div");
+                cell.className = "day muted";
+                cell.innerHTML = `<span>${day}</span>`;
+                cells.push(cell);
+            }
+
+            calendarGrid.replaceChildren(...cells);
+        };
+
+        calendarPrev?.addEventListener("click", () => {
+            visibleDate = new Date(visibleDate.getFullYear(), visibleDate.getMonth() - 1, 1);
+            renderCalendar();
+        });
+
+        calendarNext?.addEventListener("click", () => {
+            visibleDate = new Date(visibleDate.getFullYear(), visibleDate.getMonth() + 1, 1);
+            renderCalendar();
+        });
+
+        calendarToday?.addEventListener("click", () => {
+            visibleDate = new Date(today.getFullYear(), today.getMonth(), 1);
+            renderCalendar();
+        });
+
+        renderCalendar();
+    }
+
     if (document.body.classList.contains("auth-page")) {
         requestAnimationFrame(() => {
             document.body.classList.add("auth-ready");

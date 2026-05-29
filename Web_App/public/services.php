@@ -25,7 +25,6 @@
                 <a href="about.php">About</a>
                 <a href="services.php" class="active">Services</a>
                 <a href="announcements.php">Announcements</a>
-                <a href="index.php#transparency">Transparency</a>
                 <a href="index.php#contact">Contact</a>
             </div>
 
@@ -288,7 +287,6 @@
                 <a href="about.php">About</a>
                 <a href="services.php">Services</a>
                 <a href="announcements.php">Announcements</a>
-                <a href="index.php#transparency">Transparency</a>
                 <a href="index.php#contact">Contact</a>
             </div>
             <div>
