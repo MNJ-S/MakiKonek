@@ -19,7 +19,7 @@
                 <img src="../assets/img/logo-makikonek.png" alt="MakiKonek logo">
             </a>
 
-            <div class="nav-menu">
+            <div class="nav-menu" id="navMenu">
                 <a href="index.php">Home</a>
                 <a href="about.php">About</a>
                 <a href="services.php" class="active">Services</a>
@@ -29,6 +29,12 @@
             </div>
 
             <a class="btn btn-small btn-primary nav-login" href="../login_reg.php">Login</a>
+
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </nav>
     </header>
 
@@ -304,5 +310,17 @@
         </div>
     </footer>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navToggle = document.getElementById('navToggle');
+            const navMenu = document.getElementById('navMenu');
+
+            if (navToggle && navMenu) {
+                navToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('is-open');
+                });
+            }
+        });
+    </script>
 </body>
 </html>
