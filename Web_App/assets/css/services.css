@@ -1,8 +1,4 @@
-/* ==========================================================================
-   SERVICES PAGE EXCLUSIVE MASTER STYLES (TOTAL RECONSTRUCTION)
-   ========================================================================== */
-
-/* Active Underline Indicator para sa Services Page Menu Link */
+/* Services page styles for Web_App/public/services.php */
 .nav-menu a[href="services.php"]::after {
     position: absolute;
     right: 0;
@@ -15,14 +11,12 @@
     display: block !important;
 }
 
-/* Base Main Content Page Settings Wrapper */
 .services-container {
     width: min(1180px, calc(100% - 40px));
     margin: 0 auto;
     padding: 54px 0 86px;
 }
 
-/* Page Subheading Text Configuration */
 .services-hero {
     text-align: center;
     max-width: 780px;
@@ -44,7 +38,6 @@
     margin: 0;
 }
 
-/* Grid Layout Alignment (Forces same row card heights) */
 .services-grid-layout {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -52,7 +45,6 @@
     align-items: stretch;
 }
 
-/* Core Master Card Block Configuration */
 .srv-card {
     border: 1px solid #e2e8f0;
     border-radius: 12px;
@@ -70,7 +62,6 @@
     box-shadow: 0 10px 15px rgba(0,0,0,0.1);
 }
 
-/* Card Header Settings */
 .srv-card-header {
     padding: 24px;
     color: #fff !important;
@@ -79,17 +70,16 @@
     gap: 12px;
 }
 
-/* WALANG BOX VERSION: Saktong laki at posisyon ng icon base sa iyong reference */
 .srv-icon {
-    font-size: 36px; /* Pinalaki para pumantay sa reference image mo */
-    background: none !important; /* Tinanggal ang background box */
-    border: none !important; /* Siniguradong walang borders */
-    width: auto; /* Hinayaang mag-scale base sa font size */
-    height: auto; /* Hinayaang mag-scale base sa font size */
+    font-size: 36px;
+    background: none !important;
+    border: none !important;
+    width: auto;
+    height: auto;
     display: inline-flex;
     align-items: center;
-    justify-content: flex-start; /* Naka-align sa kaliwa katulad ng text */
-    color: #ffffff !important; /* Purong puting icon */
+    justify-content: flex-start;
+    color: #ffffff !important;
     margin: 0;
     padding: 0;
 }
@@ -101,7 +91,6 @@
     color: #fff !important;
 }
 
-/* Inner Body Content Compartment inside Cards */
 .srv-card-body {
     padding: 24px;
     display: flex;
@@ -109,7 +98,6 @@
     flex: 1;
 }
 
-/* Description Typography Properties */
 p.srv-desc {
     margin: 0 0 20px 0 !important;
     color: #64748b;
@@ -118,7 +106,6 @@ p.srv-desc {
     min-height: 42px;
 }
 
-/* Requirements Container */
 .srv-requirements {
     display: flex;
     flex-direction: column;
@@ -148,7 +135,6 @@ p.srv-desc {
     text-align: left;
 }
 
-/* Kulay Berdeng Checkmark Icon base sa imahe niyo */
 .srv-requirements li::before {
     content: "✓";
     position: absolute;
@@ -158,7 +144,7 @@ p.srv-desc {
 }
 
 /* ==========================================================================
-   METADATA FIELDS ISOLATED STYLES (EXACTLY MATCHING REFS)
+   METADATA FIELDS ISOLATED STYLES
    ========================================================================== */
 .srv-meta {
     border-top: 1px solid rgba(0, 0, 0, 0.08);
@@ -174,18 +160,15 @@ p.srv-desc {
     margin-bottom: 8px;
 }
 
-/* Mga labels ("Processing Time:" at "Fee:") */
 .srv-meta-row span {
     color: #64748b;
 }
 
-/* Laging Bold at Maitim ang Processing Time (e.g. 3-5 working days, Same day) */
 .srv-meta-row:first-child strong {
     color: #000 !important;
     font-weight: 700;
 }
 
-/* Laging Kulay Berde ang lahat ng Fee amounts at text classes */
 .srv-meta-row:last-child strong,
 .srv-meta-row strong.fee-free,
 .srv-meta-row strong.fee-varies {
@@ -193,7 +176,6 @@ p.srv-desc {
     font-weight: 700;
 }
 
-/* Standard Master Global Button Properties */
 .srv-btn {
     display: flex;
     align-items: center;
@@ -203,7 +185,7 @@ p.srv-desc {
     font-weight: 700;
     font-size: 15px;
     text-decoration: none;
-    color: #ffffff !important; /* Pinupwersang laging puti ang text */
+    color: #ffffff !important;
     width: 100%;
     transition: filter 180ms ease;
 }
@@ -216,39 +198,30 @@ p.srv-desc {
    COLOR SPECIFIC SCHEME OVERRIDES (HEADERS & BUTTONS UNIQUE THEMES)
    ========================================================================== */
 
-/* 1. Green Variant (Barangay Clearance) */
 .srv-green .srv-card-header { background-color: #7bb843; }
 .srv-green .srv-btn { background-color: #7bb843; }
 
-/* 2. Blue Variant (Cert. of Residency) */
 .srv-blue .srv-card-header { background-color: #5eaefd; }
 .srv-blue .srv-btn { background-color: #5eaefd; }
 
-/* 3. Orange Variant (Business Clearance) */
 .srv-orange .srv-card-header { background-color: #ff7643; }
 .srv-orange .srv-btn { background-color: #ff7643; }
 
-/* 4. Yellow Variant (Indigency) */
 .srv-yellow .srv-card-header { background-color: #fecb2f; }
 .srv-yellow .srv-btn { background-color: #fecb2f; }
 
-/* 5. Cyan Variant (Incident Report) */
 .srv-cyan .srv-card-header { background-color: #1cc2dc; }
 .srv-cyan .srv-btn { background-color: #1cc2dc; }
 
-/* 6. Violet Variant (Barangay ID) */
 .srv-violet .srv-card-header { background-color: #9c27b0; }
 .srv-violet .srv-btn { background-color: #9c27b0; }
 
-/* 7. Pink Variant (Cedula) */
 .srv-pink .srv-card-header { background-color: #e91e63; }
 .srv-pink .srv-btn { background-color: #e91e63; }
 
-/* 8. Amber Variant (Good Moral) */
 .srv-amber .srv-card-header { background-color: #ff9800; }
 .srv-amber .srv-btn { background-color: #ff9800; }
 
-/* 9. Teal Variant (Permit to Construct) */
 .srv-teal .srv-card-header { background-color: #00bcd4; }
 .srv-teal .srv-btn { background-color: #00bcd4; }
 
@@ -268,4 +241,16 @@ p.srv-desc {
     .services-hero {
         margin-bottom: 34px;
     }
+}
+
+/* Footer */
+.site-footer .copyright {
+    text-align: center !important;
+    width: 100% !important;
+    display: block !important;
+    font-size: 14px !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    padding-top: 20px !important;
+    margin: 20px auto 0 !important;
 }
