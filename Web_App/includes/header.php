@@ -15,7 +15,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             <a href="index.php" class="<?php echo $currentPage === 'index.php' ? 'active' : ''; ?>">Home</a>
             <a href="about.php" class="<?php echo $currentPage === 'about.php' ? 'active' : ''; ?>">About</a>
             <a href="services.php" class="<?php echo $currentPage === 'services.php' ? 'active' : ''; ?>">Services</a>
-            <a href="index.php#announcements">Announcements</a>
+            <a href="announcements.php" class="<?php echo $currentPage === 'announcements.php' ? 'active' : ''; ?>">Announcements</a>
             <a href="index.php#contact">Contact</a>
         </div>
 
