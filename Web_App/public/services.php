@@ -6,13 +6,14 @@
     <title>E-Services - MakiKonek</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <link rel="stylesheet" href="../assets/css/home.css?v=20260529e">
-    <link rel="stylesheet" href="../assets/css/services.css?v=20260529e">
+    
+    <!-- Gagamit ng home.css para sa global styles, at services.css para sa cards -->
+    <link rel="stylesheet" href="../assets/css/home.css?v=20260529d">
+    <link rel="stylesheet" href="../assets/css/services.css?v=20260529d">
 </head>
 <body>
 
-    <!-- header -->
+    <!-- FIXED SITE HEADER -->
     <header class="site-header">
         <nav class="nav-shell" aria-label="Primary navigation">
             <a class="brand-link" href="index.php">
@@ -268,17 +269,17 @@
         </section>
     </main>
 
-    <!-- Footer -->
+    <!-- FIXED SITE FOOTER -->
     <footer class="site-footer">
         <div class="footer-grid">
             <div>
                 <img class="footer-logo" src="../assets/img/logo-makikonek.png" alt="MakiKonek Logo">
                 <p>MakiKonek is your digital gateway to faster, easier, and more transparent barangay service.</p>
                 <div class="social-row">
-                    <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="#" aria-label="Messenger"><i class="fa-brands fa-facebook-messenger"></i></a>
-                    <a href="#" aria-label="Email"><i class="fa-regular fa-envelope"></i></a>
-                    <a href="#" aria-label="Website"><i class="fa-solid fa-globe"></i></a>
+                    <a href="#">f</a>
+                    <a href="#">●</a>
+                    <a href="#">☏</a>
+                    <a href="#">✉</a>
                 </div>
             </div>
             <div>
@@ -292,10 +293,10 @@
             </div>
             <div>
                 <h3>Other Links</h3>
-                <a href="index.php#home">Privacy Policy</a>
-                <a href="index.php#terms">Terms of Use</a>
-                <a href="index.php#faq">FAQ</a>
-                <a href="index.php#sitemap">Sitemap</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Use</a>
+                <a href="#">FAQ</a>
+                <a href="#">Sitemap</a>
             </div>
             <div>
                 <h3>Contact Us</h3>
@@ -306,7 +307,7 @@
             </div>
         </div>
         <div class="copyright">
-            &copy; 2026 Barangay Makiling. All rights reserved.
+            &copy; 2024 Barangay Makiling. All rights reserved.
         </div>
     </footer>
 
