@@ -53,7 +53,7 @@
 
 .nav-menu a:hover,
 .nav-menu a:focus-visible {
-    color: var(--green-dark) !important;
+    color: #0b6d36 !important;
 }
 
 .nav-menu a[href="about.php"]::after {
@@ -63,7 +63,7 @@
     left: 0;
     height: 2px;
     border-radius: 999px;
-    background: var(--green);
+    background: #3f9f25;
     content: "";
     display: block !important;
 }
@@ -87,6 +87,29 @@
     opacity: 1;
     transform: scaleX(1);
 }
+
+.nav-toggle {
+    display: none;
+    width: 42px;
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 5px;
+    border: 1px solid #dfe7ef;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    padding: 0;
+}
+
+.nav-toggle span {
+    width: 18px;
+    height: 2px;
+    border-radius: 999px;
+    background: #172333;
+}
+
 /* ==========================================================================
    1. HERO BANNER SECTION & METRICS CARDS
    ========================================================================== */
@@ -445,7 +468,7 @@
 
 #about-custom-scope .leaders-top-icon {
     font-size: 32px;
-    color: #66bb6a;        
+    color: #66bb6a;         
     margin-bottom: 12px;   
     display: inline-block;
 }
@@ -728,6 +751,59 @@
     display: block;
 }
 
+/* Footer */
+.site-footer {
+    color: #dff5eb;
+    background: linear-gradient(180deg, #07543d, #043d2e);
+}
+
+.footer-grid {
+    display: grid;
+    width: min(1120px, calc(100% - 40px));
+    grid-template-columns: 1.5fr 0.8fr 0.8fr 1.2fr;
+    gap: 60px;
+    margin: 0 auto;
+    padding: 54px 0 36px;
+}
+
+.footer-logo {
+    width: 178px;
+    margin-bottom: 16px;
+}
+
+.site-footer h3 {
+    margin: 0 0 18px;
+    color: #fff;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.site-footer p,
+.site-footer a {
+    display: block;
+    margin: 0 0 9px;
+    color: #d9f3e8;
+    font-size: 14px;
+}
+
+.social-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.social-row a {
+    display: inline-flex;
+    width: 34px;
+    height: 34px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #004733;
+    background: #fff;
+    font-weight: 900;
+}
+
 /* ==========================================================================
    GLOBAL RESPONSIVE MEDIA QUERIES BREAKPOINTS
    ========================================================================== */
@@ -735,6 +811,54 @@
     #about-custom-scope .metrics-container-row { grid-template-columns: repeat(2, 1fr); gap: 16px; }
     #about-custom-scope .leaders-grid-5-cols { grid-template-columns: repeat(3, 1fr); }
     #about-custom-scope .leaders-grid-4-cols { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 980px) {
+    .nav-shell {
+        justify-content: space-between;
+    }
+
+    .nav-toggle {
+        display: flex;
+    }
+
+    .nav-menu {
+        position: absolute;
+        top: 86px;
+        right: 20px;
+        left: 20px;
+        display: none;
+        align-items: stretch;
+        flex-direction: column;
+        gap: 4px;
+        border: 1px solid #dfe7ef;
+        border-radius: 8px;
+        padding: 14px;
+        background: #fff;
+        box-shadow: 0 18px 45px rgba(20, 46, 76, 0.12);
+    }
+
+    .nav-menu.is-open {
+        display: flex;
+    }
+
+    .nav-menu a {
+        padding: 12px;
+    }
+    
+    .nav-menu a[href="about.php"]::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    .nav-login {
+        display: none;
+    }
+
+    .announcement-grid,
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+    }
 }
 
 @media (max-width: 992px) {
@@ -747,6 +871,25 @@
     #about-custom-scope .leaders-grid-4-cols { grid-template-columns: repeat(2, 1fr); }
     #about-custom-scope .gc-data-display-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px 16px; }
     #about-custom-scope .growing-community-card { padding: 30px 20px; }
+}
+
+@media (max-width: 680px) {
+    .nav-shell,
+    .section,
+    .hero-content,
+    .footer-grid,
+    .copyright,
+    .auth-shell {
+        width: min(100% - 28px, 1120px);
+    }
+
+    .brand-link img {
+        width: 162px;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 576px) {
@@ -764,9 +907,10 @@
 
 /* Footer */
 .site-footer .copyright {
-    text-align: center !important;
-    width: 100% !important;
+    width: min(1120px, calc(100% - 40px));
+    margin: 0 auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 18px 0;
+    text-align: center;
     display: block !important;
-    padding-top: 20px;
-    margin: 20px auto 0;
 }
