@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../assets/css/home.css?v=20260529h">
     <link rel="stylesheet" href="../assets/css/header.css?v=20260529e">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
-    <link rel="stylesheet" href="../assets/css/announcements.css?v=20260530a">
+    <link rel="stylesheet" href="../assets/css/announcements.css?v=20260530b">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <script defer src="../assets/js/announcements.js?v=20260529a"></script>
 </head>

@@ -464,15 +464,24 @@
 .fb-card a,
 .subscribe-card > a {
     display: inline-flex;
+    width: max-content;
+    max-width: 100%;
     min-height: 38px;
     align-items: center;
     justify-content: center;
     gap: 8px;
     border: 1px solid var(--ann-blue);
     border-radius: 999px;
+    padding: 0 18px;
     color: var(--ann-blue);
     font-size: 14px;
     font-weight: 800;
+    white-space: nowrap;
+}
+
+.fb-card a i,
+.subscribe-card > a i {
+    flex: 0 0 auto;
 }
 
 .subscribe-card {
