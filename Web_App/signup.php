@@ -1,3 +1,77 @@
+<?php
+session_start();
+require_once __DIR__ . '/includes/db_connect.php';
+
+// If they are already logged in, redirect them to the dashboard
+if (isset($_SESSION['resident_id'])) {
+    header("Location: resident/dashboard.php");
+    exit();
+}
+
+$error_message = '';
+$success_message = '';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // 1. Grab and sanitize all the inputs from the UI
+    $surname = mysqli_real_escape_string($conn, trim($_POST['surname']));
+    $given_name = mysqli_real_escape_string($conn, trim($_POST['given_name']));
+    $middle_name = mysqli_real_escape_string($conn, trim($_POST['middle_name']));
+    $suffix = mysqli_real_escape_string($conn, trim($_POST['suffix']));
+    $username = mysqli_real_escape_string($conn, trim($_POST['username']));
+    $email = mysqli_real_escape_string($conn, trim($_POST['email']));
+    $password = $_POST['password'];
+    $confirm_password = $_POST['confirm_password'];
+
+    // 2. Validate passwords match
+    if ($password !== $confirm_password) {
+        $error_message = "Passwords do not match. Please try again.";
+    } else {
+        // 3. Check if the username or email is already taken
+        $check_query = "SELECT user_id FROM users WHERE email = ? OR username = ?";
+        $stmt = mysqli_prepare($conn, $check_query);
+        mysqli_stmt_bind_param($stmt, "ss", $email, $username);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_store_result($stmt);
+
+        if (mysqli_stmt_num_rows($stmt) > 0) {
+            $error_message = "That username or email is already registered.";
+        } else {
+            // 4. Begin the Database Transaction
+            mysqli_begin_transaction($conn);
+            
+            try {
+                // Hash the password for security
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                
+                // INSERT INTO users table
+                $insert_user = "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)";
+                $stmt_user = mysqli_prepare($conn, $insert_user);
+                mysqli_stmt_bind_param($stmt_user, "sss", $username, $email, $hashed_password);
+                mysqli_stmt_execute($stmt_user);
+                
+                // Grab the new ID created by the database
+                $new_user_id = mysqli_insert_id($conn);
+
+                // INSERT INTO user_profiles table
+                $insert_profile = "INSERT INTO user_profiles (user_id, first_name, last_name, middle_name, suffix) VALUES (?, ?, ?, ?, ?)";
+                $stmt_profile = mysqli_prepare($conn, $insert_profile);
+                mysqli_stmt_bind_param($stmt_profile, "issss", $new_user_id, $given_name, $surname, $middle_name, $suffix);
+                mysqli_stmt_execute($stmt_profile);
+
+                // Commit the transaction (Save to database)
+                mysqli_commit($conn);
+
+                $success_message = "Account created successfully! You can now log in.";
+                
+            } catch (Exception $e) {
+                // If anything fails, rollback so we don't have incomplete data
+                mysqli_rollback($conn);
+                $error_message = "Registration failed due to a system error. Please try again.";
+            }
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -11,7 +85,6 @@
 
 <body class="auth-page">
     <main class="auth-shell signup-shell">
-        <!-- Community intro -->
         <section class="auth-intro" aria-label="MakiKonek introduction">
             <div class="welcome-ribbon" aria-label="Welcome message">
                 <img src="assets/img/green-eco-banner.png" alt="" aria-hidden="true">
@@ -36,20 +109,31 @@
             </div>
         </section>
 
-        <!-- Sign up form -->
         <section class="auth-card signup-card" aria-labelledby="signup-title">
-            <form class="auth-form" action="#" method="post">
+            <form class="auth-form" action="signup.php" method="POST">
                 <h1 id="signup-title">Magrehistro</h1>
                 <p class="form-subtitle">Ilagay ang iyong impormasyon</p>
+
+                <!-- Dynamic Alert Messages -->
+                <?php if($error_message): ?>
+                    <div style="background-color: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; text-align: center;">
+                        <?php echo $error_message; ?>
+                    </div>
+                <?php endif; ?>
+                <?php if($success_message): ?>
+                    <div style="background-color: #dcfce7; border: 1px solid #22c55e; color: #15803d; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; text-align: center;">
+                        <?php echo $success_message; ?>
+                    </div>
+                <?php endif; ?>
 
                 <div class="form-grid">
                     <div>
                         <label class="field-label" for="surname">Surname</label>
-                        <input id="surname" name="surname" type="text" placeholder="Dela Cruz" autocomplete="family-name">
+                        <input id="surname" name="surname" type="text" placeholder="Dela Cruz" autocomplete="family-name" required>
                     </div>
                     <div>
                         <label class="field-label" for="given_name">Given Name</label>
-                        <input id="given_name" name="given_name" type="text" placeholder="Juan" autocomplete="given-name">
+                        <input id="given_name" name="given_name" type="text" placeholder="Juan" autocomplete="given-name" required>
                     </div>
                     <div>
                         <label class="field-label" for="middle_name">Middle Name</label>
@@ -62,16 +146,16 @@
                 </div>
 
                 <label class="field-label" for="username">Username</label>
-                <input id="username" name="username" type="text" placeholder="juandelacruz" autocomplete="username">
+                <input id="username" name="username" type="text" placeholder="juandelacruz" autocomplete="username" required>
 
                 <label class="field-label" for="signup_email">Email</label>
-                <input id="signup_email" name="email" type="email" placeholder="juan@example.com" autocomplete="email">
+                <input id="signup_email" name="email" type="email" placeholder="juan@example.com" autocomplete="email" required>
 
                 <label class="field-label" for="new_password">Password</label>
-                <input id="new_password" name="password" type="password" placeholder="********" autocomplete="new-password">
+                <input id="new_password" name="password" type="password" placeholder="********" autocomplete="new-password" required>
 
                 <label class="field-label" for="confirm_password">Confirm Password</label>
-                <input id="confirm_password" name="confirm_password" type="password" placeholder="********" autocomplete="new-password">
+                <input id="confirm_password" name="confirm_password" type="password" placeholder="********" autocomplete="new-password" required>
 
                 <button class="btn btn-primary auth-submit" type="submit">Gumawa ng Account</button>
                 <p class="auth-switch">May account na? <a href="login_reg.php" data-auth-transition>Mag-login dito.</a></p>

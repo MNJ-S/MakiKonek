@@ -1,3 +1,74 @@
+<?php
+session_start();
+require_once __DIR__ . '/includes/db_connect.php';
+
+// If they are already logged in, push them to their respective dashboards
+if (isset($_SESSION['resident_id'])) {
+    header("Location: resident/dashboard.php");
+    exit();
+}
+if (isset($_SESSION['admin_id'])) {
+    header("Location: admin/dashboard.php");
+    exit();
+}
+
+$error_message = '';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $login_input = mysqli_real_escape_string($conn, $_POST['email']);
+    $password = $_POST['password'];
+    
+    // See the role from the radio buttons (defaults to Residente if missing)
+    $selected_role = $_POST['role'] ?? 'Residente';
+
+    // --- ROUTE 1: RESIDENT LOGIN ---
+    if ($selected_role === 'Residente') {
+        $query = "SELECT * FROM users WHERE email = ? OR username = ? LIMIT 1";
+        $stmt = mysqli_prepare($conn, $query);
+        mysqli_stmt_bind_param($stmt, "ss", $login_input, $login_input);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        if ($row = mysqli_fetch_assoc($result)) {
+            if (password_verify($password, $row['password_hash'])) {
+                $_SESSION['resident_id'] = $row['user_id'];
+                $_SESSION['resident_username'] = $row['username'];
+                header("Location: resident/dashboard.php");
+                exit();
+            } else {
+                $error_message = "Incorrect password for Resident account.";
+            }
+        } else {
+            $error_message = "No Resident account found with that email.";
+        }
+    } 
+    // --- ROUTE 2: ADMIN, OPISYAL, & SK LOGIN ---
+    else {
+        // Since Opisyal, SK, and Admin all belong to the admin_accounts table
+        $query = "SELECT * FROM admin_accounts WHERE email = ? OR username = ? LIMIT 1";
+        $stmt = mysqli_prepare($conn, $query);
+        mysqli_stmt_bind_param($stmt, "ss", $login_input, $login_input);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        if ($row = mysqli_fetch_assoc($result)) {
+            if (password_verify($password, $row['password_hash'])) {
+                // Set the secure Admin session variables
+                $_SESSION['admin_id'] = $row['admin_id'];
+                $_SESSION['admin_username'] = $row['username'];
+                $_SESSION['admin_role'] = $row['role']; 
+                
+                header("Location: admin/dashboard.php");
+                exit();
+            } else {
+                $error_message = "Incorrect password for Authorized Personnel.";
+            }
+        } else {
+            $error_message = "No Administrative account found with that email.";
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -38,9 +109,16 @@
 
         <!-- Login form -->
         <section class="auth-card" aria-labelledby="login-title">
-            <form class="auth-form" action="#" method="post">
+            <form class="auth-form" action="login_reg.php" method="POST">
                 <h1 id="login-title">Mag-login</h1>
                 <p class="form-subtitle">Piliin ang iyong account type</p>
+
+                <!-- ERROR MESS -->
+                <?php if($error_message): ?>
+                    <div style="background-color: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; text-align: center;">
+                        <?php echo $error_message; ?>
+                    </div>
+                <?php endif; ?>
 
                 <fieldset class="role-selector">
                     <legend>Account role</legend>
@@ -83,10 +161,10 @@
                 </fieldset>
 
                 <label class="field-label" for="email">Email Address</label>
-                <input id="email" name="email" type="email" placeholder="Ilagay ang iyong email" autocomplete="email">
+                <input id="email" name="email" type="email" placeholder="Ilagay ang iyong email" autocomplete="email" required>
 
                 <label class="field-label" for="password">Password</label>
-                <input id="password" name="password" type="password" placeholder="Ilagay ang iyong password" autocomplete="current-password">
+                <input id="password" name="password" type="password" placeholder="Ilagay ang iyong password" autocomplete="current-password" required>
 
                 <div class="form-row">
                     <label class="check-label"><input type="checkbox" name="remember"> Tandaan ako</label>
