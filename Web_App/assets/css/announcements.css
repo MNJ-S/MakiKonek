@@ -78,7 +78,7 @@
     border-radius: 36px;
     background:
         linear-gradient(90deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.46) 48%, rgba(255, 255, 255, 0.12)),
-        url("../img/hero-mt-makiling.png") center / cover no-repeat;
+        url("../img/announce-cover.jpg") center / cover no-repeat;
 }
 
 .featured-announcement {
