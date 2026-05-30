@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us | MakiKonek Digital Service Portal</title>
     <link rel="stylesheet" href="../assets/css/home.css?v=20260529e">
-    <link rel="stylesheet" href="../assets/css/about.css?v=20260530b">
+    <link rel="stylesheet" href="../assets/css/about.css?v=20260530c">
     <link rel="stylesheet" href="../assets/css/header.css?v=20260529e">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
@@ -21,7 +21,7 @@
         <section class="about-hero-block">
             <div class="hero-inner-frame">
                 <h1>Barangay Makiling</h1>
-                <p class="hero-subline">A progressive community in the heart of Calamba, Laguna</p>
+                <p class="hero-subline">Serving over 11,000 residents through transparent governance, community programs, and digital public services.</p>
                 
                 <div class="metrics-container-row">
                     <div class="metric-mini-card">
