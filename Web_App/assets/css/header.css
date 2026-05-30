@@ -40,7 +40,7 @@
 
 .nav-menu a:hover,
 .nav-menu a:focus-visible {
-    color: var(--green-dark);
+    color: var(--green-dark, #26912f);
 }
 
 .nav-menu a.active::after {
@@ -50,7 +50,7 @@
     left: 0;
     height: 3px;
     border-radius: 999px;
-    background: var(--green);
+    background: var(--green, #75b83b);
     content: "";
 }
 
@@ -74,6 +74,76 @@
     transform: scaleX(1);
 }
 
+.resident-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.resident-notification {
+    position: relative;
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border: 0;
+    color: #172333;
+    background: transparent;
+    cursor: pointer;
+}
+
+.resident-notification::after {
+    position: absolute;
+    top: 6px;
+    right: 7px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ff2c3b;
+    content: "";
+}
+
+.resident-header-avatar {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border-radius: 50%;
+    color: #fff;
+    background: var(--green, #75b83b);
+}
+
+.resident-header-user {
+    min-width: 112px;
+}
+
+.resident-header-user strong,
+.resident-header-user small {
+    display: block;
+}
+
+.resident-header-user strong {
+    color: #172333;
+    font-size: 14px;
+    line-height: 1.15;
+}
+
+.resident-header-user small {
+    color: #72758a;
+    font-size: 12px;
+}
+
+.resident-logout {
+    display: inline-flex;
+    min-height: 36px;
+    align-items: center;
+    border-radius: 8px;
+    padding: 0 24px;
+    color: #fff;
+    background: var(--green, #75b83b);
+    font-weight: 700;
+}
+
 @media (max-width: 980px) {
     .nav-shell {
         justify-content: space-between;
@@ -89,6 +159,11 @@
 
     .nav-login {
         display: none;
+    }
+
+    .resident-header-actions {
+        flex-wrap: wrap;
+        justify-content: flex-end;
     }
 }
 
@@ -111,5 +186,10 @@
         justify-content: flex-start;
         gap: 8px 18px;
         font-size: 12px;
+    }
+
+    .resident-header-actions {
+        width: 100%;
+        justify-content: flex-start;
     }
 }

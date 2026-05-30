@@ -3,11 +3,13 @@
  * Footer Component
  * Site footer for all pages
  */
+$footerBase = $footerBase ?? '';
+$footerAssetBase = $footerAssetBase ?? '../assets';
 ?>
 <footer class="site-footer">
     <div class="footer-grid">
         <div>
-            <img class="footer-logo" src="../assets/img/logo-makikonek.png" alt="MakiKonek Logo">
+            <img class="footer-logo" src="<?php echo $footerAssetBase; ?>/img/logo-makikonek.png" alt="MakiKonek Logo">
             <p>MakiKonek is your digital gateway to faster, easier, and more transparent barangay service.</p>
             <div class="social-row">
                 <a href="#">f</a>
@@ -19,11 +21,11 @@
 
         <div>
             <h3>Quick Links</h3>
-            <a href="index.php">Home</a>
-            <a href="about.php">About</a>
-            <a href="services.php">Services</a>
-            <a href="announcements.php">Announcements</a>
-            <a href="index.php#contact">Contact</a>
+            <a href="<?php echo $footerBase; ?>index.php">Home</a>
+            <a href="<?php echo $footerBase; ?>about.php">About</a>
+            <a href="<?php echo $footerBase; ?>services.php">Services</a>
+            <a href="<?php echo $footerBase; ?>announcements.php">Announcements</a>
+            <a href="<?php echo $footerBase; ?>index.php#contact">Contact</a>
         </div>
 
         <div>

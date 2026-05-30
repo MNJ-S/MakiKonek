@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us | MakiKonek Digital Service Portal</title>
     <link rel="stylesheet" href="../assets/css/home.css?v=20260529e">
-    <link rel="stylesheet" href="../assets/css/about.css?v=20260528g">
+    <link rel="stylesheet" href="../assets/css/about.css?v=20260530b">
     <link rel="stylesheet" href="../assets/css/header.css?v=20260529e">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
@@ -335,6 +335,36 @@
                     <h2>Growing Community</h2>
                 </div>
                 <p class="gc-subtext">From 2,000 residents in 1980 to 11,669 in 2018 - almost 6x growth!</p>
+
+                <div class="gc-chart" aria-label="Population growth line graph">
+                    <svg viewBox="0 0 900 210" role="img" aria-labelledby="gc-chart-title gc-chart-desc">
+                        <title id="gc-chart-title">Barangay Makiling population growth</title>
+                        <desc id="gc-chart-desc">Population increased from 2,000 residents in 1980 to 11,669 residents in 2018.</desc>
+                        <defs>
+                            <linearGradient id="gcLineGradient" x1="0" x2="1" y1="0" y2="0">
+                                <stop offset="0%" stop-color="#ffffff" />
+                                <stop offset="100%" stop-color="#d8fff0" />
+                            </linearGradient>
+                            <linearGradient id="gcAreaGradient" x1="0" x2="0" y1="0" y2="1">
+                                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28" />
+                                <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+                            </linearGradient>
+                        </defs>
+                        <path class="gc-chart-area" d="M20 168 L143 145 L266 129 L389 115 L512 82 L635 75 L758 20 L880 5 L880 190 L20 190 Z" />
+                        <path class="gc-chart-grid" d="M20 190 H880 M20 130 H880 M20 70 H880" />
+                        <path class="gc-chart-line" d="M20 168 L143 145 L266 129 L389 115 L512 82 L635 75 L758 20 L880 5" />
+                        <g class="gc-chart-points">
+                            <circle cx="20" cy="168" r="5" />
+                            <circle cx="143" cy="145" r="5" />
+                            <circle cx="266" cy="129" r="5" />
+                            <circle cx="389" cy="115" r="5" />
+                            <circle cx="512" cy="82" r="5" />
+                            <circle cx="635" cy="75" r="5" />
+                            <circle cx="758" cy="20" r="5" />
+                            <circle cx="880" cy="5" r="5" />
+                        </g>
+                    </svg>
+                </div>
                 
                 <div class="gc-data-display-row">
                     <div class="gc-stat-node">

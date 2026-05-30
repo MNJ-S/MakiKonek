@@ -22,11 +22,18 @@ $announcements = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $pageTitle; ?> | MakiKonek</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/header.css?v=20260530a">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
     <link rel="stylesheet" href="../assets/css/resident.css?v=20260530a">
 </head>
 <body class="resident-page">
-    <?php include __DIR__ . '/partials/resident_topbar.php'; ?>
+    <?php
+        $navBase = '../public/';
+        $assetBase = '../assets';
+        $loginHref = '../login_reg.php';
+        $isResidentHeader = true;
+        include __DIR__ . '/../includes/header.php';
+    ?>
 
     <div class="resident-shell">
         <?php include __DIR__ . '/partials/resident_sidebar.php'; ?>
@@ -102,6 +109,10 @@ $announcements = [
         </main>
     </div>
 
-    <?php include __DIR__ . '/partials/resident_footer.php'; ?>
+    <?php
+        $footerBase = '../public/';
+        $footerAssetBase = '../assets';
+        include __DIR__ . '/../includes/footer.php';
+    ?>
 </body>
 </html>
