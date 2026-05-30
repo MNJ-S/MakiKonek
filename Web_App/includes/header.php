@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Header Component
  * Public navigation for MakiKonek portal

@@ -24,6 +24,7 @@ $documentGroups = [
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,13 +34,14 @@ $documentGroups = [
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
     <link rel="stylesheet" href="../assets/css/resident.css?v=20260530a">
 </head>
+
 <body class="resident-page">
     <?php
-        $navBase = '../public/';
-        $assetBase = '../assets';
-        $loginHref = '../login_reg.php';
-        $isResidentHeader = true;
-        include __DIR__ . '/../includes/header.php';
+    $navBase = '../public/';
+    $assetBase = '../assets';
+    $loginHref = '../login_reg.php';
+    $isResidentHeader = true;
+    include __DIR__ . '/../includes/header.php';
     ?>
 
     <div class="resident-shell">
@@ -65,8 +67,7 @@ $documentGroups = [
                                     type="button"
                                     data-document-name="<?php echo htmlspecialchars($document['name']); ?>"
                                     data-document-fee="<?php echo htmlspecialchars($document['fee']); ?>"
-                                    data-document-time="<?php echo htmlspecialchars($document['time']); ?>"
-                                >
+                                    data-document-time="<?php echo htmlspecialchars($document['time']); ?>">
                                     <i class="fa-regular fa-file-lines"></i>
                                     <span class="document-copy">
                                         <strong><?php echo htmlspecialchars($document['name']); ?></strong>
@@ -196,10 +197,11 @@ $documentGroups = [
     </div>
 
     <?php
-        $footerBase = '../public/';
-        $footerAssetBase = '../assets';
-        include __DIR__ . '/../includes/footer.php';
+    $footerBase = '../public/';
+    $footerAssetBase = '../assets';
+    include __DIR__ . '/../includes/footer.php';
     ?>
     <script src="../assets/js/resident.js?v=20260530a"></script>
 </body>
+
 </html>

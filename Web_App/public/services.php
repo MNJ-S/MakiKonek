@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>E-Services - MakiKonek</title>
-    
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
+
     <!-- Gagamit ng home.css para sa global styles, at services.css para sa cards -->
     <link rel="stylesheet" href="../assets/css/home.css?v=20260529d">
     <link rel="stylesheet" href="../assets/css/services.css?v=20260529d">
 </head>
+
 <body>
 
     <!-- FIXED SITE HEADER -->
@@ -46,7 +48,7 @@
         </header>
 
         <section class="services-grid-layout">
-            
+
             <!-- Card 1: Barangay Clearance -->
             <article class="srv-card srv-green">
                 <div class="srv-card-header">
@@ -322,4 +324,5 @@
         });
     </script>
 </body>
+
 </html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <script defer src="../assets/js/public.js?v=20260530a"></script>
 </head>
+
 <body>
     <?php include '../includes/header.php'; ?>
 
@@ -46,7 +48,7 @@
                     </div>
                 </div>
 
-                
+
             </div>
             <div class="hero-wave" aria-hidden="true"></div>
         </section>
@@ -122,11 +124,21 @@
                     </div>
                 </div>
                 <div class="process-grid">
-                    <article><span>1</span><strong>Choose a Service</strong><p>Select the service you need from the list.</p></article>
-                    <article><span>2</span><strong>Fill Out the Form</strong><p>Enter your details and upload required documents.</p></article>
-                    <article><span>3</span><strong>Submit Request</strong><p>Review and submit your request for processing.</p></article>
-                    <article><span>4</span><strong>Wait for Updates</strong><p>Receive status updates from the barangay office.</p></article>
-                    <article><span>5</span><strong>Claim Result</strong><p>Claim your document once processing is complete.</p></article>
+                    <article><span>1</span><strong>Choose a Service</strong>
+                        <p>Select the service you need from the list.</p>
+                    </article>
+                    <article><span>2</span><strong>Fill Out the Form</strong>
+                        <p>Enter your details and upload required documents.</p>
+                    </article>
+                    <article><span>3</span><strong>Submit Request</strong>
+                        <p>Review and submit your request for processing.</p>
+                    </article>
+                    <article><span>4</span><strong>Wait for Updates</strong>
+                        <p>Receive status updates from the barangay office.</p>
+                    </article>
+                    <article><span>5</span><strong>Claim Result</strong>
+                        <p>Claim your document once processing is complete.</p>
+                    </article>
                 </div>
             </div>
         </section>
@@ -247,4 +259,5 @@
 
     <?php include '../includes/footer.php'; ?>
 </body>
+
 </html>

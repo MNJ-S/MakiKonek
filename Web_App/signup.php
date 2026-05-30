@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="assets/css/signup.css?v=20260529j">
     <script defer src="assets/js/public.js?v=20260529c"></script>
 </head>
+
 <body class="auth-page">
     <main class="auth-shell signup-shell">
         <!-- Community intro -->
@@ -78,4 +80,5 @@
         </section>
     </main>
 </body>
+
 </html>

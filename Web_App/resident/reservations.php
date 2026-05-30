@@ -4,6 +4,7 @@ $activePage = 'reservations';
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,13 +14,14 @@ $activePage = 'reservations';
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
     <link rel="stylesheet" href="../assets/css/resident.css?v=20260530a">
 </head>
+
 <body class="resident-page">
     <?php
-        $navBase = '../public/';
-        $assetBase = '../assets';
-        $loginHref = '../login_reg.php';
-        $isResidentHeader = true;
-        include __DIR__ . '/../includes/header.php';
+    $navBase = '../public/';
+    $assetBase = '../assets';
+    $loginHref = '../login_reg.php';
+    $isResidentHeader = true;
+    include __DIR__ . '/../includes/header.php';
     ?>
 
     <div class="resident-shell">
@@ -63,9 +65,10 @@ $activePage = 'reservations';
     </div>
 
     <?php
-        $footerBase = '../public/';
-        $footerAssetBase = '../assets';
-        include __DIR__ . '/../includes/footer.php';
+    $footerBase = '../public/';
+    $footerAssetBase = '../assets';
+    include __DIR__ . '/../includes/footer.php';
     ?>
 </body>
+
 </html>

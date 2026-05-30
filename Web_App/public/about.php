@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <script defer src="../assets/js/public.js?v=20260528g"></script>
 </head>
+
 <body>
     <?php include '../includes/header.php'; ?>
 
@@ -22,7 +24,7 @@
             <div class="hero-inner-frame">
                 <h1>Barangay Makiling</h1>
                 <p class="hero-subline">Serving over 11,000 residents through transparent governance, community programs, and digital public services.</p>
-                
+
                 <div class="metrics-container-row">
                     <div class="metric-mini-card">
                         <div class="card-icon-only text-green"><i class="fa-solid fa-users"></i></div>
@@ -188,7 +190,7 @@
 
             <div class="council-group">
                 <h3 class="group-heading">Barangay Council (Sangguniang Barangay)</h3>
-                
+
                 <div class="leaders-grid-5-cols">
                     <!-- Row 1 -->
                     <div class="leader-card">
@@ -228,9 +230,9 @@
                         <span class="leader-position text-green">Kagawad</span>
                     </div>
                     <div class="leader-card">
-                            <div class="leader-avatar bg-orange"><i class="fa-solid fa-user"></i></div>
-                            <h4 class="leader-name">Freddie Balansay Noprada</h4>
-                            <span class="leader-position text-green">Kagawad</span>
+                        <div class="leader-avatar bg-orange"><i class="fa-solid fa-user"></i></div>
+                        <h4 class="leader-name">Freddie Balansay Noprada</h4>
+                        <span class="leader-position text-green">Kagawad</span>
                     </div>
                     <div class="leader-card">
                         <div class="leader-avatar bg-orange"><i class="fa-solid fa-user"></i></div>
@@ -248,7 +250,7 @@
 
             <div class="council-group">
                 <h3 class="group-heading">Sangguniang Kabataan (SK) Council</h3>
-                
+
                 <div class="leaders-grid-4-cols">
                     <!-- Row 1 -->
                     <div class="leader-card">
@@ -327,7 +329,7 @@
             </div>
         </section>
 
-    <!-- 7. GROWING COMMUNITY SECTION -->
+        <!-- 7. GROWING COMMUNITY SECTION -->
         <section class="growing-community-container">
             <div class="growing-community-card">
                 <div class="gc-header-row">
@@ -365,7 +367,7 @@
                         </g>
                     </svg>
                 </div>
-                
+
                 <div class="gc-data-display-row">
                     <div class="gc-stat-node">
                         <h3>2,000</h3>
@@ -407,4 +409,5 @@
 
     <?php include '../includes/footer.php'; ?>
 </body>
+
 </html>

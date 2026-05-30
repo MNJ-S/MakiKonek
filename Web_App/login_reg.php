@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="assets/css/login.css?v=20260529m">
     <script defer src="assets/js/public.js?v=20260529c"></script>
 </head>
+
 <body class="auth-page">
     <main class="auth-shell">
         <!-- Community intro -->
@@ -44,19 +46,39 @@
                     <legend>Account role</legend>
                     <label>
                         <input type="radio" name="role" value="Residente" checked>
-                        <span><svg class="role-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path><circle cx="9.5" cy="7" r="4"></circle><path d="M19 8v6"></path><path d="M22 11h-6"></path></svg>Residente</span>
+                        <span><svg class="role-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9.5" cy="7" r="4"></circle>
+                                <path d="M19 8v6"></path>
+                                <path d="M22 11h-6"></path>
+                            </svg>Residente</span>
                     </label>
                     <label>
                         <input type="radio" name="role" value="Opisyal">
-                        <span><svg class="role-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18"></path><path d="M5 21V9l7-4 7 4v12"></path><path d="M9 21v-7"></path><path d="M15 21v-7"></path><path d="M9 9h6"></path><path d="M12 5V3"></path></svg>Opisyal</span>
+                        <span><svg class="role-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M3 21h18"></path>
+                                <path d="M5 21V9l7-4 7 4v12"></path>
+                                <path d="M9 21v-7"></path>
+                                <path d="M15 21v-7"></path>
+                                <path d="M9 9h6"></path>
+                                <path d="M12 5V3"></path>
+                            </svg>Opisyal</span>
                     </label>
                     <label>
                         <input type="radio" name="role" value="SK">
-                        <span><svg class="role-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>SK</span>
+                        <span><svg class="role-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>SK</span>
                     </label>
                     <label>
                         <input type="radio" name="role" value="Admin">
-                        <span><svg class="role-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path><path d="m9 12 2 2 4-4"></path></svg>Admin</span>
+                        <span><svg class="role-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path>
+                                <path d="m9 12 2 2 4-4"></path>
+                            </svg>Admin</span>
                     </label>
                 </fieldset>
 
@@ -79,4 +101,5 @@
         </section>
     </main>
 </body>
+
 </html>

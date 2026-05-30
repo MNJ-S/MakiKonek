@@ -4,6 +4,7 @@ $activePage = 'profile';
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,13 +14,14 @@ $activePage = 'profile';
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
     <link rel="stylesheet" href="../assets/css/resident.css?v=20260530a">
 </head>
+
 <body class="resident-page">
     <?php
-        $navBase = '../public/';
-        $assetBase = '../assets';
-        $loginHref = '../login_reg.php';
-        $isResidentHeader = true;
-        include __DIR__ . '/../includes/header.php';
+    $navBase = '../public/';
+    $assetBase = '../assets';
+    $loginHref = '../login_reg.php';
+    $isResidentHeader = true;
+    include __DIR__ . '/../includes/header.php';
     ?>
 
     <div class="resident-shell">
@@ -27,16 +29,16 @@ $activePage = 'profile';
 
         <main class="resident-main">
             <form action="" method="POST" enctype="multipart/form-data" class="profile-layout-wrapper">
-                
+
                 <div class="profile-left-panel">
                     <div class="avatar-card-container">
                         <div class="avatar-placeholder-svg">
                             <img id="avatar-preview" src="" alt="Avatar Preview" style="display:none; width:100%; height:100%; object-fit:cover; border-radius:6px;">
                             <i id="avatar-icon" class="fa-regular fa-user"></i>
                         </div>
-                        
+
                         <input type="file" id="real-file-input" name="profile_avatar" accept="image/*" style="display: none;">
-                        
+
                         <button type="button" class="upload-avatar-action" id="upload-trigger-btn">
                             <i class="fa-solid fa-upload"></i> Upload
                         </button>
@@ -64,7 +66,7 @@ $activePage = 'profile';
                 </div>
 
                 <div class="profile-right-panel">
-                    
+
                     <fieldset class="profile-form-section">
                         <legend>Personal Information</legend>
                         <div class="profile-input-grid">
@@ -119,11 +121,12 @@ $activePage = 'profile';
     </div>
 
     <?php
-        $footerBase = '../public/';
-        $footerAssetBase = '../assets';
-        include __DIR__ . '/../includes/footer.php';
+    $footerBase = '../public/';
+    $footerAssetBase = '../assets';
+    include __DIR__ . '/../includes/footer.php';
     ?>
 
     <script src="../assets/js/resident.js?v=20260530a"></script>
 </body>
+
 </html>

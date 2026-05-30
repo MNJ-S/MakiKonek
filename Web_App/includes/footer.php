@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Footer Component
  * Site footer for all pages
