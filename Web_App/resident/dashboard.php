@@ -1,6 +1,30 @@
 <?php
+session_start();
+require_once __DIR__ . '/../includes/db_connect.php';
+
+// FORCE LOGIN
+if (!isset($_SESSION['resident_id'])) {
+    header("Location: ../login_reg.php");
+    exit();
+}
+
+$resident_id = $_SESSION['resident_id'];
+$display_name = "Resident";
+
+// IDENTIFICATION
+$name_query = "SELECT first_name FROM user_profiles WHERE user_id = ?";
+$stmt = mysqli_prepare($conn, $name_query);
+mysqli_stmt_bind_param($stmt, "i", $resident_id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+
+if ($row = mysqli_fetch_assoc($result)) {
+    $display_name = $row['first_name'];
+}
+
 $pageTitle = 'Resident Dashboard';
 $activePage = 'dashboard';
+
 
 $recentRequests = [
     ['service' => 'Barangay Clearance', 'ref' => 'BC-2026-0001', 'date' => 'May 28, 2026', 'status' => 'Approved', 'class' => 'approved'],
@@ -15,6 +39,7 @@ $announcements = [
     ['title' => 'Health and Wellness Program', 'date' => 'May 20, 2026'],
 ];
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -42,7 +67,7 @@ $announcements = [
 
         <main class="resident-main">
             <section class="welcome-card" aria-labelledby="welcome-title">
-                <h1 id="welcome-title">Hello, Juan Dela Cruz! &#128075;</h1>
+                <h1 id="welcome-title">Hello, <?php echo htmlspecialchars($display_name); ?>! &#128075;</h1>
                 <p>Welcome back to your dashboard</p>
             </section>
 

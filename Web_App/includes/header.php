@@ -1,14 +1,13 @@
 <?php
 
-/**
- * Header Component
- * Public navigation for MakiKonek portal
- */
 $currentPage = basename($_SERVER['PHP_SELF']);
 $navBase = $navBase ?? '';
 $assetBase = $assetBase ?? '../assets';
 $loginHref = $loginHref ?? '../login_reg.php';
 $isResidentHeader = $isResidentHeader ?? false;
+
+// Grab the username from the session if it exists, otherwise fallback to "Resident"
+$header_username = isset($_SESSION['resident_username']) ? $_SESSION['resident_username'] : 'Resident';
 ?>
 <header class="site-header">
     <nav class="nav-shell" aria-label="Primary navigation">
@@ -33,10 +32,11 @@ $isResidentHeader = $isResidentHeader ?? false;
                     <i class="fa-regular fa-user"></i>
                 </span>
                 <span class="resident-header-user">
-                    <strong>Juan Dela Cruz</strong>
+                    <strong><?php echo htmlspecialchars($header_username); ?></strong>
                     <small>Resident</small>
                 </span>
-                <a class="resident-logout" href="<?php echo $loginHref; ?>">Logout</a>
+
+                <a class="resident-logout" href="logout.php">Logout</a>
             </div>
         <?php else: ?>
             <a class="btn btn-small btn-primary nav-login" href="<?php echo $loginHref; ?>">Login</a>
