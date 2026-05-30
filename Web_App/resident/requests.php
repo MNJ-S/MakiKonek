@@ -1,4 +1,12 @@
 <?php
+
+session_start();
+
+if (!isset($_SESSION['resident_id'])) {
+    header("Location: ../login_reg.php");
+    exit();
+}
+
 $pageTitle = 'My Requests';
 $activePage = 'requests';
 

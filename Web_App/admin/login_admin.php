@@ -2,7 +2,6 @@
 session_start();
 require_once __DIR__ . '/../includes/db_connect.php';
 
-// If they are already logged in, push them straight to the dashboard
 if (isset($_SESSION['admin_id'])) {
     header("Location: dashboard.php");
     exit();
@@ -25,12 +24,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Verify the typed password against the hashed database password
         if (password_verify($password, $row['password_hash'])) {
 
-            // Create the secure session variables!
             $_SESSION['admin_id'] = $row['admin_id'];
             $_SESSION['admin_username'] = $row['username'];
-            $_SESSION['admin_role'] = $row['role']; // This powers the RBAC on your dashboard
+            $_SESSION['admin_role'] = $row['role']; // RBAC Dashboard
 
-            // Send them through the gate
             header("Location: dashboard.php");
             exit();
         } else {
@@ -43,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 ?>
 
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-bs-theme="light">
 
 <head>
     <meta charset="UTF-8">
@@ -52,20 +49,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #121212;
+            background: linear-gradient(180deg, #f6fff7 0%, #e9f8ff 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
         }
 
         .login-card {
-            background-color: #1e1e1e;
-            border: 1px solid #333;
+            background-color: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(63, 159, 37, 0.22);
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
             padding: 2rem;
-            border-radius: 10px;
+            border-radius: 16px;
+            box-shadow: 0 24px 70px rgba(63, 159, 37, 0.12);
+        }
+
+        .brand-title {
+            color: #0b6d36;
+        }
+
+        .btn-login {
+            background-color: #3f9f25;
+            border-color: #3f9f25;
+        }
+
+        .btn-login:hover,
+        .btn-login:focus {
+            background-color: #0b6d36;
+            border-color: #0b6d36;
+        }
+
+        .login-card a {
+            color: #0b6d36;
         }
     </style>
 </head>
@@ -74,7 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <div class="login-card shadow-lg">
         <div class="text-center mb-4">
-            <h3 class="fw-bold text-primary">MakiKonek Admin</h3>
+            <h3 class="fw-bold brand-title">MakiKonek Admin</h3>
             <p class="text-muted small">Authorized Personnel Only</p>
         </div>
 
@@ -91,7 +108,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <label class="form-label text-muted">Password</label>
                 <input type="password" name="password" class="form-control" required>
             </div>
-            <button type="submit" class="btn btn-primary w-100 fw-bold">Login to Dashboard</button>
+            <button type="submit" class="btn btn-login text-white w-100 fw-bold">Login to Dashboard</button>
         </form>
 
         <div class="text-center mt-3">

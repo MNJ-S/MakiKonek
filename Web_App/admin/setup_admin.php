@@ -2,7 +2,6 @@
 // admin/setup_admin.php
 require_once __DIR__ . '/../includes/db_connect.php';
 
-// Your updated team array
 $test_accounts = [
     [
         'username' => 'jhody_admin',
@@ -62,4 +61,3 @@ echo "</ul>";
 
 echo "<p style='color: orange; font-weight: bold;'>Remember to delete this setup_admin.php file after confirming success!</p>";
 echo "<a href='login_admin.php' style='padding: 10px 15px; background-color: #0d6efd; color: white; text-decoration: none; border-radius: 5px;'>Go to Login Page</a>";
-?>

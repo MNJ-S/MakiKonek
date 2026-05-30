@@ -1,6 +1,15 @@
 <?php
+
+session_start();
+
+if (!isset($_SESSION['resident_id'])) {
+    header("Location: ../login_reg.php");
+    exit();
+}
+
 $pageTitle = 'Facility Reservations';
 $activePage = 'reservations';
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

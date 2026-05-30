@@ -17,34 +17,11 @@ $error_message = '';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $login_input = mysqli_real_escape_string($conn, $_POST['email']);
     $password = $_POST['password'];
-    
-    // See the role from the radio buttons (defaults to Residente if missing)
+
     $selected_role = $_POST['role'] ?? 'Residente';
 
-    // --- ROUTE 1: RESIDENT LOGIN ---
-    if ($selected_role === 'Residente') {
-        $query = "SELECT * FROM users WHERE email = ? OR username = ? LIMIT 1";
-        $stmt = mysqli_prepare($conn, $query);
-        mysqli_stmt_bind_param($stmt, "ss", $login_input, $login_input);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-
-        if ($row = mysqli_fetch_assoc($result)) {
-            if (password_verify($password, $row['password_hash'])) {
-                $_SESSION['resident_id'] = $row['user_id'];
-                $_SESSION['resident_username'] = $row['username'];
-                header("Location: resident/dashboard.php");
-                exit();
-            } else {
-                $error_message = "Incorrect password for Resident account.";
-            }
-        } else {
-            $error_message = "No Resident account found with that email.";
-        }
-    } 
-    // --- ROUTE 2: ADMIN, OPISYAL, & SK LOGIN ---
-    else {
-        // Since Opisyal, SK, and Admin all belong to the admin_accounts table
+    // --- ROUTE 1: PURE ADMIN LOGIN ---
+    if ($selected_role === 'Admin') {
         $query = "SELECT * FROM admin_accounts WHERE email = ? OR username = ? LIMIT 1";
         $stmt = mysqli_prepare($conn, $query);
         mysqli_stmt_bind_param($stmt, "ss", $login_input, $login_input);
@@ -53,22 +30,53 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($row = mysqli_fetch_assoc($result)) {
             if (password_verify($password, $row['password_hash'])) {
-                // Set the secure Admin session variables
                 $_SESSION['admin_id'] = $row['admin_id'];
                 $_SESSION['admin_username'] = $row['username'];
-                $_SESSION['admin_role'] = $row['role']; 
-                
+                $_SESSION['admin_role'] = $row['role'];
                 header("Location: admin/dashboard.php");
                 exit();
             } else {
-                $error_message = "Incorrect password for Authorized Personnel.";
+                $error_message = "Incorrect password for Admin account.";
             }
         } else {
-            $error_message = "No Administrative account found with that email.";
+            $error_message = "No Admin account found with those credentials.";
+        }
+    }
+    // --- ROUTE 2: RESIDENTE, OPISYAL, & SK LOGIN ---
+    else {
+        // Check the users table and specifically match the role they selected
+        $query = "SELECT * FROM users WHERE (email = ? OR username = ?) AND role = ? LIMIT 1";
+        $stmt = mysqli_prepare($conn, $query);
+        mysqli_stmt_bind_param($stmt, "sss", $login_input, $login_input, $selected_role);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        if ($row = mysqli_fetch_assoc($result)) {
+            if (password_verify($password, $row['password_hash'])) {
+
+                // Set the session variables
+                $_SESSION['resident_id'] = $row['user_id'];
+                $_SESSION['resident_username'] = $row['username'];
+                $_SESSION['resident_role'] = $row['role'];
+
+                // You can route them to different dashboards later based on this role!
+                if ($row['role'] === 'SK' || $row['role'] === 'Opisyal') {
+                    // For now, they go to the resident dashboard, but you can change this URL later
+                    header("Location: resident/dashboard.php");
+                } else {
+                    header("Location: resident/dashboard.php");
+                }
+                exit();
+            } else {
+                $error_message = "Incorrect password for {$selected_role} account.";
+            }
+        } else {
+            $error_message = "No {$selected_role} account found with those credentials. Please check your role selection.";
         }
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -114,7 +122,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <p class="form-subtitle">Piliin ang iyong account type</p>
 
                 <!-- ERROR MESS -->
-                <?php if($error_message): ?>
+                <?php if ($error_message): ?>
                     <div style="background-color: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; text-align: center;">
                         <?php echo $error_message; ?>
                     </div>

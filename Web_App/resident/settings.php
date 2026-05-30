@@ -1,7 +1,16 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['resident_id'])) {
+    header("Location: ../login_reg.php");
+    exit();
+}
+
 $pageTitle = 'Settings';
 $activePage = 'settings';
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
