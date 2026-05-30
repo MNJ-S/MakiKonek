@@ -236,13 +236,39 @@
 }
 
 .announcement-post {
+    position: relative;
     display: grid;
     grid-template-columns: 280px 1fr;
     overflow: hidden;
     border: 1px solid rgba(223, 232, 241, 0.84);
+    border-left: 6px solid var(--post-accent, var(--ann-green));
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.88);
     box-shadow: 0 12px 30px rgba(20, 46, 76, 0.08);
+}
+
+.announcement-post[data-category="programa"] {
+    --post-accent: #16a13a;
+    --post-accent-soft: #dff6e4;
+    --post-gradient: linear-gradient(135deg, #087f2e, #1fb54b 62%, #9be7aa);
+}
+
+.announcement-post[data-category="anunsyo"] {
+    --post-accent: #1877e8;
+    --post-accent-soft: #dcecff;
+    --post-gradient: linear-gradient(135deg, #0e4fb5, #1888f2 60%, #bcdfff);
+}
+
+.announcement-post[data-category="abiso"] {
+    --post-accent: #ee8a16;
+    --post-accent-soft: #ffead2;
+    --post-gradient: linear-gradient(135deg, #ba5d00, #f59624 60%, #ffe1a8);
+}
+
+.announcement-post[data-category="events"] {
+    --post-accent: #8245d8;
+    --post-accent-soft: #efe4ff;
+    --post-gradient: linear-gradient(135deg, #5423a5, #8b45df 60%, #dbc3ff);
 }
 
 .post-media {
@@ -253,8 +279,23 @@
     min-height: 176px;
     padding: 24px;
     color: #fff;
+    background: var(--post-gradient);
     background-size: cover;
     background-position: center;
+}
+
+.post-media i {
+    display: grid;
+    width: 52px;
+    height: 52px;
+    place-items: center;
+    margin-bottom: auto;
+    border: 1px solid rgba(255, 255, 255, 0.34);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.14);
+    font-size: 24px;
+    backdrop-filter: blur(10px);
 }
 
 .post-media strong,
@@ -265,10 +306,9 @@
 }
 
 .post-media strong {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 900;
-    line-height: 0.98;
-    text-transform: uppercase;
+    line-height: 1.02;
 }
 
 .post-media span {
@@ -277,22 +317,22 @@
 }
 
 .cleanup-poster {
-    background: linear-gradient(135deg, #087f2e, #1fb54b 58%, #d9ffe0);
+    background: var(--post-gradient);
 }
 
 .power-poster {
-    background: linear-gradient(135deg, #f6fbff, #badcff 48%, #1c63ad);
-    color: #0b448f;
+    background: var(--post-gradient);
+    color: #fff;
 }
 
 .food-poster {
-    background: linear-gradient(135deg, #f9fff4, #c9f2d1 45%, #24a044);
-    color: #0b6723;
+    background: var(--post-gradient);
+    color: #fff;
 }
 
 .flag-poster {
-    background: linear-gradient(135deg, #f5fbff, #d8ecff 44%, #1278df);
-    color: #0d58ad;
+    background: var(--post-gradient);
+    color: #fff;
 }
 
 .post-body {
@@ -332,9 +372,19 @@
     background: #ffead2;
 }
 
+.tag.purple {
+    color: #6229b6;
+    background: #efe4ff;
+}
+
+.announcement-post .tag {
+    color: var(--post-accent);
+    background: var(--post-accent-soft);
+}
+
 .post-top button {
     border: 0;
-    color: var(--ann-ink);
+    color: var(--post-accent, var(--ann-ink));
     background: transparent;
     font-size: 20px;
 }

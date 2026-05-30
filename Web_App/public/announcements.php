@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../assets/css/home.css?v=20260529h">
     <link rel="stylesheet" href="../assets/css/header.css?v=20260529e">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
-    <link rel="stylesheet" href="../assets/css/announcements.css?v=20260530b">
+    <link rel="stylesheet" href="../assets/css/announcements.css?v=20260530c">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <script defer src="../assets/js/announcements.js?v=20260529a"></script>
 </head>
@@ -65,8 +65,9 @@
 
                 <article class="announcement-post" data-category="programa">
                     <div class="post-media cleanup-poster" role="img" aria-label="Barangay cleanup drive poster">
-                        <strong>Barangay Cleanup Drive</strong>
-                        <span>May 30, 2026</span>
+                        <i class="fa-solid fa-broom"></i>
+                        <strong>Community Cleanup</strong>
+                        <span>Program</span>
                     </div>
                     <div class="post-body">
                         <div class="post-top">
@@ -85,8 +86,9 @@
 
                 <article class="announcement-post" data-category="abiso">
                     <div class="post-media power-poster" role="img" aria-label="Scheduled power interruption poster">
-                        <strong>Power Interruption</strong>
-                        <span>9:00 AM - 3:00 PM</span>
+                        <i class="fa-solid fa-bolt"></i>
+                        <strong>Power Advisory</strong>
+                        <span>Advisory</span>
                     </div>
                     <div class="post-body">
                         <div class="post-top">
@@ -105,8 +107,9 @@
 
                 <article class="announcement-post" data-category="programa">
                     <div class="post-media food-poster" role="img" aria-label="Food pack distribution poster">
-                        <strong>Food Pack Distribution</strong>
-                        <span>Barangay Hall</span>
+                        <i class="fa-solid fa-box-open"></i>
+                        <strong>Community Assistance</strong>
+                        <span>Program</span>
                     </div>
                     <div class="post-body">
                         <div class="post-top">
@@ -125,12 +128,13 @@
 
                 <article class="announcement-post" data-category="events">
                     <div class="post-media flag-poster" role="img" aria-label="Independence day event poster">
-                        <strong>Kalayaan Day Program</strong>
-                        <span>June 12, 2026</span>
+                        <i class="fa-solid fa-flag"></i>
+                        <strong>Kalayaan Day</strong>
+                        <span>Event</span>
                     </div>
                     <div class="post-body">
                         <div class="post-top">
-                            <span class="tag blue">Events</span>
+                            <span class="tag purple">Events</span>
                             <button type="button" aria-label="Save announcement"><i class="fa-regular fa-bookmark"></i></button>
                         </div>
                         <h3>Kalayaan Day Community Program</h3>
