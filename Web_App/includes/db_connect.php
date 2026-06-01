@@ -11,6 +11,6 @@ try {
     $conn = mysqli_connect($servername, $username, $password, $database);
     mysqli_set_charset($conn, "utf8mb4");
 } catch (mysqli_sql_exception $e) {
-    // This will print the exact reason it failed!
+    // ERROR MESSAGE   
     die("<h3 style='color:red;'>Database Connection Failed:</h3> <p>" . $e->getMessage() . "</p>");
 }

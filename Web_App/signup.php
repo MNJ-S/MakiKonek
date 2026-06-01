@@ -38,17 +38,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             // 4. Begin the Database Transaction
             mysqli_begin_transaction($conn);
-            
+
             try {
                 // Hash the password for security
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                
+
                 // INSERT INTO users table
                 $insert_user = "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)";
                 $stmt_user = mysqli_prepare($conn, $insert_user);
                 mysqli_stmt_bind_param($stmt_user, "sss", $username, $email, $hashed_password);
                 mysqli_stmt_execute($stmt_user);
-                
+
                 // Grab the new ID created by the database
                 $new_user_id = mysqli_insert_id($conn);
 
@@ -58,11 +58,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 mysqli_stmt_bind_param($stmt_profile, "issss", $new_user_id, $given_name, $surname, $middle_name, $suffix);
                 mysqli_stmt_execute($stmt_profile);
 
-                // Commit the transaction (Save to database)
+                // Save to Database
                 mysqli_commit($conn);
 
                 $success_message = "Account created successfully! You can now log in.";
-                
             } catch (Exception $e) {
                 // If anything fails, rollback so we don't have incomplete data
                 mysqli_rollback($conn);
@@ -115,12 +114,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <p class="form-subtitle">Ilagay ang iyong impormasyon</p>
 
                 <!-- Dynamic Alert Messages -->
-                <?php if($error_message): ?>
+                <?php if ($error_message): ?>
                     <div style="background-color: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; text-align: center;">
                         <?php echo $error_message; ?>
                     </div>
                 <?php endif; ?>
-                <?php if($success_message): ?>
+                <?php if ($success_message): ?>
                     <div style="background-color: #dcfce7; border: 1px solid #22c55e; color: #15803d; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; text-align: center;">
                         <?php echo $success_message; ?>
                     </div>
