@@ -14,7 +14,7 @@ $error_message = '';
 
 // --- PROCESSING FORM FORM SUBMISSION ---
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Sanitize basic profiling info
+    // Basic profiling info
     $surname = mysqli_real_escape_string($conn, trim($_POST['surname']));
     $given_name = mysqli_real_escape_string($conn, trim($_POST['given_name']));
     $middle_name = mysqli_real_escape_string($conn, trim($_POST['middle_name']));
@@ -83,8 +83,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if (empty($error_message)) {
-    // UPDATE THE CURRENT IDENTITY IN THE DATABASE
-    $update_query = "
+        // UPDATE THE CURRENT IDENTITY IN THE DATABASE
+        $update_query = "
             UPDATE user_profiles SET 
                 first_name = ?, last_name = ?, middle_name = ?, suffix = ?, sex = ?, civil_status = ?, 
                 birth_date = ?, birth_place = ?, religion = ?, nationality = ?, mobile_number = ?, 
@@ -131,9 +131,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         );
 
         if (mysqli_stmt_execute($stmt)) {
-            $success_message = "Your profile changes have been successfully saved to the system database.";
+            $success_message = "SAVED SUCCESSFULLY!";
         } else {
-            $error_message = "Failed to update profile details due to a database exception error.";
+            $error_message = "FAILED TO UPDATE PROFILE. PLEASE TRY AGAIN.";
         }
     }
 }
@@ -256,17 +256,34 @@ $activePage = 'profile';
                     <div class="profile-action-row" style="display:flex; flex-direction:column; gap:15px; align-items:flex-start;">
                         <button type="submit" class="save-profile-btn">Save Changes</button>
 
-                        <!-- NOTIFICATION SYSTEM WITHOUT EMOJIS -->
-                        <?php if (!empty($success_message)): ?>
-                            <div class="profile-notice-box" style="width:100%; max-width:500px; background-color:#dcfce7; border:1px solid #22c55e; color:#15803d; padding:12px; border-radius:6px; font-size:14px; font-weight:bold;">
-                                <?php echo $success_message; ?>
-                            </div>
-                        <?php endif; ?>
-                        <?php if (!empty($error_message)): ?>
-                            <div class="profile-notice-box" style="width:100%; max-width:500px; background-color:#fee2e2; border:1px solid #ef4444; color:#b91c1c; padding:12px; border-radius:6px; font-size:14px; font-weight:bold;">
-                                <?php echo $error_message; ?>
-                            </div>
-                        <?php endif; ?>
+                        <!-- NOTIFICATION -->
+                        <!-- FLOATING BOTTOM-RIGHT NOTIFICATIONS -->
+                        <div id="notification-container" style="position: fixed; bottom: 30px; right: 30px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;">
+                            <?php if (!empty($success_message)): ?>
+                                <div class="toast-notification" style="background-color:#dcfce7; border-left: 5px solid #22c55e; color:#15803d; padding:15px 25px; border-radius:6px; font-size:14px; font-weight:bold; box-shadow: 0 10px 25px rgba(0,0,0,0.1); animation: slideIn 0.3s ease-out forwards; transition: opacity 0.5s ease;">
+                                    <?php echo $success_message; ?>
+                                </div>
+                            <?php endif; ?>
+                            <?php if (!empty($error_message)): ?>
+                                <div class="toast-notification" style="background-color:#fee2e2; border-left: 5px solid #ef4444; color:#b91c1c; padding:15px 25px; border-radius:6px; font-size:14px; font-weight:bold; box-shadow: 0 10px 25px rgba(0,0,0,0.1); animation: slideIn 0.3s ease-out forwards; transition: opacity 0.5s ease;">
+                                    <?php echo $error_message; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <style>
+                            @keyframes slideIn {
+                                from {
+                                    transform: translateX(120%);
+                                    opacity: 0;
+                                }
+
+                                to {
+                                    transform: translateX(0);
+                                    opacity: 1;
+                                }
+                            }
+                        </style>
                     </div>
                 </div>
             </form>
@@ -280,7 +297,7 @@ $activePage = 'profile';
     ?>
 
     <script>
-        // Instant local avatar preview handler
+        // PREVIEW HANDLER
         document.getElementById('real-file-input').addEventListener('change', function(event) {
             const input = event.target;
             if (input.files && input.files[0]) {
@@ -294,6 +311,19 @@ $activePage = 'profile';
                 }
                 reader.readAsDataURL(input.files[0]);
             }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const notifications = document.querySelectorAll('.toast-notification');
+
+            notifications.forEach(function(notification) {
+                setTimeout(function() {
+                    notification.style.opacity = '0';
+                    setTimeout(function() {
+                        notification.remove();
+                    }, 500);
+                }, 5000);
+            });
         });
     </script>
 </body>
