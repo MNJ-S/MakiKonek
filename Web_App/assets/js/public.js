@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const navToggle = document.querySelector(".nav-toggle");
     const navMenu = document.querySelector("[data-nav-menu]");
 
-    if (navToggle && navMenu) {
+    if (navToggle && navMenu && !navMenu.dataset.navInit) {
         navToggle.addEventListener("click", () => {
             const isOpen = navMenu.classList.toggle("is-open");
             navToggle.setAttribute("aria-expanded", String(isOpen));
@@ -14,6 +14,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 navToggle.setAttribute("aria-expanded", "false");
             });
         });
+
+        navMenu.dataset.navInit = "true";
     }
 
     const roleInputs = document.querySelectorAll("input[name='role']");

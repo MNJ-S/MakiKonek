@@ -545,4 +545,11 @@ input {
         width: 20px;
         height: 20px;
     }
+
+    .auth-form input,
+    .auth-form select,
+    .auth-form button,
+    .auth-card button {
+        width: 100%;
+    }
 }

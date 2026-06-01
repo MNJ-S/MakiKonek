@@ -960,10 +960,60 @@ textarea {
     .profile-layout-wrapper { grid-template-columns: 1fr; }
     .profile-input-grid { grid-template-columns: repeat(2, 1fr); }
     .profile-input-grid .field.double-wide { grid-column: span 2; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .request-layout { grid-template-columns: 1fr; }
+    .view-all-btn { width: 100%; }
 }
 
 @media (max-width: 768px) {
     .facility-grid { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: repeat(2, 1fr); }
+    .document-option { grid-template-columns: 1fr; }
+    .document-option span { width: 100%; }
+}
+
+@media (max-width: 680px) {
+    .stat-grid { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .request-card,
+    .dashboard-card {
+        padding: 20px;
+    }
+    .requests-table {
+        display: block;
+        width: 100%;
+    }
+    .requests-table thead {
+        display: none;
+    }
+    .requests-table tbody tr {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 18px 0;
+        border-bottom: 1px solid var(--resident-line);
+    }
+    .requests-table td {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 0;
+    }
+    .requests-table td::before {
+        content: attr(data-label);
+        color: #74778b;
+        font-size: 12px;
+        font-weight: 600;
+        flex: 1;
+    }
+    .requests-table td:nth-child(1)::before { content: "Service"; }
+    .requests-table td:nth-child(2)::before { content: "Reference No."; }
+    .requests-table td:nth-child(3)::before { content: "Date Requested"; }
+    .requests-table td:nth-child(4)::before { content: "Status"; }
+    .requests-table td span.status {
+        min-width: auto;
+    }
 }
 
 @media (max-width: 480px) {

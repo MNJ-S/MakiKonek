@@ -453,4 +453,10 @@ input {
         padding: 28px 20px;
     }
 
+    .auth-card input,
+    .auth-card select,
+    .auth-card button,
+    .auth-card textarea {
+        width: 100%;
+    }
 }

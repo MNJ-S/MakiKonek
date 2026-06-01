@@ -42,9 +42,16 @@
 
     <!-- Services Content -->
     <main class="services-container">
-        <header class="services-hero">
-            <h1>E-Services Available</h1>
-            <p>Access all barangay services online. Submit requests, upload documents, and track your applications 24/7.</p>
+        <header class="services-hero site-hero">
+            <div class="hero-inner-frame">
+                <div class="hero-copy">
+                    <span class="hero-tag">Digital Barangay Services</span>
+                    <h1>Apply Barangay Services Online</h1>
+                    <p>Request clearances, certificates, permits, and other barangay documents without visiting the hall. Submit requirements, upload files, and track your application progress anytime.</p>
+                </div>
+
+                <!-- Minimal hero: metrics removed per design request -->
+            </div>
         </header>
 
         <section class="services-grid-layout">

@@ -845,56 +845,69 @@ input {
 .hotline-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    gap: 22px;
 }
 
 .hotline-card {
-    border: 1px solid transparent;
-    border-radius: var(--radius);
-    padding: 24px;
+    border: 1px solid rgba(18,34,30,0.04);
+    border-left-width: 6px;
+    border-left-color: transparent;
+    border-radius: 14px;
+    padding: 22px;
+    background: #fff;
     box-shadow: var(--shadow-light);
+    transition: transform 180ms ease, box-shadow 180ms ease;
 }
 
-.hotline-card.police { background: #f1f7ff; }
-.hotline-card.fire { background: #fff4f2; }
-.hotline-card.health { background: #f0fff6; }
-.hotline-card.disaster { background: #fff8ef; }
+.hotline-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-hover); }
+
+.hotline-card.police { border-left-color: var(--blue); }
+.hotline-card.fire { border-left-color: var(--orange); }
+.hotline-card.health { border-left-color: var(--green); }
+.hotline-card.disaster { border-left-color: var(--yellow); }
 
 .hotline-icon {
-    display: inline-flex;
-    width: 44px;
-    height: 44px;
+    display: inline-grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
+    border-radius: 12px;
     font-weight: 900;
+    font-size: 18px;
+    margin-bottom: 10px;
 }
 
-.police .hotline-icon { color: #1267e5; background: #eaf3ff; }
-.fire .hotline-icon { color: #e01d12; background: #fff0ef; }
-.health .hotline-icon { color: #0c9650; background: #ecfff4; }
-.disaster .hotline-icon { color: #d85c00; background: #fff5e8; }
+.police .hotline-icon { color: var(--blue); background: rgba(17,121,214,0.06); }
+.fire .hotline-icon { color: var(--orange); background: rgba(244,123,32,0.06); }
+.health .hotline-icon { color: var(--green); background: rgba(63,159,37,0.06); }
+.disaster .hotline-icon { color: var(--yellow); background: rgba(246,185,40,0.06); }
 
-.hotline-card strong {
-    display: block;
-    margin-top: 12px;
-    color: var(--blue-dark);
-    line-height: 1.45;
+.hotline-card h3 { margin: 6px 0 4px; font-size: 18px; }
+.hotline-card p { margin: 0; color: var(--muted); }
+
+.hotline-card strong { display:block; margin-top:12px; color: var(--blue-dark); line-height:1.35; }
+
+/* Responsive: stack on smaller screens */
+@media (max-width: 900px) {
+    .hotline-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-.fire strong,
-.disaster strong {
-    color: #e43d12;
+@media (max-width: 480px) {
+    .hotline-grid { grid-template-columns: 1fr; }
+    .hotline-card { padding: 18px; }
 }
 
 .reminder-box {
     max-width: 820px;
     margin: 36px auto 0;
-    border: 1px solid #efd15b;
-    border-radius: var(--radius);
-    padding: 24px 28px;
-    color: #704d00;
-    background: #fff9db;
+    border: 1px solid rgba(63,159,37,0.12);
+    border-radius: 12px;
+    padding: 22px 24px;
+    color: var(--green-dark);
+    background: var(--green-soft);
+    box-shadow: 0 8px 20px rgba(28,70,28,0.04);
 }
 
 .reminder-box h3 {

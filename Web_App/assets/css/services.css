@@ -17,26 +17,83 @@
     padding: 54px 0 86px;
 }
 
-.services-hero {
+.site-hero {
+    display: grid;
+    gap: 12px;
+    max-width: min(1120px, calc(100% - 40px));
+    margin: 0 auto 36px;
+    padding: 36px 20px;
+    border-radius: 8px;
     text-align: center;
-    max-width: 780px;
-    margin: 0 auto 58px;
+    color: var(--green-dark);
+    background: transparent;
 }
 
-.services-hero h1 {
-    color: #7bb843;
-    font-size: clamp(32px, 4vw, 42px);
-    margin: 0 0 14px;
+.site-hero .hero-inner-frame {
+    width: min(1120px, calc(100% - 40px));
+    margin: 0 auto;
+}
+
+.site-hero .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--green-soft);
+    color: var(--green-dark);
+    font-size: 13px;
     font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
 }
 
-.services-hero p {
-    color: #7bb843;
-    font-size: 17px;
-    font-weight: 500;
-    line-height: 1.5;
-    margin: 0;
+.site-hero h1 {
+    color: var(--green-dark);
+    font-size: clamp(32px, 5vw, 48px);
+    margin: 6px 0 0;
+    line-height: 1.08;
 }
+
+.site-hero p {
+    color: var(--muted);
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.6;
+    max-width: 760px;
+    margin: 8px auto 0;
+}
+
+.services-metrics-row,
+.site-hero .services-metrics-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.service-metric-card {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+}
+
+.metric-icon {
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 12px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.16);
+    font-size: 18px;
+    color: #fff;
+}
+
+.service-metric-card h3 { margin:0 0 6px; font-size:18px; font-weight:800; color:#fff; }
+.service-metric-card span { color: rgba(255,255,255,0.92); font-size:13px; }
 
 .services-grid-layout {
     display: grid;
@@ -68,6 +125,7 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    background-color: transparent;
 }
 
 .srv-icon {
@@ -82,6 +140,24 @@
     color: #ffffff !important;
     margin: 0;
     padding: 0;
+}
+
+.srv-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 15px;
+    text-decoration: none;
+    color: #ffffff !important;
+    width: 100%;
+    transition: filter 180ms ease;
+}
+
+.srv-btn:hover {
+    filter: brightness(0.92);
 }
 
 .srv-card-header h3 {
@@ -279,8 +355,10 @@ p.srv-desc {
     }
 
     .nav-menu a {
-        padding: 12px;
+        padding: 12px 16px;
         color: #172333 !important;
+        min-height: 44px;
+        width: 100%;
     }
 
     /* Tinatanggal ang floating indicator line sa mobile para hindi humarang sa text links */
@@ -291,6 +369,14 @@ p.srv-desc {
 
     .nav-login {
         display: none;
+    }
+
+    .services-hero {
+        padding: 48px 26px 40px;
+    }
+
+    .services-metrics-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .services-grid-layout {
@@ -311,6 +397,27 @@ p.srv-desc {
     
     .services-hero {
         margin-bottom: 34px;
+        padding: 40px 22px;
+    }
+
+    .services-metrics-row {
+        grid-template-columns: 1fr;
+    }
+
+    .service-metric-card {
+        padding: 18px;
+    }
+
+    .srv-card {
+        min-height: auto;
+    }
+
+    .srv-btn {
+        width: 100%;
+    }
+
+    .services-hero h1 {
+        font-size: clamp(30px, 7vw, 40px);
     }
 }
 

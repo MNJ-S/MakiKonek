@@ -20,8 +20,13 @@
     <main id="about-custom-scope">
 
         <!-- 1. HERO BANNER SECTION & METRIC CARDS -->
-        <section class="about-hero-block">
+        <section class="about-hero-block site-hero">
             <div class="hero-inner-frame">
+                <div class="hero-logos">
+                    <img src="../assets/img/Barangay_Makiling_Seal.png" alt="Barangay Seal" class="hero-logo-seal">
+                    <img src="../assets/img/Barangay_Makiling_SK.jpg" alt="SK Logo" class="hero-logo-sk">
+                </div>
+
                 <h1>Barangay Makiling</h1>
                 <p class="hero-subline">Serving over 11,000 residents through transparent governance, community programs, and digital public services.</p>
 
