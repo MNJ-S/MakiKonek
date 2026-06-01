@@ -3,7 +3,7 @@
 $currentPage = basename($_SERVER['PHP_SELF']);
 $navBase = $navBase ?? '';
 $assetBase = $assetBase ?? '../assets';
-$loginHref = '/MakiKonek/Web_App/login_reg.php';
+$loginHref = '../login_reg.php';
 $isResidentHeader = $isResidentHeader ?? false;
 
 // Grab the username from the session if it exists, otherwise fallback to "Resident"
