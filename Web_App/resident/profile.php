@@ -212,16 +212,33 @@ $activePage = 'profile';
                     <fieldset class="profile-form-section">
                         <legend>Personal Information</legend>
                         <div class="profile-input-grid">
-                            <div class="field"><label>Surname</label><input type="text" name="surname" value="<?php echo htmlspecialchars($resident_data['last_name'] ?? ''); ?>"></div>
-                            <div class="field"><label>Given Name</label><input type="text" name="given_name" value="<?php echo htmlspecialchars($resident_data['first_name'] ?? ''); ?>"></div>
-                            <div class="field"><label>Middle Name</label><input type="text" name="middle_name" value="<?php echo htmlspecialchars($resident_data['middle_name'] ?? ''); ?>"></div>
-                            <div class="field"><label>Suffix</label><input type="text" name="suffix" value="<?php echo htmlspecialchars($resident_data['suffix'] ?? ''); ?>"></div>
-                            <div class="field"><label>Sex</label><input type="text" name="sex" value="<?php echo htmlspecialchars($resident_data['sex'] ?? ''); ?>"></div>
-                            <div class="field"><label>Civil Status</label><input type="text" name="civil_status_personal" value="<?php echo htmlspecialchars($resident_data['civil_status'] ?? ''); ?>"></div>
+                            <div class="field"><label>Surname</label><input type="text" name="surname" value="<?php echo htmlspecialchars($resident_data['last_name'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
+                            <div class="field"><label>Given Name</label><input type="text" name="given_name" value="<?php echo htmlspecialchars($resident_data['first_name'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
+                            <div class="field"><label>Middle Name</label><input type="text" name="middle_name" value="<?php echo htmlspecialchars($resident_data['middle_name'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
+                            <div class="field"><label>Suffix</label><input type="text" name="suffix" value="<?php echo htmlspecialchars($resident_data['suffix'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
+                            <div class="field">
+                                <label>Sex</label>
+                                <select name="sex" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="" disabled <?php echo empty($resident_data['sex']) ? 'selected' : ''; ?>>SELECT</option>
+                                    <option value="MALE" <?php echo ($resident_data['sex'] ?? '') === 'MALE' ? 'selected' : ''; ?>>MALE</option>
+                                    <option value="FEMALE" <?php echo ($resident_data['sex'] ?? '') === 'FEMALE' ? 'selected' : ''; ?>>FEMALE</option>
+                                    <option value="PREFER NOT TO SAY" <?php echo ($resident_data['sex'] ?? '') === 'PREFER NOT TO SAY' ? 'selected' : ''; ?>>PREFER NOT TO SAY</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label>Civil Status</label>
+                                <select name="civil_status_personal" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="" disabled <?php echo empty($resident_data['civil_status']) ? 'selected' : ''; ?>>SELECT</option>
+                                    <option value="SINGLE" <?php echo ($resident_data['civil_status'] ?? '') === 'SINGLE' ? 'selected' : ''; ?>>SINGLE</option>
+                                    <option value="MARRIED" <?php echo ($resident_data['civil_status'] ?? '') === 'MARRIED' ? 'selected' : ''; ?>>MARRIED</option>
+                                    <option value="WIDOWED" <?php echo ($resident_data['civil_status'] ?? '') === 'WIDOWED' ? 'selected' : ''; ?>>WIDOWED</option>
+                                    <option value="SEPARATED" <?php echo ($resident_data['civil_status'] ?? '') === 'SEPARATED' ? 'selected' : ''; ?>>SEPARATED</option>
+                                </select>
+                            </div>
                             <div class="field"><label>Birth Date</label><input type="date" name="birth_date" value="<?php echo htmlspecialchars($resident_data['birth_date'] ?? ''); ?>"></div>
-                            <div class="field"><label>Birth Place</label><input type="text" name="birth_place" value="<?php echo htmlspecialchars($resident_data['birth_place'] ?? ''); ?>"></div>
-                            <div class="field"><label>Religion</label><input type="text" name="religion" value="<?php echo htmlspecialchars($resident_data['religion'] ?? ''); ?>"></div>
-                            <div class="field"><label>Nationality</label><input type="text" name="nationality" value="<?php echo htmlspecialchars($resident_data['nationality'] ?? ''); ?>"></div>
+                            <div class="field"><label>Birth Place</label><input type="text" name="birth_place" value="<?php echo htmlspecialchars($resident_data['birth_place'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
+                            <div class="field"><label>Religion</label><input type="text" name="religion" value="<?php echo htmlspecialchars($resident_data['religion'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
+                            <div class="field"><label>Nationality</label><input type="text" name="nationality" value="<?php echo htmlspecialchars($resident_data['nationality'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
                             <div class="field double-wide"><label>Email</label><input type="email" name="email" value="<?php echo htmlspecialchars($resident_data['email'] ?? ''); ?>" disabled style="background:#edf2f7; cursor:not-allowed;"></div>
                             <div class="field double-wide"><label>Mobile Number</label><input type="text" name="mobile_number" value="<?php echo htmlspecialchars($resident_data['mobile_number'] ?? ''); ?>"></div>
                         </div>
@@ -230,10 +247,10 @@ $activePage = 'profile';
                     <fieldset class="profile-form-section">
                         <legend>Address</legend>
                         <div class="profile-input-grid">
-                            <div class="field double-wide"><label>House No.</label><input type="text" name="house_no" value="<?php echo htmlspecialchars($resident_data['house_no'] ?? ''); ?>"></div>
-                            <div class="field double-wide"><label>Street</label><input type="text" name="street" value="<?php echo htmlspecialchars($resident_data['street'] ?? ''); ?>"></div>
-                            <div class="field double-wide"><label>Purok No.</label><input type="text" name="purok_no" value="<?php echo htmlspecialchars($resident_data['purok_no'] ?? ''); ?>"></div>
-                            <div class="field double-wide"><label>Subdivision</label><input type="text" name="subdivision" value="<?php echo htmlspecialchars($resident_data['subdivision'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>House No.</label><input type="text" name="house_no" value="<?php echo htmlspecialchars($resident_data['house_no'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
+                            <div class="field double-wide"><label>Street</label><input type="text" name="street" value="<?php echo htmlspecialchars($resident_data['street'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
+                            <div class="field double-wide"><label>Purok No.</label><input type="text" name="purok_no" value="<?php echo htmlspecialchars($resident_data['purok_no'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
+                            <div class="field double-wide"><label>Subdivision</label><input type="text" name="subdivision" value="<?php echo htmlspecialchars($resident_data['subdivision'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
                         </div>
                     </fieldset>
 
@@ -244,11 +261,18 @@ $activePage = 'profile';
                             <div class="field double-wide"><label>Philhealth No.</label><input type="text" name="philhealth_no" value="<?php echo htmlspecialchars($resident_data['philhealth_no'] ?? ''); ?>"></div>
                             <div class="field double-wide"><label>Voter's ID No.</label><input type="text" name="voters_id" value="<?php echo htmlspecialchars($resident_data['voters_id'] ?? ''); ?>"></div>
                             <div class="field double-wide"><label>SSS No.</label><input type="text" name="sss_no" value="<?php echo htmlspecialchars($resident_data['sss_no'] ?? ''); ?>"></div>
-                            <div class="field double-wide"><label>Civil Status</label><input type="text" name="civil_status_other" value="<?php echo htmlspecialchars($resident_data['civil_status'] ?? ''); ?>"></div>
                             <div class="field double-wide"><label>TIN No.</label><input type="text" name="tin_no" value="<?php echo htmlspecialchars($resident_data['tin_no'] ?? ''); ?>"></div>
                             <div class="field double-wide"><label>Years of Residency</label><input type="text" name="years_residency" value="<?php echo htmlspecialchars($resident_data['years_residency'] ?? ''); ?>"></div>
-                            <div class="field double-wide"><label>Date of Registration</label><input type="text" name="date_registration" value="<?php echo date('M d, Y', strtotime($resident_data['created_at'])); ?>" disabled style="background:#edf2f7;"></div>
-                            <div class="field double-wide"><label>Employed?</label><input type="text" name="employed_status" value="<?php echo htmlspecialchars($resident_data['employed_status'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>Date of Registration</label><input type="text" name="date_registration" value="<?php echo date('M d, Y', strtotime($resident_data['created_at'])); ?>" disabled style="background:#edf2f7;" oninput="this.value = this.value.toUpperCase()"></div>
+                            <div class="field double-wide">
+                                <label>Employed?</label>
+                                <select name="employed_status" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="" disabled <?php echo empty($resident_data['employed_status']) ? 'selected' : ''; ?>>SELECT</option>
+                                    <option value="YES" <?php echo ($resident_data['employed_status'] ?? '') === 'YES' ? 'selected' : ''; ?>>YES</option>
+                                    <option value="NO" <?php echo ($resident_data['employed_status'] ?? '') === 'NO' ? 'selected' : ''; ?>>NO</option>
+                                    <option value="STUDENT" <?php echo ($resident_data['employed_status'] ?? '') === 'STUDENT' ? 'selected' : ''; ?>>STUDENT</option>
+                                </select>
+                            </div>
                             <div class="field double-wide"><label>Pag-ibig No.</label><input type="text" name="pagibig_no" value="<?php echo htmlspecialchars($resident_data['pagibig_no'] ?? ''); ?>"></div>
                         </div>
                     </fieldset>
@@ -257,7 +281,6 @@ $activePage = 'profile';
                         <button type="submit" class="save-profile-btn">Save Changes</button>
 
                         <!-- NOTIFICATION -->
-                        <!-- FLOATING BOTTOM-RIGHT NOTIFICATIONS -->
                         <div id="notification-container" style="position: fixed; bottom: 30px; right: 30px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;">
                             <?php if (!empty($success_message)): ?>
                                 <div class="toast-notification" style="background-color:#dcfce7; border-left: 5px solid #22c55e; color:#15803d; padding:15px 25px; border-radius:6px; font-size:14px; font-weight:bold; box-shadow: 0 10px 25px rgba(0,0,0,0.1); animation: slideIn 0.3s ease-out forwards; transition: opacity 0.5s ease;">

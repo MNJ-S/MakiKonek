@@ -8,7 +8,7 @@ if (!isset($_SESSION['admin_id'])) {
 
 require_once __DIR__ . '/../includes/db_connect.php';
 
-// EXTENDED QUERY: Fetches all structural profile and identity elements from both tables
+// Fetches all structural profile and identity elements from both tables
 $query = "
     SELECT u.user_id, u.email, u.created_at, p.* 
     FROM users u
@@ -83,7 +83,6 @@ $result = mysqli_query($conn, $query);
                     <tbody>
                         <?php if (mysqli_num_rows($result) > 0): ?>
                             <?php while ($row = mysqli_fetch_assoc($result)):
-                                // Cleanly combine full matching name variables
                                 $full_name = $row['first_name'] . ' ' . (!empty($row['middle_name']) ? substr($row['middle_name'], 0, 1) . '. ' : '') . $row['last_name'] . (!empty($row['suffix']) ? ' ' . $row['suffix'] : '');
                                 $avatar = !empty($row['avatar_path']) ? '../' . $row['avatar_path'] : '../assets/img/avatar-placeholder.png';
                             ?>
@@ -94,7 +93,7 @@ $result = mysqli_query($conn, $query);
                                     <td class="text-muted"><?php echo htmlspecialchars($row['email']); ?></td>
                                     <td class="small"><?php echo date("M d, Y", strtotime($row['created_at'])); ?></td>
                                     <td class="text-center">
-                                        <!-- VIEW INJECTION GATEWAY: Pass row details over into data objects -->
+                                        <!-- VIEW MODAL FETCH DATA -->
                                         <button class="btn btn-sm btn-primary view-profile-trigger"
                                             title="View Full Profile"
                                             data-name="<?php echo htmlspecialchars($full_name); ?>"
