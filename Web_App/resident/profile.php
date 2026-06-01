@@ -6,9 +6,152 @@ if (!isset($_SESSION['resident_id'])) {
     exit();
 }
 
+require_once __DIR__ . '/../includes/db_connect.php';
+
+$resident_id = $_SESSION['resident_id'];
+$success_message = '';
+$error_message = '';
+
+// --- PROCESSING FORM FORM SUBMISSION ---
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Sanitize basic profiling info
+    $surname = mysqli_real_escape_string($conn, trim($_POST['surname']));
+    $given_name = mysqli_real_escape_string($conn, trim($_POST['given_name']));
+    $middle_name = mysqli_real_escape_string($conn, trim($_POST['middle_name']));
+    $suffix = mysqli_real_escape_string($conn, trim($_POST['suffix']));
+    $sex = mysqli_real_escape_string($conn, trim($_POST['sex']));
+    $civil_status = mysqli_real_escape_string($conn, trim($_POST['civil_status_personal']));
+    $birth_date = mysqli_real_escape_string($conn, trim($_POST['birth_date']));
+    $birth_place = mysqli_real_escape_string($conn, trim($_POST['birth_place']));
+    $religion = mysqli_real_escape_string($conn, trim($_POST['religion']));
+    $nationality = mysqli_real_escape_string($conn, trim($_POST['nationality']));
+    $mobile_number = mysqli_real_escape_string($conn, trim($_POST['mobile_number']));
+
+    // Address fields
+    $house_no = mysqli_real_escape_string($conn, trim($_POST['house_no']));
+    $street = mysqli_real_escape_string($conn, trim($_POST['street']));
+    $purok_no = mysqli_real_escape_string($conn, trim($_POST['purok_no']));
+    $subdivision = mysqli_real_escape_string($conn, trim($_POST['subdivision']));
+
+    // Government IDs & Extras
+    $national_id = mysqli_real_escape_string($conn, trim($_POST['national_id']));
+    $philhealth_no = mysqli_real_escape_string($conn, trim($_POST['philhealth_no']));
+    $voters_id = mysqli_real_escape_string($conn, trim($_POST['voters_id']));
+    $sss_no = mysqli_real_escape_string($conn, trim($_POST['sss_no']));
+    $tin_no = mysqli_real_escape_string($conn, trim($_POST['tin_no']));
+    $years_residency = mysqli_real_escape_string($conn, trim($_POST['years_residency']));
+    $employed_status = mysqli_real_escape_string($conn, trim($_POST['employed_status']));
+    $pagibig_no = mysqli_real_escape_string($conn, trim($_POST['pagibig_no']));
+
+    // Emergency contact fields
+    $emergency_name = mysqli_real_escape_string($conn, trim($_POST['emergency_name']));
+    $emergency_relationship = mysqli_real_escape_string($conn, trim($_POST['emergency_relationship']));
+    $emergency_contact = mysqli_real_escape_string($conn, trim($_POST['emergency_contact']));
+    $emergency_address = mysqli_real_escape_string($conn, trim($_POST['emergency_address']));
+
+    // Grab current avatar path to preserve it if no new file is uploaded
+    $path_query = "SELECT avatar_path FROM user_profiles WHERE user_id = ? LIMIT 1";
+    $p_stmt = mysqli_prepare($conn, $path_query);
+    mysqli_stmt_bind_param($p_stmt, "i", $resident_id);
+    mysqli_stmt_execute($p_stmt);
+    $p_res = mysqli_stmt_get_result($p_stmt);
+    $current_profile = mysqli_fetch_assoc($p_res);
+    $avatar_path = $current_profile['avatar_path'] ?? '';
+
+    // Handle profile image file upload
+    if (isset($_FILES['profile_avatar']) && $_FILES['profile_avatar']['error'] === UPLOAD_ERR_OK) {
+        $file_tmp = $_FILES['profile_avatar']['tmp_name'];
+        $file_name = $_FILES['profile_avatar']['name'];
+        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+
+        $allowed_extensions = ['jpg', 'jpeg', 'png'];
+        if (in_array($file_ext, $allowed_extensions)) {
+            $upload_dir = __DIR__ . '/../assets/uploads/avatars/';
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0755, true);
+            }
+
+            $new_file_name = 'avatar_' . $resident_id . '_' . time() . '.' . $file_ext;
+            $target_file = $upload_dir . $new_file_name;
+
+            if (move_uploaded_file($file_tmp, $target_file)) {
+                $avatar_path = 'assets/uploads/avatars/' . $new_file_name;
+            }
+        } else {
+            $error_message = "Invalid file type. Only JPG, JPEG, and PNG files are allowed.";
+        }
+    }
+
+    if (empty($error_message)) {
+    // UPDATE THE CURRENT IDENTITY IN THE DATABASE
+    $update_query = "
+            UPDATE user_profiles SET 
+                first_name = ?, last_name = ?, middle_name = ?, suffix = ?, sex = ?, civil_status = ?, 
+                birth_date = ?, birth_place = ?, religion = ?, nationality = ?, mobile_number = ?, 
+                house_no = ?, street = ?, purok_no = ?, subdivision = ?, national_id = ?, 
+                philhealth_no = ?, voters_id = ?, sss_no = ?, tin_no = ?, years_residency = ?, 
+                employed_status = ?, pagibig_no = ?, emergency_name = ?, emergency_relationship = ?, 
+                emergency_contact = ?, emergency_address = ?, avatar_path = ?
+            WHERE user_id = ?
+        ";
+
+        $stmt = mysqli_prepare($conn, $update_query);
+        mysqli_stmt_bind_param(
+            $stmt,
+            "ssssssssssssssssssssssssssssi",
+            $given_name,
+            $surname,
+            $middle_name,
+            $suffix,
+            $sex,
+            $civil_status,
+            $birth_date,
+            $birth_place,
+            $religion,
+            $nationality,
+            $mobile_number,
+            $house_no,
+            $street,
+            $purok_no,
+            $subdivision,
+            $national_id,
+            $philhealth_no,
+            $voters_id,
+            $sss_no,
+            $tin_no,
+            $years_residency,
+            $employed_status,
+            $pagibig_no,
+            $emergency_name,
+            $emergency_relationship,
+            $emergency_contact,
+            $emergency_address,
+            $avatar_path,
+            $resident_id
+        );
+
+        if (mysqli_stmt_execute($stmt)) {
+            $success_message = "Your profile changes have been successfully saved to the system database.";
+        } else {
+            $error_message = "Failed to update profile details due to a database exception error.";
+        }
+    }
+}
+
+// --- ACTIVE DATABASE FETCH FOR CURRENT DATA ---
+$fetch_query = "
+    SELECT u.email, u.created_at, p.* FROM users u 
+    INNER JOIN user_profiles p ON u.user_id = p.user_id 
+    WHERE u.user_id = ? LIMIT 1
+";
+
+$f_stmt = mysqli_prepare($conn, $fetch_query);
+mysqli_stmt_bind_param($f_stmt, "i", $resident_id);
+mysqli_stmt_execute($f_stmt);
+$resident_data = mysqli_fetch_assoc(mysqli_stmt_get_result($f_stmt));
+
 $pageTitle = 'Profile';
 $activePage = 'profile';
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -36,94 +179,96 @@ $activePage = 'profile';
         <?php include __DIR__ . '/partials/resident_sidebar.php'; ?>
 
         <main class="resident-main">
-            <form action="" method="POST" enctype="multipart/form-data" class="profile-layout-wrapper">
+            <form action="profile.php" method="POST" enctype="multipart/form-data" class="profile-layout-wrapper">
 
                 <div class="profile-left-panel">
                     <div class="avatar-card-container">
-                        <div class="avatar-placeholder-svg">
-                            <img id="avatar-preview" src="" alt="Avatar Preview" style="display:none; width:100%; height:100%; object-fit:cover; border-radius:6px;">
-                            <i id="avatar-icon" class="fa-regular fa-user"></i>
+                        <div class="avatar-placeholder-svg" style="position: relative; width: 120px; height: 120px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; border-radius: 6px; overflow: hidden;">
+                            <?php if (!empty($resident_data['avatar_path'])): ?>
+                                <img id="avatar-preview" src="../<?php echo htmlspecialchars($resident_data['avatar_path']); ?>" alt="Avatar Preview" style="width:100%; height:100%; object-fit:cover; border-radius:6px;">
+                                <i id="avatar-icon" class="fa-regular fa-user" style="display: none;"></i>
+                            <?php else: ?>
+                                <img id="avatar-preview" src="" alt="Avatar Preview" style="display:none; width:100%; height:100%; object-fit:cover; border-radius:6px;">
+                                <i id="avatar-icon" class="fa-regular fa-user" style="font-size: 2.5rem; color: #a0aec0;"></i>
+                            <?php endif; ?>
                         </div>
 
                         <input type="file" id="real-file-input" name="profile_avatar" accept="image/*" style="display: none;">
-
-                        <button type="button" class="upload-avatar-action" id="upload-trigger-btn">
+                        <label for="real-file-input" class="upload-avatar-action" style="cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;">
                             <i class="fa-solid fa-upload"></i> Upload
-                        </button>
+                        </label>
                     </div>
 
                     <div class="emergency-contact-box">
                         <h3>In Case of Emergency</h3>
-                        <div class="field full">
-                            <label>Full Name</label>
-                            <input type="text" name="emergency_name" value="Maria Dela Cruz">
-                        </div>
-                        <div class="field full">
-                            <label>Relationship</label>
-                            <input type="text" name="emergency_relationship" value="Mother">
-                        </div>
-                        <div class="field full">
-                            <label>Contact No.</label>
-                            <input type="text" name="emergency_contact" value="0917-987-6543">
-                        </div>
-                        <div class="field full">
-                            <label>Address</label>
-                            <input type="text" name="emergency_address" value="123 Main Street, Purok 1">
-                        </div>
+                        <div class="field full"><label>Full Name</label><input type="text" name="emergency_name" value="<?php echo htmlspecialchars($resident_data['emergency_name'] ?? ''); ?>"></div>
+                        <div class="field full"><label>Relationship</label><input type="text" name="emergency_relationship" value="<?php echo htmlspecialchars($resident_data['emergency_relationship'] ?? ''); ?>"></div>
+                        <div class="field full"><label>Contact No.</label><input type="text" name="emergency_contact" value="<?php echo htmlspecialchars($resident_data['emergency_contact'] ?? ''); ?>"></div>
+                        <div class="field full"><label>Address</label><input type="text" name="emergency_address" value="<?php echo htmlspecialchars($resident_data['emergency_address'] ?? ''); ?>"></div>
                     </div>
                 </div>
 
                 <div class="profile-right-panel">
-
                     <fieldset class="profile-form-section">
                         <legend>Personal Information</legend>
                         <div class="profile-input-grid">
-                            <div class="field"><label>Surname</label><input type="text" name="surname" value="Dela Cruz"></div>
-                            <div class="field"><label>Given Name</label><input type="text" name="given_name" value="Juan"></div>
-                            <div class="field"><label>Middle Name</label><input type="text" name="middle_name" value="Santos"></div>
-                            <div class="field"><label>Suffix</label><input type="text" name="suffix" value=""></div>
-                            <div class="field"><label>Sex</label><input type="text" name="sex" value=""></div>
-                            <div class="field"><label>Civil Status</label><input type="text" name="civil_status_personal" value=""></div>
-                            <div class="field"><label>Birth Date</label><input type="date" name="birth_date" value=""></div>
-                            <div class="field"><label>Birth Place</label><input type="text" name="birth_place" value="Los Baños"></div>
-                            <div class="field"><label>Religion</label><input type="text" name="religion" value="Roman Catholic"></div>
-                            <div class="field"><label>Nationality</label><input type="text" name="nationality" value="Filipino"></div>
-                            <div class="field double-wide"><label>Email</label><input type="email" name="email" value="juan.delacruz@email.com"></div>
-                            <div class="field double-wide"><label>Mobile Number</label><input type="text" name="mobile_number" value="0917-123-4567"></div>
+                            <div class="field"><label>Surname</label><input type="text" name="surname" value="<?php echo htmlspecialchars($resident_data['last_name'] ?? ''); ?>"></div>
+                            <div class="field"><label>Given Name</label><input type="text" name="given_name" value="<?php echo htmlspecialchars($resident_data['first_name'] ?? ''); ?>"></div>
+                            <div class="field"><label>Middle Name</label><input type="text" name="middle_name" value="<?php echo htmlspecialchars($resident_data['middle_name'] ?? ''); ?>"></div>
+                            <div class="field"><label>Suffix</label><input type="text" name="suffix" value="<?php echo htmlspecialchars($resident_data['suffix'] ?? ''); ?>"></div>
+                            <div class="field"><label>Sex</label><input type="text" name="sex" value="<?php echo htmlspecialchars($resident_data['sex'] ?? ''); ?>"></div>
+                            <div class="field"><label>Civil Status</label><input type="text" name="civil_status_personal" value="<?php echo htmlspecialchars($resident_data['civil_status'] ?? ''); ?>"></div>
+                            <div class="field"><label>Birth Date</label><input type="date" name="birth_date" value="<?php echo htmlspecialchars($resident_data['birth_date'] ?? ''); ?>"></div>
+                            <div class="field"><label>Birth Place</label><input type="text" name="birth_place" value="<?php echo htmlspecialchars($resident_data['birth_place'] ?? ''); ?>"></div>
+                            <div class="field"><label>Religion</label><input type="text" name="religion" value="<?php echo htmlspecialchars($resident_data['religion'] ?? ''); ?>"></div>
+                            <div class="field"><label>Nationality</label><input type="text" name="nationality" value="<?php echo htmlspecialchars($resident_data['nationality'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>Email</label><input type="email" name="email" value="<?php echo htmlspecialchars($resident_data['email'] ?? ''); ?>" disabled style="background:#edf2f7; cursor:not-allowed;"></div>
+                            <div class="field double-wide"><label>Mobile Number</label><input type="text" name="mobile_number" value="<?php echo htmlspecialchars($resident_data['mobile_number'] ?? ''); ?>"></div>
                         </div>
                     </fieldset>
 
                     <fieldset class="profile-form-section">
                         <legend>Address</legend>
                         <div class="profile-input-grid">
-                            <div class="field double-wide"><label>House No.</label><input type="text" name="house_no" value="123"></div>
-                            <div class="field double-wide"><label>Street</label><input type="text" name="street" value="Main Street"></div>
-                            <div class="field double-wide"><label>Purok No.</label><input type="text" name="purok_no" value=""></div>
-                            <div class="field double-wide"><label>Subdivision</label><input type="text" name="subdivision" value=""></div>
+                            <div class="field double-wide"><label>House No.</label><input type="text" name="house_no" value="<?php echo htmlspecialchars($resident_data['house_no'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>Street</label><input type="text" name="street" value="<?php echo htmlspecialchars($resident_data['street'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>Purok No.</label><input type="text" name="purok_no" value="<?php echo htmlspecialchars($resident_data['purok_no'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>Subdivision</label><input type="text" name="subdivision" value="<?php echo htmlspecialchars($resident_data['subdivision'] ?? ''); ?>"></div>
                         </div>
                     </fieldset>
 
                     <fieldset class="profile-form-section">
                         <legend>Other Details</legend>
                         <div class="profile-input-grid">
-                            <div class="field double-wide"><label>National ID No.</label><input type="text" name="national_id" value=""></div>
-                            <div class="field double-wide"><label>Philhealth No.</label><input type="text" name="philhealth_no" value=""></div>
-                            <div class="field double-wide"><label>Voter's ID No.</label><input type="text" name="voters_id" value=""></div>
-                            <div class="field double-wide"><label>SSS No.</label><input type="text" name="sss_no" value=""></div>
-                            <div class="field double-wide"><label>Civil Status</label><input type="text" name="civil_status_other" value=""></div>
-                            <div class="field double-wide"><label>TIN No.</label><input type="text" name="tin_no" value=""></div>
-                            <div class="field double-wide"><label>Years of Residency</label><input type="text" name="years_residency" value="5"></div>
-                            <div class="field double-wide"><label>Date of Registration</label><input type="text" name="date_registration" value=""></div>
-                            <div class="field double-wide"><label>Employed?</label><input type="text" name="employed_status" value=""></div>
-                            <div class="field double-wide"><label>Pag-ibig No.</label><input type="text" name="pagibig_no" value=""></div>
+                            <div class="field double-wide"><label>National ID No.</label><input type="text" name="national_id" value="<?php echo htmlspecialchars($resident_data['national_id'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>Philhealth No.</label><input type="text" name="philhealth_no" value="<?php echo htmlspecialchars($resident_data['philhealth_no'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>Voter's ID No.</label><input type="text" name="voters_id" value="<?php echo htmlspecialchars($resident_data['voters_id'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>SSS No.</label><input type="text" name="sss_no" value="<?php echo htmlspecialchars($resident_data['sss_no'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>Civil Status</label><input type="text" name="civil_status_other" value="<?php echo htmlspecialchars($resident_data['civil_status'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>TIN No.</label><input type="text" name="tin_no" value="<?php echo htmlspecialchars($resident_data['tin_no'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>Years of Residency</label><input type="text" name="years_residency" value="<?php echo htmlspecialchars($resident_data['years_residency'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>Date of Registration</label><input type="text" name="date_registration" value="<?php echo date('M d, Y', strtotime($resident_data['created_at'])); ?>" disabled style="background:#edf2f7;"></div>
+                            <div class="field double-wide"><label>Employed?</label><input type="text" name="employed_status" value="<?php echo htmlspecialchars($resident_data['employed_status'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>Pag-ibig No.</label><input type="text" name="pagibig_no" value="<?php echo htmlspecialchars($resident_data['pagibig_no'] ?? ''); ?>"></div>
                         </div>
                     </fieldset>
 
-                    <div class="profile-action-row">
+                    <div class="profile-action-row" style="display:flex; flex-direction:column; gap:15px; align-items:flex-start;">
                         <button type="submit" class="save-profile-btn">Save Changes</button>
+
+                        <!-- NOTIFICATION SYSTEM WITHOUT EMOJIS -->
+                        <?php if (!empty($success_message)): ?>
+                            <div class="profile-notice-box" style="width:100%; max-width:500px; background-color:#dcfce7; border:1px solid #22c55e; color:#15803d; padding:12px; border-radius:6px; font-size:14px; font-weight:bold;">
+                                <?php echo $success_message; ?>
+                            </div>
+                        <?php endif; ?>
+                        <?php if (!empty($error_message)): ?>
+                            <div class="profile-notice-box" style="width:100%; max-width:500px; background-color:#fee2e2; border:1px solid #ef4444; color:#b91c1c; padding:12px; border-radius:6px; font-size:14px; font-weight:bold;">
+                                <?php echo $error_message; ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
-
             </form>
         </main>
     </div>
@@ -134,7 +279,23 @@ $activePage = 'profile';
     include __DIR__ . '/../includes/footer.php';
     ?>
 
-    <script src="../assets/js/resident.js?v=20260530a"></script>
+    <script>
+        // Instant local avatar preview handler
+        document.getElementById('real-file-input').addEventListener('change', function(event) {
+            const input = event.target;
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('avatar-preview');
+                    const icon = document.getElementById('avatar-icon');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    if (icon) icon.style.display = 'none';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        });
+    </script>
 </body>
 
 </html>
