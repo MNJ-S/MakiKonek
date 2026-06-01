@@ -27,31 +27,11 @@
                     <img src="../assets/img/Barangay_Makiling_SK.jpg" alt="SK Logo" class="hero-logo-sk">
                 </div>
 
-                <h1>Barangay Makiling</h1>
+                <span class="hero-tag">About Barangay Makiling</span>
+                <h1>A Community Rooted in Service</h1>
                 <p class="hero-subline">Serving over 11,000 residents through transparent governance, community programs, and digital public services.</p>
 
-                <div class="metrics-container-row">
-                    <div class="metric-mini-card">
-                        <div class="card-icon-only text-green"><i class="fa-solid fa-users"></i></div>
-                        <h3>11,669</h3>
-                        <span>Population</span>
-                    </div>
-                    <div class="metric-mini-card">
-                        <div class="card-icon-only text-blue"><i class="fa-solid fa-house"></i></div>
-                        <h3>3,160</h3>
-                        <span>Households</span>
-                    </div>
-                    <div class="metric-mini-card">
-                        <div class="card-icon-only text-orange"><i class="fa-solid fa-location-dot"></i></div>
-                        <h3>465.7</h3>
-                        <span>Hectares</span>
-                    </div>
-                    <div class="metric-mini-card">
-                        <div class="card-icon-only text-yellow"><i class="fa-solid fa-calendar-days"></i></div>
-                        <h3>May 15</h3>
-                        <span>Fiesta Day</span>
-                    </div>
-                </div>
+                <!-- simplified hero: metrics removed for a cleaner layout -->
             </div>
         </section>
 
