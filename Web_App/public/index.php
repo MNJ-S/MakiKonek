@@ -220,13 +220,13 @@
                     <span class="hotline-icon">H</span>
                     <h3>Health Center</h3>
                     <p>Makiling Health Center</p>
-                    <strong>Available at barangay hall</strong>
+                    <strong>+63 963 786 6650</strong>
                 </article>
                 <article class="hotline-card disaster">
                     <span class="hotline-icon">D</span>
                     <h3>Disaster Response</h3>
                     <p>Calamba City CDRRMD</p>
-                    <strong>(049) 545 4119<br>0917 148 9813</strong>
+                    <strong>(049) 545 4119<br>+63 917 148 9813</strong>
                 </article>
             </div>
 
