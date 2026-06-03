@@ -6,7 +6,7 @@ $assetBase = $assetBase ?? '../assets';
 $loginHref = '../login_reg.php';
 $isResidentHeader = $isResidentHeader ?? false;
 
-// Grab the username from the session if it exists, otherwise fallback to "Resident"
+// username default as Resident
 $header_username = isset($_SESSION['resident_username']) ? $_SESSION['resident_username'] : 'Resident';
 ?>
 <header class="site-header">
