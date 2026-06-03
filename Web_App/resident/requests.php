@@ -1,106 +1,10 @@
 <?php
+
 session_start();
 
 if (!isset($_SESSION['resident_id'])) {
     header("Location: ../login_reg.php");
     exit();
-}
-
-require_once __DIR__ . '/../includes/db_connect.php';
-
-$resident_id = $_SESSION['resident_id'];
-$success_message = '';
-$error_message = '';
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // FETCH FORM
-    $document_type = mysqli_real_escape_string($conn, $_POST['document_type'] ?? 'Barangay Clearance');
-    $first_name = strtoupper(mysqli_real_escape_string($conn, trim($_POST['first_name'])));
-    $middle_name = strtoupper(mysqli_real_escape_string($conn, trim($_POST['middle_name'])));
-    $last_name = strtoupper(mysqli_real_escape_string($conn, trim($_POST['last_name'])));
-    $suffix = strtoupper(mysqli_real_escape_string($conn, trim($_POST['suffix'])));
-    $email = mysqli_real_escape_string($conn, trim($_POST['email']));
-    $phone = mysqli_real_escape_string($conn, trim($_POST['phone']));
-    $birth_date = mysqli_real_escape_string($conn, $_POST['birth_date']);
-    $gender = strtoupper(mysqli_real_escape_string($conn, $_POST['gender']));
-    $civil_status = strtoupper(mysqli_real_escape_string($conn, $_POST['civil_status']));
-    $address = strtoupper(mysqli_real_escape_string($conn, trim($_POST['address'])));
-    $province = strtoupper(mysqli_real_escape_string($conn, trim($_POST['province'])));
-    $city = strtoupper(mysqli_real_escape_string($conn, trim($_POST['city'])));
-    $barangay = strtoupper(mysqli_real_escape_string($conn, trim($_POST['barangay'])));
-    $purpose = strtoupper(mysqli_real_escape_string($conn, trim($_POST['purpose'])));
-    $occupation = strtoupper(mysqli_real_escape_string($conn, trim($_POST['occupation'])));
-    $document_fee = mysqli_real_escape_string($conn, $_POST['document_fee'] ?? 'P50.00');
-
-    // VALID ID
-    $id_path = '';
-    if (isset($_FILES['valid_id']) && $_FILES['valid_id']['error'] === UPLOAD_ERR_OK) {
-        $file_tmp = $_FILES['valid_id']['tmp_name'];
-        $file_name = $_FILES['valid_id']['name'];
-        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-
-        $allowed_extensions = ['jpg', 'jpeg', 'png', 'pdf'];
-        if (in_array($file_ext, $allowed_extensions)) {
-            $upload_dir = __DIR__ . '/../assets/uploads/requirements/';
-            if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, 0755, true);
-            }
-
-            $new_file_name = 'id_' . $resident_id . '_' . time() . '.' . $file_ext;
-            if (move_uploaded_file($file_tmp, $upload_dir . $new_file_name)) {
-                $id_path = 'assets/uploads/requirements/' . $new_file_name;
-            }
-        } else {
-            $error_message = "Invalid file type. Only JPG, PNG, and PDF files are allowed.";
-        }
-    } else {
-        $error_message = "You must upload a copy of a valid identification card.";
-    }
-
-    // PASOK SA DATABASE
-    if (empty($error_message)) {
-        $reference_no = 'MK-' . strtoupper(substr(uniqid(), 7, 6));
-
-        $insert_query = "
-            INSERT INTO service_requests (
-                user_id, reference_no, document_type, first_name, middle_name, last_name, suffix, 
-                email, phone, birth_date, gender, civil_status, address, province, city, barangay, 
-                purpose, occupation, document_fee, id_path
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ";
-
-        $stmt = mysqli_prepare($conn, $insert_query);
-        mysqli_stmt_bind_param(
-            $stmt,
-            "isssssssssssssssssss",
-            $resident_id,
-            $reference_no,
-            $document_type,
-            $first_name,
-            $middle_name,
-            $last_name,
-            $suffix,
-            $email,
-            $phone,
-            $birth_date,
-            $gender,
-            $civil_status,
-            $address,
-            $province,
-            $city,
-            $barangay,
-            $purpose,
-            $occupation,
-            $document_fee,
-            $id_path
-        );
-
-        if (mysqli_stmt_execute($stmt)) {
-            $success_message = "Your request has been submitted under Reference Number: " . $reference_no;
-        } else {
-            $error_message = "Database processing error. Failed to submit request.";
-        }
-    }
 }
 
 $pageTitle = 'My Requests';
@@ -117,9 +21,13 @@ $documentGroups = [
         ['name' => 'Business Clearance', 'fee' => 'P100.00', 'time' => '2-3 working days'],
     ],
     'Permits' => [
-        ['name' => 'Building Permit', 'fee' => 'P500.00', 'time' => '3-5 working days'],
+        ['name' => 'Building/Construction Permit', 'fee' => 'P500.00', 'time' => '3-5 working days'],
         ['name' => 'Cedula', 'fee' => 'Based on LGU', 'time' => 'Same day processing'],
-    ]
+    ],
+    'Others' => [
+        ['name' => 'Barangay ID', 'fee' => 'P100.00', 'time' => '2-3 working days'],
+        ['name' => 'Incident Report', 'fee' => 'P50.00', 'time' => '1-2 working days'],
+    ],
 ];
 ?>
 <!DOCTYPE html>
@@ -188,61 +96,157 @@ $documentGroups = [
                         </div>
                     </div>
 
-                    <form class="request-form" action="requests.php" method="POST" enctype="multipart/form-data" data-request-form style="display:none;">
-                        <input type="hidden" name="document_type" id="hidden_doc_type">
-                        <input type="hidden" name="document_fee" id="hidden_doc_fee">
-
+                    <form class="request-form" data-request-form>
                         <h2>Request Details</h2>
-                        <p>Complete the form for <span id="display-selected-doc" style="font-weight:bold; color:#0b6d36;"></span></p>
+                        <p>Complete the form for <span data-selected-document>your selected document</span></p>
 
                         <div class="form-grid">
-                            <div class="field"><label>First Name *</label><input type="text" name="first_name" required oninput="this.value = this.value.toUpperCase()"></div>
-                            <div class="field"><label>Middle Name</label><input type="text" name="middle_name" oninput="this.value = this.value.toUpperCase()"></div>
-                            <div class="field"><label>Last Name *</label><input type="text" name="last_name" required oninput="this.value = this.value.toUpperCase()"></div>
-                            <div class="field"><label>Suffix</label><input type="text" name="suffix" oninput="this.value = this.value.toUpperCase()"></div>
-                            <div class="field"><label>Email Address *</label><input type="email" name="email" required></div>
-                            <div class="field"><label>Phone Number *</label><input type="tel" name="phone" required></div>
-                            <div class="field"><label>Birth Date *</label><input type="date" name="birth_date" required></div>
                             <div class="field">
-                                <label>Gender *</label>
-                                <select name="gender" required>
+                                <label for="first_name">First Name *</label>
+                                <input id="first_name" name="first_name" type="text" value="Juan" required>
+                            </div>
+                            <div class="field">
+                                <label for="middle_name">Middle Name</label>
+                                <input id="middle_name" name="middle_name" type="text" value="Santos">
+                            </div>
+                            <div class="field">
+                                <label for="last_name">Last Name *</label>
+                                <input id="last_name" name="last_name" type="text" value="Dela Cruz" required>
+                            </div>
+                            <div class="field">
+                                <label for="suffix">Suffix</label>
+                                <input id="suffix" name="suffix" type="text">
+                            </div>
+                            <div class="field">
+                                <label for="email">Email Address *</label>
+                                <input id="email" name="email" type="email" placeholder="example@email.com" required>
+                            </div>
+                            <div class="field">
+                                <label for="phone">Phone Number *</label>
+                                <input id="phone" name="phone" type="tel" placeholder="+63 912 345 6789" required>
+                            </div>
+                            <div class="field">
+                                <label for="birth_date">Birth Date *</label>
+                                <input id="birth_date" name="birth_date" type="date" required>
+                            </div>
+                            <div class="field">
+                                <label for="gender">Gender *</label>
+                                <select id="gender" name="gender" required>
                                     <option value="">Select gender</option>
-                                    <option value="MALE">Male</option>
-                                    <option value="FEMALE">Female</option>
-                                    <option value="PREFER NOT TO SAY">Prefer not to say</option>
+                                    <option>Female</option>
+                                    <option>Male</option>
+                                    <option>Prefer not to say</option>
                                 </select>
                             </div>
                             <div class="field">
-                                <label>Civil Status *</label>
-                                <select name="civil_status" required>
+                                <label for="civil_status">Civil Status *</label>
+                                <select id="civil_status" name="civil_status" required>
                                     <option value="">Select status</option>
-                                    <option value="SINGLE">Single</option>
-                                    <option value="MARRIED">Married</option>
-                                    <option value="WIDOWED">Widowed</option>
-                                    <option value="SEPARATED">Separated</option>
+                                    <option>Single</option>
+                                    <option>Married</option>
+                                    <option>Widowed</option>
+                                    <option>Separated</option>
                                 </select>
                             </div>
-                            <div class="field full"><label>Full Address *</label><input type="text" name="address" required oninput="this.value = this.value.toUpperCase()"></div>
-                            <div class="field"><label>Province *</label><input type="text" name="province" value="LAGUNA" required oninput="this.value = this.value.toUpperCase()"></div>
-                            <div class="field"><label>City/Municipality *</label><input type="text" name="city" value="CALAMBA" required oninput="this.value = this.value.toUpperCase()"></div>
-                            <div class="field"><label>Barangay *</label><input type="text" name="barangay" value="MAKILING" required oninput="this.value = this.value.toUpperCase()"></div>
-
                             <div class="field full">
-                                <label>Upload Valid ID *</label>
-                                <input type="file" name="valid_id" accept="image/*,.pdf" required>
+                                <label for="address">Full Address *</label>
+                                <input id="address" name="address" type="text" placeholder="Enter full address" required>
+                            </div>
+                            <div class="field">
+                                <label for="province">Province *</label>
+                                <input id="province" name="province" type="text" value="Laguna" required>
+                            </div>
+                            <div class="field">
+                                <label for="city">City/Municipality *</label>
+                                <input id="city" name="city" type="text" value="Calamba" required>
+                            </div>
+                            <div class="field">
+                                <label for="barangay">Barangay *</label>
+                                <input id="barangay" name="barangay" type="text" value="Makiling" required>
+                            </div>
+                            
+                            <div class="field-group-5050">
+                                
+                                <div class="field valid-id-field">
+                                    <label for="valid_id">Upload Valid ID *</label>
+                                    <div class="upload-box">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Click to upload or drag and drop</p>
+                                        <p class="upload-sub">SVG, PNG, JPG or PDF (max. 5 MB uploaded)</p>
+                                        <input type="file" id="valid_id" name="valid_id" accept="image/*,.pdf" required style="display:none;">
+                                        <label for="valid_id" class="choose-file-btn">Choose File</label>
+                                    </div>
+                                </div>
+
+                                <div class="right-fields-stack">
+                                    <div class="field">
+                                        <label for="purpose">Purpose *</label>
+                                        <input type="text" id="purpose" name="purpose" placeholder="Enter purpose">
+                                    </div>
+                                    <div class="field">
+                                        <label for="occupation">Occupation</label>
+                                        <input type="text" id="occupation" name="occupation" placeholder="Enter occupation">
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        
+                        <div class="payment-main-wrapper-5050">
+                            
+                            <div class="payment-left-column">
+                                
+                                <div class="field payment-method-sub-block">
+                                    <label class="section-subtitle">Payment Method *</label>
+                                    <div class="radio-group-payment">
+                                        <label class="radio-label">
+                                            <input type="radio" name="payment_method" value="online" checked>
+                                            Pay Online / Pay Now
+                                        </label>
+                                        <label class="radio-label">
+                                            <input type="radio" name="payment_method" value="cash">
+                                            Pay Cash upon Pickup
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="field receipt-upload-sub-block">
+                                    <label for="payment_receipt">Upload Payment Receipt *</label>
+                                    <div class="upload-box compact-upload">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Click to upload or drag and drop</p>
+                                        <p class="upload-sub">SVG, PNG, JPG or PDF (max. 5 MB uploaded)</p>
+                                        <input type="file" id="payment_receipt" name="payment_receipt" accept="image/*,application/pdf" style="display:none;">
+                                        <label for="payment_receipt" class="choose-file-btn">Choose File</label>
+                                    </div>
+                                    
+                                    <a href="#" class="sample-link">
+                                        <i class="fas fa-eye"></i> View Sample Receipt
+                                    </a>
+                                </div>
                             </div>
 
-                            <div class="field"><label>Purpose *</label><input type="text" name="purpose" required oninput="this.value = this.value.toUpperCase()"></div>
-                            <div class="field"><label>Occupation</label><input type="text" name="occupation" oninput="this.value = this.value.toUpperCase()"></div>
+                            <div class="payment-right-column">
+                                <div class="field qr-code-sub-block">
+                                    <label>Scan QR Code to Pay</label>
+                                    <div class="qr-image-wrapper">
+                                        <img src="../assets/img/qr_code.jpg" alt="Payment QR Code" class="qr-img">
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="fee-box">
-                            <span>Document Fee: <small>Processing time: <span data-processing-time>1-2 working days</span></small></span>
-                            <strong id="display-fee">P0.00</strong>
+                            <span>
+                                Document Fee:
+                                <small>Processing time: <span data-processing-time>1-2 working days</span></small>
+                            </span>
+                            <strong data-selected-fee>P50.00</strong>
                         </div>
 
                         <div class="form-actions">
-                            <button class="cancel-btn" type="button" id="cancel-request-btn">Cancel</button>
+                            <button class="cancel-btn" type="button" data-clear-request>Cancel</button>
                             <button class="submit-btn" type="submit">Submit Request</button>
                         </div>
                     </form>
@@ -251,17 +255,15 @@ $documentGroups = [
         </main>
     </div>
 
-    <div id="notification-container" style="position: fixed; bottom: 30px; right: 30px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;">
-        <?php if (!empty($success_message)): ?>
-            <div class="toast-notification" style="background-color:#dcfce7; border-left: 5px solid #22c55e; color:#15803d; padding:15px 25px; border-radius:6px; font-size:14px; font-weight:bold; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transition: opacity 0.5s ease;">
-                <?php echo $success_message; ?>
+    <div id="receiptModal" class="receipt-modal-overlay">
+        <div class="receipt-modal-content">
+            <button type="button" class="modal-back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Form
+            </button>
+            <div class="modal-image-wrapper">
+                <img src="../assets/img/sample_receipt.png" alt="Sample GCash Receipt">
             </div>
-        <?php endif; ?>
-        <?php if (!empty($error_message)): ?>
-            <div class="toast-notification" style="background-color:#fee2e2; border-left: 5px solid #ef4444; color:#b91c1c; padding:15px 25px; border-radius:6px; font-size:14px; font-weight:bold; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transition: opacity 0.5s ease;">
-                <?php echo $error_message; ?>
-            </div>
-        <?php endif; ?>
+        </div>
     </div>
 
     <?php
@@ -269,47 +271,7 @@ $documentGroups = [
     $footerAssetBase = '../assets';
     include __DIR__ . '/../includes/footer.php';
     ?>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const options = document.querySelectorAll('.document-option');
-            const emptyState = document.querySelector('[data-empty-state]');
-            const form = document.querySelector('[data-request-form]');
-
-            options.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    options.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    // UPDATE
-                    const name = this.dataset.documentName;
-                    const fee = this.dataset.documentFee;
-
-                    document.getElementById('hidden_doc_type').value = name;
-                    document.getElementById('hidden_doc_fee').value = fee;
-                    document.getElementById('display-selected-doc').textContent = name;
-                    document.getElementById('display-fee').textContent = fee;
-
-                    emptyState.style.display = 'none';
-                    form.style.display = 'block';
-                });
-            });
-
-            document.getElementById('cancel-request-btn').addEventListener('click', function() {
-                form.reset();
-                form.style.style.display = 'none';
-                emptyState.style.display = 'block';
-                options.forEach(b => b.classList.remove('active'));
-            });
-
-            const notifications = document.querySelectorAll('.toast-notification');
-            notifications.forEach(n => {
-                setTimeout(() => {
-                    n.style.opacity = '0';
-                    setTimeout(() => n.remove(), 500);
-                }, 5000);
-            });
-        });
-    </script>
+    <script src="../assets/js/resident.js?v=20260530a"></script>
 </body>
 
-</html
+</html>
