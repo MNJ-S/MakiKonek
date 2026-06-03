@@ -1021,3 +1021,322 @@ textarea {
     .profile-input-grid .field.double-wide { grid-column: span 1; }
     .notifications-header { flex-direction: column; gap: 8px; }
 }
+
+/* Fixed Layout */
+@media (min-width: 769px) {
+
+    /* Valid ID & Purpose/Occupation */
+    .field-group-5050 {
+        grid-column: 1 / -1 !important;
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 24px !important;
+        width: 100% !important;
+        align-items: flex-start !important;
+        margin-bottom: 25px !important;
+    }
+
+    .field-group-5050 .valid-id-field {
+        width: 50% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        margin: 0 !important;
+    }
+
+    .field-group-5050 .right-fields-stack {
+        width: 50% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        gap: 14px !important;
+    }
+
+    .field-group-5050 .right-fields-stack .field {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    .field-group-5050 .valid-id-field .upload-box {
+        width: 100% !important;
+        height: 185px !important; 
+        min-height: 185px !important;
+        border: 2px dashed #cbd5e1 !important;
+        border-radius: 8px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        background-color: #ffffff !important;
+        padding: 20px !important;
+        box-sizing: border-box !important;
+    }
+
+    .field-group-5050 .valid-id-field .upload-box i {
+        font-size: 2rem !important;
+        color: #4f46e5 !important;
+        margin-bottom: 6px !important;
+    }
+
+    .field-group-5050 .valid-id-field .upload-box p {
+        font-size: 13px !important;
+        line-height: 1.4 !important;
+        color: #64748b !important;
+        margin: 2px 0 !important;
+        text-align: center !important;
+    }
+
+    .field-group-5050 .valid-id-field .upload-box .upload-sub {
+        font-size: 12px !important;
+        color: #94a3b8 !important;
+        margin-bottom: 8px !important;
+    }
+
+    .field-group-5050 .valid-id-field .choose-file-btn {
+        display: inline-block !important;
+        width: auto !important;
+        padding: 6px 18px !important;
+        font-size: 12px !important;
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 6px !important;
+        color: #333333 !important;
+        cursor: pointer !important;
+        margin-top: 4px !important;
+    }
+
+
+    /* Payment */
+    .payment-main-wrapper-5050 {
+        grid-column: 1 / -1 !important;
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 24px !important;
+        width: 100% !important;
+        align-items: stretch !important;
+        margin-top: 15px !important;
+        margin-bottom: 20px !important;
+    }
+
+    .payment-main-wrapper-5050 .payment-left-column {
+        width: 50% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+    }
+
+    .payment-main-wrapper-5050 .payment-right-column {
+        width: 50% !important;
+        display: flex !important;
+    }
+
+    .payment-main-wrapper-5050 .payment-right-column .field {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        margin: 0 !important;
+    }
+
+    /* Radio Buttons */
+    .payment-method-sub-block {
+        margin-bottom: 12px !important;
+        display: block !important;
+        width: 100% !important;
+    }
+
+    .radio-group-payment {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 20px !important;
+        margin-top: 8px !important;
+        width: 100% !important;
+    }
+
+    .radio-label {
+        display: inline-flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        cursor: pointer !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        color: #475569 !important;
+        gap: 6px !important;
+        margin: 0 !important;
+    }
+
+    .radio-label input[type="radio"] {
+        width: 13px !important;
+        height: 13px !important;
+        margin: 0 !important;
+        cursor: pointer !important;
+        accent-color: #2563eb !important;
+    }
+
+    .payment-left-column .compact-upload {
+        flex-grow: 1 !important; 
+        height: 185px !important; 
+        min-height: 185px !important;
+        border: 2px dashed #cbd5e1 !important;
+        border-radius: 8px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        background-color: #ffffff !important;
+        padding: 20px !important;
+        box-sizing: border-box !important;
+    }
+
+    .payment-left-column .compact-upload i {
+        font-size: 2rem !important;
+        color: #4f46e5 !important;
+        margin-bottom: 6px !important;
+    }
+
+    .payment-left-column .compact-upload p {
+        font-size: 13px !important;
+        line-height: 1.4 !important;
+        color: #64748b !important;
+        margin: 2px 0 !important;
+        text-align: center !important;
+    }
+
+    .payment-left-column .compact-upload .upload-sub {
+        font-size: 12px !important;
+        color: #94a3b8 !important;
+        margin-bottom: 8px !important;
+    }
+
+    .payment-left-column .compact-upload .choose-file-btn {
+        display: inline-block !important;
+        width: auto !important;
+        padding: 6px 16px !important;
+        font-size: 12px !important;
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 6px !important;
+        color: #333333 !important;
+        cursor: pointer !important;
+        margin-top: 4px !important;
+    }
+
+    .sample-link {
+        margin-top: 6px !important;
+        font-size: 12px !important;
+        color: #2563eb !important;
+        text-decoration: none !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+    }
+    .sample-link:hover { text-decoration: underline !important; }
+
+
+    /* QR Code */
+    .qr-image-wrapper {
+        flex-grow: 1 !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        background-color: #ffffff !important;
+        box-sizing: border-box !important;
+        padding: 0 !important;
+        
+        height: 280px !important; 
+        min-height: 280px !important;
+        overflow: hidden !important; 
+    }
+
+    .qr-img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: fill !important; 
+        display: block !important;
+    }
+}
+
+/* Mobile Configurations */
+@media (max-width: 768px) {
+    .field-group-5050, .payment-main-wrapper-5050 { flex-direction: column !important; gap: 16px !important; }
+    .radio-group-payment { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; }
+    .field-group-5050 .valid-id-field, .field-group-5050 .right-fields-stack,
+    .payment-main-wrapper-5050 .payment-left-column, .payment-main-wrapper-5050 .payment-right-column { width: 100% !important; }
+    .field-group-5050 .valid-id-field .upload-box, .payment-left-column .compact-upload { min-height: 185px !important; height: 185px !important; }
+    .qr-image-wrapper { height: 220px !important; }
+}
+/* ========================================================
+   SAMPLE RECEIPT MODAL POPUP SYSTEM
+   ======================================================== */
+.receipt-modal-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-color: rgba(15, 23, 42, 0.85) !important; /* Eleganteng madilim na transparent background */
+    display: none; /* Naka-tago muna by default */
+    justify-content: center !important;
+    align-items: center !important;
+    z-index: 99999 !important; /* Siguradong lilitaw sa pinaka-itaas ng lahat */
+    padding: 20px !important;
+    box-sizing: border-box !important;
+}
+
+/* Container ng Content */
+.receipt-modal-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    max-width: 450px !important; /* Swak na lapad para sa mobile receipt style */
+    width: 100% !important;
+    animation: modalFadeIn 0.3s ease-out !important;
+}
+
+/* Ang hiniling mong Back Button, sis! */
+.modal-back-btn {
+    align-self: flex-start !important; /* Pantay sa kaliwa ng image */
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background-color: #2563eb !important; /* Bagay sa GCash Blue theme */
+    color: #ffffff !important;
+    border: none !important;
+    padding: 10px 18px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    margin-bottom: 12px !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+    transition: background-color 0.2s ease !important;
+}
+
+.modal-back-btn:hover {
+    background-color: #1d4ed8 !important;
+}
+
+/* Wrapper para sa mismong Imahe */
+.modal-image-wrapper {
+    width: 100% !important;
+    max-height: 80vh !important; /* Para hindi lumagpas sa screen kahit maliit ang laptop */
+    overflow-y: auto !important; /* Pwedeng i-scroll pababa kung mahaba ang image */
+    border-radius: 12px !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3) !important;
+}
+
+.modal-image-wrapper img {
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    border-radius: 12px !important;
+}
+
+/* Simple entry pop effect animation */
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
