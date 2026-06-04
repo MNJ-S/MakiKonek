@@ -187,7 +187,7 @@
                             </div>
                             <i class="fa-brands fa-facebook"></i>
                         </div>
-                        <img class="fb-cover" src="https://scontent.fmnl13-4.fna.fbcdn.net/v/t39.30808-6/533643470_595910850267538_7007377488613180364_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=107&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeFmV6Q4ucEheacjMaAZ1rNykdlyveRxgdaR2XK95HGB1ltplZ64me8FgHFQ8Y05hj-Si04M7AwyMU9dJYiuGanB&_nc_ohc=lpNhsI3alogQ7kNvwHOrwLR&_nc_oc=AdruBjbcn1i0kB3flYvOyp8u8tzlf1ZmZwHCsOpMJ3RKz3kL3Cp6R8GNImLJ_G1ymd_fAbNimFq6HjcBPt5_6PpJ&_nc_zt=23&_nc_ht=scontent.fmnl13-4.fna&_nc_gid=3uSd8877iOoV-2O7y3kMWw&_nc_ss=7b2a8&oh=00_Af7smKWr6r2V9NLZgKtb7nSLVZrbMGoOkzPYJzshNDMSQg&oe=6A1F94B4" alt="SK Makiling Facebook cover photo">
+                        <img class="fb-cover" src="https://scontent.fmnl7-1.fna.fbcdn.net/v/t39.30808-6/533643470_595910850267538_7007377488613180364_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=107&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHIUdCqPfNoXPRFZv4tvA8YkdlyveRxgdaR2XK95HGB1nz1SgtIGujHGwaaqlhvSinprzH-Sgak0qFcregYNjSJ&_nc_ohc=dAWHbDyfAtYQ7kNvwHfaDa1&_nc_oc=Adp1Ndez0CnW8UrFQXZHJbPfp_F1gg5Rlfo2uL1zjeB0MHAq6pic9IAZ9iWeIMLQgJw&_nc_zt=23&_nc_ht=scontent.fmnl7-1.fna&_nc_gid=plI-mXKvN97Aw3q0G1f0Jw&_nc_ss=7b2a8&oh=00_Af9Wsmkfpflw8ot_1g2aB_brbT7C2Yyq_HIACMxJe7yvig&oe=6A277DB4" alt="SK Makiling Facebook cover photo">
                         <a href="https://www.facebook.com/kabataangmakiling" target="_blank" rel="noopener">Visit Page <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
                     </article>
                 </section>
