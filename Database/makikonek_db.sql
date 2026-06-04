@@ -84,6 +84,7 @@ CREATE TABLE `service_requests` (
   `occupation` varchar(50) DEFAULT NULL,
   `document_fee` varchar(20) NOT NULL,
   `id_path` varchar(255) NOT NULL,
+  `request_details` longtext DEFAULT NULL,
   `status` varchar(20) DEFAULT 'Pending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

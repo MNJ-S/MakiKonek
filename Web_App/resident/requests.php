@@ -7,8 +7,12 @@ if (!isset($_SESSION['resident_id'])) {
     exit();
 }
 
+require_once __DIR__ . '/../includes/db_connect.php';
+
 $pageTitle = 'My Requests';
 $activePage = 'requests';
+$success_message = '';
+$error_message = '';
 
 $documentGroups = [
     'Certificates' => [
@@ -29,6 +33,124 @@ $documentGroups = [
         ['name' => 'Incident Report', 'fee' => 'P50.00', 'time' => '1-2 working days'],
     ],
 ];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $resident_id = (int) $_SESSION['resident_id'];
+    $document_type = trim($_POST['document_type'] ?? '');
+    $document_fee = trim($_POST['document_fee'] ?? '');
+    $first_name = trim($_POST['first_name'] ?? '');
+    $middle_name = trim($_POST['middle_name'] ?? '');
+    $last_name = trim($_POST['last_name'] ?? '');
+    $suffix = trim($_POST['suffix'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
+    $birth_date = trim($_POST['birth_date'] ?? '');
+    $gender = trim($_POST['gender'] ?? '');
+    $civil_status = trim($_POST['civil_status'] ?? '');
+    $address = trim($_POST['address'] ?? '');
+    $province = trim($_POST['province'] ?? '');
+    $city = trim($_POST['city'] ?? '');
+    $barangay = trim($_POST['barangay'] ?? '');
+    $purpose = trim($_POST['purpose'] ?? '');
+    $occupation = trim($_POST['occupation'] ?? '');
+    $request_details = null;
+    $id_path = '';
+
+    if ($document_type === 'Business Clearance') {
+        $business_name = trim($_POST['business_name'] ?? '');
+        $business_location = trim($_POST['business_location'] ?? '');
+        $business_operator = trim($_POST['business_operator'] ?? '');
+        $business_address = trim($_POST['business_address'] ?? '');
+        $business_nature = trim($_POST['business_nature'] ?? '');
+        $business_permit_for = trim($_POST['business_permit_for'] ?? '');
+
+        if ($business_name === '' || $business_location === '' || $business_operator === '' || $business_address === '' || $business_nature === '') {
+            $error_message = 'Please complete all required business clearance fields.';
+        } else {
+            $request_details = json_encode([
+                'business_name' => $business_name,
+                'business_location' => $business_location,
+                'business_operator' => $business_operator,
+                'business_address' => $business_address,
+                'business_nature' => $business_nature,
+                'business_permit_for' => $business_permit_for,
+            ]);
+
+            if ($purpose === '') {
+                $purpose = $business_permit_for !== '' ? $business_permit_for : 'BUSINESS PERMIT APPLICATION';
+            }
+        }
+    }
+
+    if ($error_message === '' && ($document_type === '' || $first_name === '' || $last_name === '' || $email === '' || $phone === '' || $birth_date === '' || $gender === '' || $civil_status === '' || $address === '' || $province === '' || $city === '' || $barangay === '' || $purpose === '')) {
+        $error_message = 'Please complete all required request fields.';
+    } elseif ($error_message === '' && empty($_FILES['valid_id']['name'])) {
+        $error_message = 'Please upload a valid ID.';
+    } elseif ($error_message === '') {
+        $upload_dir = __DIR__ . '/../assets/uploads/requirements/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+
+        $extension = strtolower(pathinfo($_FILES['valid_id']['name'], PATHINFO_EXTENSION));
+        $allowed_extensions = ['jpg', 'jpeg', 'png', 'pdf'];
+
+        if (!in_array($extension, $allowed_extensions, true)) {
+            $error_message = 'Valid ID must be a JPG, PNG, or PDF file.';
+        } else {
+            $file_name = 'id_' . $resident_id . '_' . time() . '.' . $extension;
+            $target_file = $upload_dir . $file_name;
+
+            if (move_uploaded_file($_FILES['valid_id']['tmp_name'], $target_file)) {
+                $id_path = 'assets/uploads/requirements/' . $file_name;
+            } else {
+                $error_message = 'Failed to upload valid ID.';
+            }
+        }
+    }
+
+    if ($error_message === '') {
+        $reference_no = 'MK-' . strtoupper(substr(uniqid(), -6));
+        $insert = "INSERT INTO service_requests (
+            user_id, reference_no, document_type, first_name, middle_name, last_name, suffix,
+            email, phone, birth_date, gender, civil_status, address, province, city, barangay,
+            purpose, occupation, document_fee, id_path, request_details
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        $stmt = mysqli_prepare($conn, $insert);
+        mysqli_stmt_bind_param(
+            $stmt,
+            "issssssssssssssssssss",
+            $resident_id,
+            $reference_no,
+            $document_type,
+            $first_name,
+            $middle_name,
+            $last_name,
+            $suffix,
+            $email,
+            $phone,
+            $birth_date,
+            $gender,
+            $civil_status,
+            $address,
+            $province,
+            $city,
+            $barangay,
+            $purpose,
+            $occupation,
+            $document_fee,
+            $id_path,
+            $request_details
+        );
+
+        if (mysqli_stmt_execute($stmt)) {
+            $success_message = 'Your request has been submitted under Reference Number: ' . $reference_no;
+        } else {
+            $error_message = 'Database error. Failed to submit request.';
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -60,6 +182,14 @@ $documentGroups = [
                 <h1>My Requests</h1>
                 <p>Submit a new document request</p>
             </header>
+
+            <?php if ($success_message): ?>
+                <div class="alert alert-success"><?php echo htmlspecialchars($success_message); ?></div>
+            <?php endif; ?>
+
+            <?php if ($error_message): ?>
+                <div class="alert alert-danger"><?php echo htmlspecialchars($error_message); ?></div>
+            <?php endif; ?>
 
             <section class="request-layout">
                 <aside class="request-card">
@@ -96,7 +226,10 @@ $documentGroups = [
                         </div>
                     </div>
 
-                    <form class="request-form" data-request-form>
+                    <form class="request-form" action="requests.php" method="POST" enctype="multipart/form-data" data-request-form>
+                        <input type="hidden" name="document_type" data-document-type-input>
+                        <input type="hidden" name="document_fee" data-document-fee-input>
+
                         <h2>Request Details</h2>
                         <p>Complete the form for <span data-selected-document>your selected document</span></p>
 
@@ -164,6 +297,36 @@ $documentGroups = [
                                 <label for="barangay">Barangay *</label>
                                 <input id="barangay" name="barangay" type="text" value="Makiling" required>
                             </div>
+
+                            <div class="field full service-extra business-extra" data-service-extra="Business Clearance" style="display:none;">
+                                <h3>Business Clearance Details</h3>
+                                <p>Provide the business information that will appear on the clearance.</p>
+                            </div>
+
+                            <div class="field service-extra business-extra" data-service-extra="Business Clearance" style="display:none;">
+                                <label for="business_name">Business Name / Trade Activity *</label>
+                                <input id="business_name" name="business_name" type="text" placeholder="Enter business or trade name">
+                            </div>
+                            <div class="field service-extra business-extra" data-service-extra="Business Clearance" style="display:none;">
+                                <label for="business_location">Business Location *</label>
+                                <input id="business_location" name="business_location" type="text" placeholder="Enter location">
+                            </div>
+                            <div class="field service-extra business-extra" data-service-extra="Business Clearance" style="display:none;">
+                                <label for="business_operator">Operator / Manager *</label>
+                                <input id="business_operator" name="business_operator" type="text" placeholder="Enter operator or manager">
+                            </div>
+                            <div class="field service-extra business-extra" data-service-extra="Business Clearance" style="display:none;">
+                                <label for="business_nature">Nature / Type of Business *</label>
+                                <input id="business_nature" name="business_nature" type="text" placeholder="e.g. Sari-sari store, online shop">
+                            </div>
+                            <div class="field full service-extra business-extra" data-service-extra="Business Clearance" style="display:none;">
+                                <label for="business_address">Business Address *</label>
+                                <input id="business_address" name="business_address" type="text" placeholder="Enter complete business address">
+                            </div>
+                            <div class="field full service-extra business-extra" data-service-extra="Business Clearance" style="display:none;">
+                                <label for="business_permit_for">Permit / Application Purpose</label>
+                                <input id="business_permit_for" name="business_permit_for" type="text" placeholder="e.g. Mayor's Permit application" data-optional="true">
+                            </div>
                             
                             <div class="field-group-5050">
                                 
@@ -181,7 +344,7 @@ $documentGroups = [
                                 <div class="right-fields-stack">
                                     <div class="field">
                                         <label for="purpose">Purpose *</label>
-                                        <input type="text" id="purpose" name="purpose" placeholder="Enter purpose">
+                                        <input type="text" id="purpose" name="purpose" placeholder="Enter purpose" required>
                                     </div>
                                     <div class="field">
                                         <label for="occupation">Occupation</label>

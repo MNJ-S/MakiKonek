@@ -36,16 +36,16 @@ $type_map = [
     'Residency' => 'Certificate of Residency',
     'Business' => 'Business Clearance',
     'Incident' => 'Incident Report',
-    'Identification' => 'Barangay Identification',
+    'Identification' => 'Barangay ID',
     'Cedula' => 'Cedula',
     'Moral' => 'Good Moral Certificate',
-    'Construction' => 'Construction Permit'
+    'Construction' => 'Building/Construction Permit'
 ];
 
 $filter_type = $type_map[$selected_tab] ?? 'Barangay Clearance';
 
 if ($selected_tab === 'Others') {
-    $query = "SELECT * FROM service_requests WHERE document_type NOT IN ('Barangay Clearance', 'Certificate of Indigency', 'Certificate of Residency', 'Business Clearance', 'Incident Report', 'Barangay Identification', 'Cedula', 'Good Moral Certificate', 'Construction Permit') ORDER BY created_at DESC";
+    $query = "SELECT * FROM service_requests WHERE document_type NOT IN ('Barangay Clearance', 'Certificate of Indigency', 'Certificate of Residency', 'Business Clearance', 'Incident Report', 'Barangay ID', 'Cedula', 'Good Moral Certificate', 'Building/Construction Permit') ORDER BY created_at DESC";
 } else {
     $query = "SELECT * FROM service_requests WHERE document_type = ? ORDER BY created_at DESC";
 }

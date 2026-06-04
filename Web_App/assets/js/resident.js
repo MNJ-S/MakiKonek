@@ -6,15 +6,41 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectedFee = document.querySelector("[data-selected-fee]");
     const processingTime = document.querySelector("[data-processing-time]");
     const clearButton = document.querySelector("[data-clear-request]");
+    const documentTypeInput = document.querySelector("[data-document-type-input]");
+    const documentFeeInput = document.querySelector("[data-document-fee-input]");
+    const serviceExtras = document.querySelectorAll("[data-service-extra]");
 
     if (!options.length || !emptyState || !requestForm) {
         return;
     }
 
+    const updateServiceExtras = (documentName = "") => {
+        serviceExtras.forEach((section) => {
+            const isActive = section.dataset.serviceExtra === documentName;
+            section.style.display = isActive ? "" : "none";
+            section.querySelectorAll("input, select, textarea").forEach((field) => {
+                field.disabled = !isActive;
+                if (field.dataset.optional !== "true") {
+                    field.required = isActive;
+                }
+                if (!isActive) {
+                    field.value = "";
+                }
+            });
+        });
+    };
+
     const showEmptyState = () => {
         options.forEach((option) => option.classList.remove("active"));
         emptyState.style.display = "grid";
         requestForm.classList.remove("is-visible");
+        if (documentTypeInput) {
+            documentTypeInput.value = "";
+        }
+        if (documentFeeInput) {
+            documentFeeInput.value = "";
+        }
+        updateServiceExtras();
     };
 
     options.forEach((option) => {
@@ -25,6 +51,13 @@ document.addEventListener("DOMContentLoaded", () => {
             selectedDocument.textContent = option.dataset.documentName;
             selectedFee.textContent = option.dataset.documentFee;
             processingTime.textContent = option.dataset.documentTime;
+            if (documentTypeInput) {
+                documentTypeInput.value = option.dataset.documentName;
+            }
+            if (documentFeeInput) {
+                documentFeeInput.value = option.dataset.documentFee;
+            }
+            updateServiceExtras(option.dataset.documentName);
 
             emptyState.style.display = "none";
             requestForm.classList.add("is-visible");
