@@ -244,7 +244,7 @@ body.resident-page .resident-nav a.logout-btn {
     display: grid;
     grid-template-rows: auto 1fr;
     align-items: end;
-    justify-content: start;
+    justify-content: center;
     padding: 24px;
     height: 165px;
     border: 1px solid #eef1f6;
@@ -253,19 +253,18 @@ body.resident-page .resident-nav a.logout-btn {
     box-sizing: border-box;
 }
 
-/* DITO ANG MADYIK PARA SA ICON, SIS */
 .stat-icon {
-    display: flex !important;       /* Ginawang flex para mas madaling igitna ang icon text/glyph */
-    align-items: center !important;  /* Gitna vertically */
-    justify-content: center !important; /* Gitna horizontally */
-    width: 52px;                     /* Ginawa nating mas compact na box para swak sa icon */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 52px;
     height: 52px;
     border-radius: 12px;
-    font-size: 24px !important;      /* PINALAKI NANG KONTRE para kitang-kita na! */
-    align-self: start;
+    font-size: 24px !important;
+    justify-self: center;
     margin-bottom: 16px;
-    line-height: 1 !important;       /* Inalis ang line-height na pwedeng bumuwal sa icon */
-    padding: 0 !important;           /* Clean slate, walang eepal na padding */
+    line-height: 1 !important;
+    padding: 0 !important;
 }
 
 .stat-icon.green { color: #4fa734; background: #e8f6e7; }
@@ -276,7 +275,7 @@ body.resident-page .resident-nav a.logout-btn {
 .stat-content {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     justify-content: flex-end;
     gap: 4px;
     width: 100%;
@@ -291,7 +290,7 @@ body.resident-page .resident-nav a.logout-btn {
     color: #111111;
     margin: 0;
     padding: 0;
-    text-align: left;
+    text-align: center;
 }
 
 .stat-card span,
@@ -303,7 +302,7 @@ body.resident-page .resident-nav a.logout-btn {
     line-height: 1.2;
     margin: 0;
     padding: 0;
-    text-align: left;
+    text-align: center;
 }
 
 .dashboard-grid {
