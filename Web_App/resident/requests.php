@@ -82,6 +82,122 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    if ($document_type === 'Building/Construction Permit') {
+        $construction_address = trim($_POST['construction_address'] ?? '');
+        $construction_purpose = trim($_POST['construction_purpose'] ?? '');
+        $construction_other_purpose = trim($_POST['construction_other_purpose'] ?? '');
+        $construction_status = trim($_POST['construction_status'] ?? '');
+        $construction_other_status = trim($_POST['construction_other_status'] ?? '');
+        $construction_description = trim($_POST['construction_description'] ?? '');
+
+        if ($construction_address === '' || $construction_purpose === '' || $construction_status === '') {
+            $error_message = 'Please complete all required construction permit fields.';
+        } else {
+            $request_details = json_encode([
+                'construction_address' => $construction_address,
+                'construction_purpose' => $construction_purpose,
+                'construction_other_purpose' => $construction_other_purpose,
+                'construction_status' => $construction_status,
+                'construction_other_status' => $construction_other_status,
+                'construction_description' => $construction_description,
+            ]);
+
+            if ($purpose === '') {
+                $purpose = $construction_purpose === 'Others' && $construction_other_purpose !== ''
+                    ? $construction_other_purpose
+                    : $construction_purpose;
+            }
+        }
+    }
+
+    if ($document_type === 'Cedula') {
+        $cedula_type = trim($_POST['cedula_type'] ?? '');
+        $cedula_tax_year = trim($_POST['cedula_tax_year'] ?? '');
+        $cedula_place_issued = trim($_POST['cedula_place_issued'] ?? '');
+        $cedula_income_source = trim($_POST['cedula_income_source'] ?? '');
+        $cedula_tin = trim($_POST['cedula_tin'] ?? '');
+        $cedula_birthplace = trim($_POST['cedula_birthplace'] ?? '');
+        $cedula_height = trim($_POST['cedula_height'] ?? '');
+        $cedula_weight = trim($_POST['cedula_weight'] ?? '');
+        $cedula_gross_income = trim($_POST['cedula_gross_income'] ?? '');
+
+        if ($cedula_type === '' || $cedula_tax_year === '' || $cedula_place_issued === '' || $cedula_birthplace === '' || $cedula_height === '' || $cedula_weight === '' || $cedula_gross_income === '') {
+            $error_message = 'Please complete all required cedula fields.';
+        } else {
+            $request_details = json_encode([
+                'cedula_type' => $cedula_type,
+                'cedula_tax_year' => $cedula_tax_year,
+                'cedula_place_issued' => $cedula_place_issued,
+                'cedula_income_source' => $cedula_income_source,
+                'cedula_tin' => $cedula_tin,
+                'cedula_birthplace' => $cedula_birthplace,
+                'cedula_height' => $cedula_height,
+                'cedula_weight' => $cedula_weight,
+                'cedula_gross_income' => $cedula_gross_income,
+            ]);
+
+            if ($purpose === '') {
+                $purpose = 'COMMUNITY TAX CERTIFICATE';
+            }
+        }
+    }
+
+    if ($document_type === 'Barangay ID') {
+        $id_emergency_name = trim($_POST['id_emergency_name'] ?? '');
+        $id_emergency_relationship = trim($_POST['id_emergency_relationship'] ?? '');
+        $id_emergency_contact = trim($_POST['id_emergency_contact'] ?? '');
+        $id_blood_type = trim($_POST['id_blood_type'] ?? '');
+        $id_valid_until = trim($_POST['id_valid_until'] ?? '');
+
+        if ($id_emergency_name === '' || $id_emergency_relationship === '' || $id_emergency_contact === '' || $id_valid_until === '') {
+            $error_message = 'Please complete all required Barangay ID fields.';
+        } else {
+            $request_details = json_encode([
+                'id_emergency_name' => $id_emergency_name,
+                'id_emergency_relationship' => $id_emergency_relationship,
+                'id_emergency_contact' => $id_emergency_contact,
+                'id_blood_type' => $id_blood_type,
+                'id_valid_until' => $id_valid_until,
+            ]);
+
+            if ($purpose === '') {
+                $purpose = 'BARANGAY IDENTIFICATION';
+            }
+        }
+    }
+
+    if ($document_type === 'Incident Report') {
+        $incident_date = trim($_POST['incident_date'] ?? '');
+        $incident_time = trim($_POST['incident_time'] ?? '');
+        $incident_location = trim($_POST['incident_location'] ?? '');
+        $incident_persons = trim($_POST['incident_persons'] ?? '');
+        $incident_narrative = trim($_POST['incident_narrative'] ?? '');
+        $incident_action = trim($_POST['incident_action'] ?? '');
+        $incident_witness_name = trim($_POST['incident_witness_name'] ?? '');
+        $incident_witness_contact = trim($_POST['incident_witness_contact'] ?? '');
+        $incident_witness_address = trim($_POST['incident_witness_address'] ?? '');
+
+        if ($incident_date === '' || $incident_time === '' || $incident_location === '' || $incident_narrative === '') {
+            $error_message = 'Please complete all required incident report fields.';
+        } else {
+            $request_details = json_encode([
+                'incident_date' => $incident_date,
+                'incident_time' => $incident_time,
+                'incident_location' => $incident_location,
+                'incident_persons' => $incident_persons,
+                'incident_narrative' => $incident_narrative,
+                'incident_action' => $incident_action,
+                'incident_witness_name' => $incident_witness_name,
+                'incident_witness_contact' => $incident_witness_contact,
+                'incident_witness_address' => $incident_witness_address,
+            ]);
+
+            if ($purpose === '') {
+                $purpose = 'INCIDENT DOCUMENTATION';
+            }
+        }
+    }
+
     if ($error_message === '' && ($document_type === '' || $first_name === '' || $last_name === '' || $email === '' || $phone === '' || $birth_date === '' || $gender === '' || $civil_status === '' || $address === '' || $province === '' || $city === '' || $barangay === '' || $purpose === '')) {
         $error_message = 'Please complete all required request fields.';
     } elseif ($error_message === '' && empty($_FILES['valid_id']['name'])) {
@@ -327,7 +443,165 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label for="business_permit_for">Permit / Application Purpose</label>
                                 <input id="business_permit_for" name="business_permit_for" type="text" placeholder="e.g. Mayor's Permit application" data-optional="true">
                             </div>
-                            
+
+                            <div class="field full service-extra construction-extra" data-service-extra="Building/Construction Permit" style="display:none;">
+                                <h3>Construction Permit Details</h3>
+                                <p>Provide the project information that will appear on the permit.</p>
+                            </div>
+
+                            <div class="field full service-extra construction-extra" data-service-extra="Building/Construction Permit" style="display:none;">
+                                <label for="construction_address">Project / Construction Address *</label>
+                                <input id="construction_address" name="construction_address" type="text" placeholder="Enter project location">
+                            </div>
+                            <div class="field service-extra construction-extra" data-service-extra="Building/Construction Permit" style="display:none;">
+                                <label for="construction_purpose">Specific Purpose *</label>
+                                <select id="construction_purpose" name="construction_purpose">
+                                    <option value="">Select purpose</option>
+                                    <option value="Electrical Works">Electrical Works</option>
+                                    <option value="Pipe Lying">Pipe Lying</option>
+                                    <option value="Excavation">Excavation</option>
+                                    <option value="Drainage / Sewerage">Drainage / Sewerage</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
+                            <div class="field service-extra construction-extra" data-service-extra="Building/Construction Permit" style="display:none;">
+                                <label for="construction_other_purpose">Other Purpose</label>
+                                <input id="construction_other_purpose" name="construction_other_purpose" type="text" placeholder="Specify other purpose" data-optional="true">
+                            </div>
+                            <div class="field service-extra construction-extra" data-service-extra="Building/Construction Permit" style="display:none;">
+                                <label for="construction_status">Construction Status *</label>
+                                <select id="construction_status" name="construction_status">
+                                    <option value="">Select status</option>
+                                    <option value="Not yet started">Not yet started</option>
+                                    <option value="Already Started">Already Started</option>
+                                    <option value="Already Constructed">Already Constructed</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
+                            <div class="field service-extra construction-extra" data-service-extra="Building/Construction Permit" style="display:none;">
+                                <label for="construction_other_status">Other Status</label>
+                                <input id="construction_other_status" name="construction_other_status" type="text" placeholder="Specify other status" data-optional="true">
+                            </div>
+                            <div class="field full service-extra construction-extra" data-service-extra="Building/Construction Permit" style="display:none;">
+                                <label for="construction_description">Project Description</label>
+                                <textarea id="construction_description" name="construction_description" rows="3" placeholder="Briefly describe the proposed work" data-optional="true"></textarea>
+                            </div>
+
+                            <div class="field full service-extra cedula-extra" data-service-extra="Cedula" style="display:none;">
+                                <h3>Cedula Details</h3>
+                                <p>Provide information for the community tax certificate request.</p>
+                            </div>
+                            <div class="field service-extra cedula-extra" data-service-extra="Cedula" style="display:none;">
+                                <label for="cedula_type">Cedula Type *</label>
+                                <select id="cedula_type" name="cedula_type">
+                                    <option value="">Select type</option>
+                                    <option value="Individual">Individual</option>
+                                    <option value="Business">Business</option>
+                                </select>
+                            </div>
+                            <div class="field service-extra cedula-extra" data-service-extra="Cedula" style="display:none;">
+                                <label for="cedula_tax_year">Tax Year *</label>
+                                <input id="cedula_tax_year" name="cedula_tax_year" type="text" placeholder="e.g. 2026">
+                            </div>
+                            <div class="field service-extra cedula-extra" data-service-extra="Cedula" style="display:none;">
+                                <label for="cedula_place_issued">Place Issued *</label>
+                                <input id="cedula_place_issued" name="cedula_place_issued" type="text" placeholder="e.g. Barangay Makiling">
+                            </div>
+                            <div class="field service-extra cedula-extra" data-service-extra="Cedula" style="display:none;">
+                                <label for="cedula_birthplace">Birthplace *</label>
+                                <input id="cedula_birthplace" name="cedula_birthplace" type="text" placeholder="City/Municipality">
+                            </div>
+                            <div class="field service-extra cedula-extra" data-service-extra="Cedula" style="display:none;">
+                                <label for="cedula_height">Height *</label>
+                                <input id="cedula_height" name="cedula_height" type="text" placeholder="e.g. 5'2&quot;">
+                            </div>
+                            <div class="field service-extra cedula-extra" data-service-extra="Cedula" style="display:none;">
+                                <label for="cedula_weight">Weight *</label>
+                                <input id="cedula_weight" name="cedula_weight" type="text" placeholder="e.g. 50 kg">
+                            </div>
+                            <div class="field service-extra cedula-extra" data-service-extra="Cedula" style="display:none;">
+                                <label for="cedula_gross_income">Gross Annual Income *</label>
+                                <input id="cedula_gross_income" name="cedula_gross_income" type="text" placeholder="Previous year's income">
+                            </div>
+                            <div class="field service-extra cedula-extra" data-service-extra="Cedula" style="display:none;">
+                                <label for="cedula_income_source">Income / Business Source</label>
+                                <input id="cedula_income_source" name="cedula_income_source" type="text" placeholder="e.g. Employment, business" data-optional="true">
+                            </div>
+                            <div class="field service-extra cedula-extra" data-service-extra="Cedula" style="display:none;">
+                                <label for="cedula_tin">TIN No.</label>
+                                <input id="cedula_tin" name="cedula_tin" type="text" placeholder="Optional" data-optional="true">
+                            </div>
+
+                            <div class="field full service-extra barangay-id-extra" data-service-extra="Barangay ID" style="display:none;">
+                                <h3>Barangay ID Details</h3>
+                                <p>Provide emergency contact details for the Barangay ID request.</p>
+                            </div>
+                            <div class="field service-extra barangay-id-extra" data-service-extra="Barangay ID" style="display:none;">
+                                <label for="id_emergency_name">Emergency Contact Name *</label>
+                                <input id="id_emergency_name" name="id_emergency_name" type="text" placeholder="Enter full name">
+                            </div>
+                            <div class="field service-extra barangay-id-extra" data-service-extra="Barangay ID" style="display:none;">
+                                <label for="id_emergency_relationship">Relationship *</label>
+                                <input id="id_emergency_relationship" name="id_emergency_relationship" type="text" placeholder="e.g. Parent, sibling">
+                            </div>
+                            <div class="field service-extra barangay-id-extra" data-service-extra="Barangay ID" style="display:none;">
+                                <label for="id_emergency_contact">Emergency Contact Number *</label>
+                                <input id="id_emergency_contact" name="id_emergency_contact" type="tel" placeholder="+63 912 345 6789">
+                            </div>
+                            <div class="field service-extra barangay-id-extra" data-service-extra="Barangay ID" style="display:none;">
+                                <label for="id_blood_type">Blood Type</label>
+                                <input id="id_blood_type" name="id_blood_type" type="text" placeholder="Optional" data-optional="true">
+                            </div>
+                            <div class="field service-extra barangay-id-extra" data-service-extra="Barangay ID" style="display:none;">
+                                <label for="id_valid_until">Valid Until *</label>
+                                <input id="id_valid_until" name="id_valid_until" type="date">
+                            </div>
+
+                            <div class="field full service-extra incident-extra" data-service-extra="Incident Report" style="display:none;">
+                                <h3>Incident Report Details</h3>
+                                <p>Provide the incident details for the official report.</p>
+                            </div>
+                            <div class="field service-extra incident-extra" data-service-extra="Incident Report" style="display:none;">
+                                <label for="incident_date">Incident Date *</label>
+                                <input id="incident_date" name="incident_date" type="date">
+                            </div>
+                            <div class="field service-extra incident-extra" data-service-extra="Incident Report" style="display:none;">
+                                <label for="incident_time">Incident Time *</label>
+                                <input id="incident_time" name="incident_time" type="time">
+                            </div>
+                            <div class="field full service-extra incident-extra" data-service-extra="Incident Report" style="display:none;">
+                                <label for="incident_location">Incident Location *</label>
+                                <input id="incident_location" name="incident_location" type="text" placeholder="Where did the incident happen?">
+                            </div>
+                            <div class="field full service-extra incident-extra" data-service-extra="Incident Report" style="display:none;">
+                                <label for="incident_persons">Persons Involved / Witnesses</label>
+                                <input id="incident_persons" name="incident_persons" type="text" placeholder="Optional" data-optional="true">
+                            </div>
+                            <div class="field full service-extra incident-extra" data-service-extra="Incident Report" style="display:none;">
+                                <label for="incident_narrative">Incident Narrative *</label>
+                                <textarea id="incident_narrative" name="incident_narrative" rows="4" placeholder="Briefly describe what happened"></textarea>
+                            </div>
+                            <div class="field full service-extra incident-extra" data-service-extra="Incident Report" style="display:none;">
+                                <label for="incident_action">Requested Action</label>
+                                <input id="incident_action" name="incident_action" type="text" placeholder="Optional" data-optional="true">
+                            </div>
+                            <div class="field full service-extra incident-extra" data-service-extra="Incident Report" style="display:none;">
+                                <h3>Witness Information</h3>
+                                <p>Optional, if a witness is available.</p>
+                            </div>
+                            <div class="field service-extra incident-extra" data-service-extra="Incident Report" style="display:none;">
+                                <label for="incident_witness_name">Witness Full Name</label>
+                                <input id="incident_witness_name" name="incident_witness_name" type="text" placeholder="Optional" data-optional="true">
+                            </div>
+                            <div class="field service-extra incident-extra" data-service-extra="Incident Report" style="display:none;">
+                                <label for="incident_witness_contact">Witness Contact Number</label>
+                                <input id="incident_witness_contact" name="incident_witness_contact" type="tel" placeholder="Optional" data-optional="true">
+                            </div>
+                            <div class="field full service-extra incident-extra" data-service-extra="Incident Report" style="display:none;">
+                                <label for="incident_witness_address">Witness Address</label>
+                                <input id="incident_witness_address" name="incident_witness_address" type="text" placeholder="Optional" data-optional="true">
+                            </div>
+                             
                             <div class="field-group-5050">
                                 
                                 <div class="field valid-id-field">

@@ -92,10 +92,44 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+    const paymentBlock = document.querySelector(".payment-main-wrapper-5050");
+    const paymentMethodBlock = document.querySelector(".payment-method-sub-block");
     const receiptInput = document.getElementById("payment_receipt");
     const receiptUploadBox = document.querySelector(".compact-upload");
     const sampleReceiptLink = document.querySelector(".receipt-upload-sub-block .sample-link");
     const qrCodeBlock = document.querySelector(".qr-code-sub-block");
+    const receiptBlock = document.querySelector(".receipt-upload-sub-block");
+
+    const setPaymentAvailability = (isRequired) => {
+        if (paymentBlock) {
+            paymentBlock.style.display = isRequired ? "" : "none";
+        }
+        if (paymentMethodBlock) {
+            paymentMethodBlock.style.display = isRequired ? "" : "none";
+        }
+        if (receiptBlock) {
+            receiptBlock.style.display = isRequired ? "" : "none";
+        }
+        if (qrCodeBlock) {
+            qrCodeBlock.style.display = isRequired ? "" : "none";
+        }
+        paymentRadios.forEach((radio) => {
+            radio.disabled = !isRequired;
+            if (!isRequired) {
+                radio.checked = false;
+            }
+        });
+        if (receiptInput) {
+            receiptInput.disabled = !isRequired;
+            receiptInput.required = false;
+            if (!isRequired) {
+                receiptInput.value = "";
+            }
+        }
+        if (!isRequired && receiptModal) {
+            receiptModal.style.display = "none";
+        }
+    };
 
     const handlePaymentChange = (value) => {
         if (value === "online") {
@@ -145,6 +179,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const resetPaymentToggle = () => {
+        const selectedDocName = documentTypeInput?.value || "";
+        const selectedFeeText = documentFeeInput?.value || "";
+        const isFreeService = selectedDocName === "Certificate of Indigency" || selectedFeeText.toLowerCase() === "free";
+
+        if (isFreeService) {
+            setPaymentAvailability(false);
+            return;
+        }
+
+        setPaymentAvailability(true);
         const defaultRadio = document.querySelector('input[name="payment_method"][value="online"]');
         if (defaultRadio) {
             defaultRadio.checked = true;
