@@ -303,7 +303,7 @@ $purpose = $request['purpose'];
 
                 <p class="letter-body">
                     Given this <span class="editable" contenteditable="true"><?php echo date('jS'); ?></span> day of
-                    <span class="editable" contenteditable="true"><?php echo date('F, Y'); ?></span> at Barangay Makiling,
+                    <span class="editable" contenteditable="true"><?php echo date('F Y'); ?></span> at Barangay Makiling,
                     Calamba City, Laguna, Philippines.
                 </p>
 
