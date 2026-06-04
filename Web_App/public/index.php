@@ -155,22 +155,22 @@
 
             <div class="announcement-grid">
                 <article class="announcement-card">
-                    <span class="badge green">Announcement</span>
-                    <h3>Schedule of Barangay Assembly</h3>
-                    <p>Please be informed that the Barangay Assembly will be held on May 25, 2026 at the Barangay Hall.</p>
-                    <time datetime="2026-05-18">May 18, 2026</time>
-                </article>
-                <article class="announcement-card">
-                    <span class="badge blue">News</span>
-                    <h3>Clean-Up Drive This Saturday</h3>
-                    <p>Join us this May 30, 2026 for our community clean-up drive. Together, let us keep Makiling clean.</p>
-                    <time datetime="2026-05-16">May 16, 2026</time>
+                    <span class="badge green">Programs</span>
+                    <h3>Pamamahagi ng Food Packs</h3>
+                    <p>Para sa mga benepisyaryo ng 4Ps at senior citizens. Dalhin ang valid ID para sa verification.</p>
+                    <time datetime="2026-06-03">June 3, 2026</time>
                 </article>
                 <article class="announcement-card">
                     <span class="badge yellow">Advisory</span>
-                    <h3>Road Maintenance on Main Street</h3>
-                    <p>Please be advised of road maintenance on May 22 to 23, 2026. Thank you for your cooperation.</p>
-                    <time datetime="2026-05-15">May 15, 2026</time>
+                    <h3>Scheduled Power Interruption</h3>
+                    <p>Magkakaroon ng power interruption sa ilang bahagi ng Barangay Makiling sa darating na Sabado.</p>
+                    <time datetime="2026-05-31">May 31, 2026</time>
+                </article>
+                <article class="announcement-card">
+                    <span class="badge blue">Events</span>
+                    <h3>Kalayaan Day Community Program</h3>
+                    <p>Ipagdiwang natin ang Araw ng Kalayaan kasama ang buong komunidad ng Barangay Makiling.</p>
+                    <time datetime="2026-06-12">June 12, 2026</time>
                 </article>
             </div>
         </section>
