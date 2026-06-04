@@ -236,46 +236,74 @@ body.resident-page .resident-nav a.logout-btn {
     grid-template-columns: repeat(4, 1fr);
     gap: 24px;
     margin: 30px 0;
-}
-
-.stat-card,
-.dashboard-card,
-.request-card {
-    border: 1px solid var(--resident-line);
-    border-radius: var(--resident-radius);
-    background: #fff;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .stat-card {
-    padding: 24px;
-}
-
-.stat-icon {
     display: grid;
-    width: 46px;
-    height: 46px;
-    place-items: center;
-    border-radius: 8px;
-    font-size: 21px;
+    grid-template-rows: auto 1fr;
+    align-items: end;
+    justify-content: start;
+    padding: 24px;
+    height: 165px;
+    border: 1px solid #eef1f6;
+    border-radius: 12px;
+    background: #ffffff;
+    box-sizing: border-box;
 }
 
-.stat-icon.green { color: #5da832; background: #e8f6e5; }
-.stat-icon.orange { color: var(--resident-orange); background: #fff0df; }
-.stat-icon.check { color: #02b64e; background: #dff9e8; }
-.stat-icon.purple { color: var(--resident-purple); background: #f1e4ff; }
-
-.stat-card strong {
-    display: block;
-    margin-top: 18px;
-    font-size: 31px;
-    line-height: 1;
+/* DITO ANG MADYIK PARA SA ICON, SIS */
+.stat-icon {
+    display: flex !important;       /* Ginawang flex para mas madaling igitna ang icon text/glyph */
+    align-items: center !important;  /* Gitna vertically */
+    justify-content: center !important; /* Gitna horizontally */
+    width: 52px;                     /* Ginawa nating mas compact na box para swak sa icon */
+    height: 52px;
+    border-radius: 12px;
+    font-size: 24px !important;      /* PINALAKI NANG KONTRE para kitang-kita na! */
+    align-self: start;
+    margin-bottom: 16px;
+    line-height: 1 !important;       /* Inalis ang line-height na pwedeng bumuwal sa icon */
+    padding: 0 !important;           /* Clean slate, walang eepal na padding */
 }
 
-.stat-card span {
+.stat-icon.green { color: #4fa734; background: #e8f6e7; }
+.stat-icon.orange { color: #ff5b20; background: #fff2e6; }
+.stat-icon.check { color: #02b64e; background: #e2f9e1; }
+.stat-icon.purple { color: #8a35ff; background: #f1e9ff; }
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 4px;
+    width: 100%;
+}
+
+.stat-card strong,
+.stat-card .stat-content strong {
     display: block;
-    margin-top: 6px;
-    color: var(--resident-muted);
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #111111;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+
+.stat-card span,
+.stat-card .stat-content span {
+    display: block;
+    color: #72758a;
     font-size: 14px;
+    font-weight: 400;
+    line-height: 1.2;
+    margin: 0;
+    padding: 0;
+    text-align: left;
 }
 
 .dashboard-grid {

@@ -74,23 +74,31 @@ $announcements = [
             <section class="stat-grid" aria-label="Request summary">
                 <article class="stat-card">
                     <span class="stat-icon green"><i class="fa-regular fa-file-lines"></i></span>
-                    <strong>3</strong>
-                    <span>Total Requests</span>
+                    <div class="stat-content">
+                        <strong>3</strong>
+                        <span>Total Requests</span>
+                    </div>
                 </article>
                 <article class="stat-card">
                     <span class="stat-icon orange"><i class="fa-regular fa-clock"></i></span>
-                    <strong>1</strong>
-                    <span>In Progress</span>
+                    <div class="stat-content">
+                        <strong>1</strong>
+                        <span>In Progress</span>
+                    </div>
                 </article>
                 <article class="stat-card">
-                    <span class="stat-icon check"><i class="fa-solid fa-check"></i></span>
-                    <strong>1</strong>
-                    <span>Completed</span>
+                    <span class="stat-icon check"><i class="fa-regular fa-circle-check"></i></span>
+                    <div class="stat-content">
+                        <strong>1</strong>
+                        <span>Completed</span>
+                    </div>
                 </article>
                 <article class="stat-card">
-                    <span class="stat-icon purple"><i class="fa-solid fa-check-double"></i></span>
-                    <strong>1</strong>
-                    <span>Approved</span>
+                    <span class="stat-icon purple"><i class="fa-regular fa-circle-check"></i></span>
+                    <div class="stat-content">
+                        <strong>1</strong>
+                        <span>Approved</span>
+                    </div>
                 </article>
             </section>
 
