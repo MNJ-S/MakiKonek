@@ -496,13 +496,20 @@ body.resident-page .resident-nav a.logout-btn {
 }
 
 .field input,
-.field select {
+.field select,
+.field textarea {
     width: 100%;
     min-height: 36px;
     border: 1px solid #ccd3dd;
     border-radius: 8px;
     padding: 0 12px;
     background: #fff;
+}
+
+.field textarea {
+    min-height: 112px;
+    padding: 10px 12px;
+    resize: vertical;
 }
 
 .upload-box {
@@ -593,18 +600,34 @@ body.resident-page .resident-nav a.logout-btn {
 }
 
 .facility-card {
+    position: relative;
+    overflow: hidden;
     border-radius: 12px;
     padding: 30px;
     color: #fff;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    border: 3px solid transparent;
+    box-shadow: 0 16px 34px rgba(23, 33, 48, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .facility-card.court { background: #6cae36; }
 .facility-card.hall { background: #4ea9f5; }
+.facility-card.active {
+    border-color: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 18px 38px rgba(23, 33, 48, 0.16);
+    transform: translateY(-2px);
+}
 
 .facility-card .facility-icon {
+    display: grid;
+    width: 52px;
+    height: 52px;
+    place-items: center;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.18);
     font-size: 36px;
     margin-bottom: 16px;
     opacity: 0.9;
@@ -624,22 +647,155 @@ body.resident-page .resident-nav a.logout-btn {
     flex-grow: 1;
 }
 
+.facility-meta {
+    display: grid;
+    gap: 8px;
+    margin: 0 0 22px;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.facility-meta li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .book-now-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-height: 38px;
+    border: 0;
     background: #ffffff;
     border-radius: 8px;
     padding: 0 24px;
     font-size: 14px;
     font-weight: 600;
     transition: background 0.2s ease;
+    cursor: pointer;
 }
 
 .facility-card.court .book-now-btn { color: #6cae36; }
 .facility-card.hall .book-now-btn { color: #4ea9f5; }
 .book-now-btn:hover { background: #f0f0f0; }
+
+.reservation-booking-card {
+    border: 1px solid var(--resident-line);
+    border-radius: var(--resident-radius);
+    background: #fff;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.reservation-empty {
+    min-height: 330px;
+}
+
+.reservation-empty p {
+    color: var(--resident-muted);
+}
+
+.reservation-form {
+    display: none;
+}
+
+.reservation-form.is-visible {
+    display: block;
+}
+
+.reservation-form-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.reservation-form-header h2 {
+    margin: 2px 0 4px;
+    font-size: 22px;
+}
+
+.reservation-form-header p {
+    margin: 0;
+    color: var(--resident-muted);
+    font-size: 14px;
+}
+
+.reservation-kicker {
+    color: #6a7083;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.reservation-close-btn {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border: 1px solid var(--resident-line);
+    border-radius: 8px;
+    background: #fff;
+    color: #596072;
+    cursor: pointer;
+}
+
+.reservation-summary-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.reservation-summary-strip span {
+    display: flex;
+    min-height: 48px;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #d7e3ef;
+    border-radius: 8px;
+    padding: 0 14px;
+    background: #f8fafc;
+    color: #384255;
+    font-size: 13px;
+}
+
+.reservation-summary-strip i {
+    color: var(--resident-green);
+}
+
+.reservation-form[data-accent="blue"] .reservation-summary-strip i {
+    color: #258be3;
+}
+
+.reservation-form-grid {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.reservation-note-box {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    margin: 18px 0 22px;
+    border: 1px solid #cbe0ff;
+    border-radius: 8px;
+    padding: 14px;
+    color: #184887;
+    background: #eef6ff;
+}
+
+.reservation-note-box p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.reservation-actions {
+    grid-template-columns: 120px 1fr;
+}
 
 .reservations-container {
     border: 1px solid var(--resident-line);
@@ -668,6 +824,117 @@ body.resident-page .resident-nav a.logout-btn {
 .empty-reservations h3 { margin: 0 0 6px 0; font-size: 16px; color: #4a5060; }
 .empty-reservations p { margin: 0; font-size: 14px; color: var(--resident-muted); }
 
+.reservation-list {
+    display: grid;
+    gap: 14px;
+}
+
+.reservation-item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 14px;
+    border: 1px solid #e4e8ef;
+    border-radius: 8px;
+    padding: 16px;
+    background: #fff;
+}
+
+.reservation-item-icon {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    border-radius: 8px;
+    font-size: 18px;
+}
+
+.reservation-item-icon.court {
+    color: #4f9429;
+    background: #edf8e8;
+}
+
+.reservation-item-icon.hall {
+    color: #258be3;
+    background: #e8f4ff;
+}
+
+.reservation-item-body {
+    min-width: 0;
+}
+
+.reservation-item-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.reservation-item h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.reservation-item-top span,
+.reservation-item small {
+    color: var(--resident-muted);
+    font-size: 12px;
+}
+
+.reservation-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    margin: 12px 0 8px;
+    color: #4b5365;
+    font-size: 13px;
+}
+
+.reservation-details span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.reservation-item p {
+    margin: 0;
+    color: #1d2432;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.resident-toast-stack {
+    position: fixed;
+    right: 30px;
+    bottom: 30px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast-notification {
+    border-radius: 6px;
+    padding: 15px 25px;
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transition: opacity 0.5s ease;
+}
+
+.toast-success {
+    border-left: 5px solid #22c55e;
+    color: #15803d;
+    background: #dcfce7;
+}
+
+.toast-error {
+    border-left: 5px solid #ef4444;
+    color: #b91c1c;
+    background: #fee2e2;
+}
+
+
+/* Notifications */
 .notifications-header {
     display: flex;
     justify-content: space-between;
@@ -1235,8 +1502,16 @@ body.resident-page .modal-image-wrapper img {
         grid-template-columns: 1fr;
     }
 
+    .reservation-summary-strip {
+        grid-template-columns: 1fr;
+    }
+
     .form-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .reservation-form-grid {
+        grid-template-columns: 1fr;
     }
 
     .document-option {
@@ -1274,6 +1549,10 @@ body.resident-page .modal-image-wrapper img {
     
     body.resident-page .payment-right-column .qr-image-wrapper { 
         height: 220px; 
+    }
+
+    .reservation-item-top {
+        display: grid;
     }
 }
 
