@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Footer Component
- * Site footer for all pages
- */
 $footerBase = $footerBase ?? '';
 $footerAssetBase = $footerAssetBase ?? '../assets';
 ?>

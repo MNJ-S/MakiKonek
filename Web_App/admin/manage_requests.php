@@ -34,13 +34,18 @@ $type_map = [
     'Clearance' => 'Barangay Clearance',
     'Indigency' => 'Certificate of Indigency',
     'Residency' => 'Certificate of Residency',
-    'Others'    => 'Others'
+    'Business' => 'Business Clearance',
+    'Incident' => 'Incident Report',
+    'Identification' => 'Barangay Identification',
+    'Cedula' => 'Cedula',
+    'Moral' => 'Good Moral Certificate',
+    'Construction' => 'Construction Permit'
 ];
 
 $filter_type = $type_map[$selected_tab] ?? 'Barangay Clearance';
 
 if ($selected_tab === 'Others') {
-    $query = "SELECT * FROM service_requests WHERE document_type NOT IN ('Barangay Clearance', 'Certificate of Indigency', 'Certificate of Residency') ORDER BY created_at DESC";
+    $query = "SELECT * FROM service_requests WHERE document_type NOT IN ('Barangay Clearance', 'Certificate of Indigency', 'Certificate of Residency', 'Business Clearance', 'Incident Report', 'Barangay Identification', 'Cedula', 'Good Moral Certificate', 'Construction Permit') ORDER BY created_at DESC";
 } else {
     $query = "SELECT * FROM service_requests WHERE document_type = ? ORDER BY created_at DESC";
 }
@@ -128,9 +133,24 @@ $result = mysqli_stmt_get_result($stmt);
             <li class="nav-item"><a class="nav-link <?php echo $selected_tab === 'Clearance' ? 'active' : ''; ?>" href="manage_requests.php?tab=Clearance">Barangay Clearance</a></li>
             <li class="nav-item"><a class="nav-link <?php echo $selected_tab === 'Indigency' ? 'active' : ''; ?>" href="manage_requests.php?tab=Indigency">Indigency</a></li>
             <li class="nav-item"><a class="nav-link <?php echo $selected_tab === 'Residency' ? 'active' : ''; ?>" href="manage_requests.php?tab=Residency">Residency</a></li>
-            <li class="nav-item"><a class="nav-link <?php echo $selected_tab === 'Others' ? 'active' : ''; ?>" href="manage_requests.php?tab=Others">Permits & Others</a></li>
+            <li class="nav-item"><a class="nav-link <?php echo $selected_tab === 'Business' ? 'active' : ''; ?>" href="manage_requests.php?tab=Business">Business Clearance</a></li>
+            <li class="nav-item"><a class="nav-link <?php echo $selected_tab === 'Incident' ? 'active' : ''; ?>" href="manage_requests.php?tab=Incident">Incident Report</a></li>
+            <li class="nav-item"><a class="nav-link <?php echo $selected_tab === 'Identification' ? 'active' : ''; ?>" href="manage_requests.php?tab=Identification">Barangay ID</a></li>
+            <li class="nav-item"><a class="nav-link <?php echo $selected_tab === 'Cedula' ? 'active' : ''; ?>" href="manage_requests.php?tab=Cedula">Cedula</a></li>
+            <li class="nav-item"><a class="nav-link <?php echo $selected_tab === 'Moral' ? 'active' : ''; ?>" href="manage_requests.php?tab=Moral">Good Moral Certificate</a></li>
+            <li class="nav-item"><a class="nav-link <?php echo $selected_tab === 'Construction' ? 'active' : ''; ?>" href="manage_requests.php?tab=Construction">Construction Permit</a></li>
         </ul>
 
+        <!-- BARANGAY CLEARANCE -->
+        <!-- CERTIFICATE OF RESIDENCY -->
+        <!-- BUSINESS CLEARANCE -->
+        <!-- INCIDENT REPORT -->
+        <!-- BARANGAY IDENTIFICATION -->
+        <!-- CEDULA -->
+        <!-- GOOD MORAL CERTIFICATE -->
+        <!-- CONSTRUCTION-->
+
+        <!-- CERTIFICATE OF INDIGENCY -->
         <div class="custom-card p-4 shadow-sm">
             <div class="table-responsive">
                 <table class="table table-light table-hover align-middle border-secondary">

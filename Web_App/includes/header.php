@@ -23,12 +23,7 @@ $header_username = isset($_SESSION['resident_username']) ? $_SESSION['resident_u
             <a href="<?php echo $navBase; ?>index.php#contact">Contact</a>
         </div>
 
-        <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-
+    
         <?php if ($isResidentHeader): ?>
             <div class="resident-header-actions">
                 <button class="resident-notification" type="button" aria-label="Notifications">
