@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 
 if (!isset($_SESSION['resident_id'])) {
@@ -13,6 +12,29 @@ $pageTitle = 'My Requests';
 $activePage = 'requests';
 $success_message = '';
 $error_message = '';
+
+// --- 1. FETCH USER PROFILE DATA FOR AUTOFILL ---
+$resident_id = (int) $_SESSION['resident_id'];
+$profile_query = "SELECT u.email, p.* FROM users u LEFT JOIN user_profiles p ON u.user_id = p.user_id WHERE u.user_id = ? LIMIT 1";
+$p_stmt = mysqli_prepare($conn, $profile_query);
+mysqli_stmt_bind_param($p_stmt, "i", $resident_id);
+mysqli_stmt_execute($p_stmt);
+$profile = mysqli_fetch_assoc(mysqli_stmt_get_result($p_stmt)) ?: [];
+
+// Create pre-fill variables
+$pref_fname = htmlspecialchars($profile['first_name'] ?? '');
+$pref_mname = htmlspecialchars($profile['middle_name'] ?? '');
+$pref_lname = htmlspecialchars($profile['last_name'] ?? '');
+$pref_suffix = htmlspecialchars($profile['suffix'] ?? '');
+$pref_email = htmlspecialchars($profile['email'] ?? '');
+$pref_phone = htmlspecialchars($profile['mobile_number'] ?? '');
+$pref_bdate = htmlspecialchars($profile['birth_date'] ?? '');
+$pref_gender = '';
+if (strcasecmp($profile['sex'] ?? '', 'FEMALE') === 0) $pref_gender = 'Female';
+elseif (strcasecmp($profile['sex'] ?? '', 'MALE') === 0) $pref_gender = 'Male';
+else $pref_gender = 'Prefer not to say';
+$pref_civil = htmlspecialchars(ucfirst(strtolower($profile['civil_status'] ?? '')));
+$pref_address = htmlspecialchars(trim(implode(' ', array_filter([$profile['house_no'] ?? '', $profile['street'] ?? '', !empty($profile['purok_no']) ? 'Purok ' . $profile['purok_no'] : '', $profile['subdivision'] ?? '']))));
 
 $documentGroups = [
     'Certificates' => [
@@ -35,9 +57,9 @@ $documentGroups = [
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $resident_id = (int) $_SESSION['resident_id'];
     $document_type = trim($_POST['document_type'] ?? '');
     $document_fee = trim($_POST['document_fee'] ?? '');
+    $payment_method = trim($_POST['payment_method'] ?? 'cash');
     $first_name = trim($_POST['first_name'] ?? '');
     $middle_name = trim($_POST['middle_name'] ?? '');
     $last_name = trim($_POST['last_name'] ?? '');
@@ -53,8 +75,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $barangay = trim($_POST['barangay'] ?? '');
     $purpose = trim($_POST['purpose'] ?? '');
     $occupation = trim($_POST['occupation'] ?? '');
-    $request_details = null;
     $id_path = '';
+    $payment_receipt_path = null;
+
+    $business_name = $business_location = $business_operator = $business_address = $business_nature = $business_permit_for = null;
+    $construction_address = $construction_purpose = $construction_other_purpose = $construction_status = $construction_other_status = $construction_description = null;
+    $cedula_type = $cedula_tax_year = $cedula_place_issued = $cedula_income_source = $cedula_tin = $cedula_birthplace = $cedula_height = $cedula_weight = $cedula_gross_income = null;
+    $id_emergency_name = $id_emergency_relationship = $id_emergency_contact = $id_blood_type = $id_valid_until = null;
+    $incident_date = $incident_time = $incident_location = $incident_persons = $incident_narrative = $incident_action = $incident_witness_name = $incident_witness_contact = $incident_witness_address = null;
 
     if ($document_type === 'Business Clearance') {
         $business_name = trim($_POST['business_name'] ?? '');
@@ -66,19 +94,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($business_name === '' || $business_location === '' || $business_operator === '' || $business_address === '' || $business_nature === '') {
             $error_message = 'Please complete all required business clearance fields.';
-        } else {
-            $request_details = json_encode([
-                'business_name' => $business_name,
-                'business_location' => $business_location,
-                'business_operator' => $business_operator,
-                'business_address' => $business_address,
-                'business_nature' => $business_nature,
-                'business_permit_for' => $business_permit_for,
-            ]);
-
-            if ($purpose === '') {
-                $purpose = $business_permit_for !== '' ? $business_permit_for : 'BUSINESS PERMIT APPLICATION';
-            }
+        } else if ($purpose === '') {
+            $purpose = $business_permit_for !== '' ? $business_permit_for : 'BUSINESS PERMIT APPLICATION';
         }
     }
 
@@ -92,21 +109,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($construction_address === '' || $construction_purpose === '' || $construction_status === '') {
             $error_message = 'Please complete all required construction permit fields.';
-        } else {
-            $request_details = json_encode([
-                'construction_address' => $construction_address,
-                'construction_purpose' => $construction_purpose,
-                'construction_other_purpose' => $construction_other_purpose,
-                'construction_status' => $construction_status,
-                'construction_other_status' => $construction_other_status,
-                'construction_description' => $construction_description,
-            ]);
-
-            if ($purpose === '') {
-                $purpose = $construction_purpose === 'Others' && $construction_other_purpose !== ''
-                    ? $construction_other_purpose
-                    : $construction_purpose;
-            }
+        } else if ($purpose === '') {
+            $purpose = $construction_purpose === 'Others' && $construction_other_purpose !== '' ? $construction_other_purpose : $construction_purpose;
         }
     }
 
@@ -123,22 +127,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($cedula_type === '' || $cedula_tax_year === '' || $cedula_place_issued === '' || $cedula_birthplace === '' || $cedula_height === '' || $cedula_weight === '' || $cedula_gross_income === '') {
             $error_message = 'Please complete all required cedula fields.';
-        } else {
-            $request_details = json_encode([
-                'cedula_type' => $cedula_type,
-                'cedula_tax_year' => $cedula_tax_year,
-                'cedula_place_issued' => $cedula_place_issued,
-                'cedula_income_source' => $cedula_income_source,
-                'cedula_tin' => $cedula_tin,
-                'cedula_birthplace' => $cedula_birthplace,
-                'cedula_height' => $cedula_height,
-                'cedula_weight' => $cedula_weight,
-                'cedula_gross_income' => $cedula_gross_income,
-            ]);
-
-            if ($purpose === '') {
-                $purpose = 'COMMUNITY TAX CERTIFICATE';
-            }
+        } else if ($purpose === '') {
+            $purpose = 'COMMUNITY TAX CERTIFICATE';
         }
     }
 
@@ -151,18 +141,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($id_emergency_name === '' || $id_emergency_relationship === '' || $id_emergency_contact === '' || $id_valid_until === '') {
             $error_message = 'Please complete all required Barangay ID fields.';
-        } else {
-            $request_details = json_encode([
-                'id_emergency_name' => $id_emergency_name,
-                'id_emergency_relationship' => $id_emergency_relationship,
-                'id_emergency_contact' => $id_emergency_contact,
-                'id_blood_type' => $id_blood_type,
-                'id_valid_until' => $id_valid_until,
-            ]);
-
-            if ($purpose === '') {
-                $purpose = 'BARANGAY IDENTIFICATION';
-            }
+        } else if ($purpose === '') {
+            $purpose = 'BARANGAY IDENTIFICATION';
         }
     }
 
@@ -179,22 +159,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($incident_date === '' || $incident_time === '' || $incident_location === '' || $incident_narrative === '') {
             $error_message = 'Please complete all required incident report fields.';
-        } else {
-            $request_details = json_encode([
-                'incident_date' => $incident_date,
-                'incident_time' => $incident_time,
-                'incident_location' => $incident_location,
-                'incident_persons' => $incident_persons,
-                'incident_narrative' => $incident_narrative,
-                'incident_action' => $incident_action,
-                'incident_witness_name' => $incident_witness_name,
-                'incident_witness_contact' => $incident_witness_contact,
-                'incident_witness_address' => $incident_witness_address,
-            ]);
-
-            if ($purpose === '') {
-                $purpose = 'INCIDENT DOCUMENTATION';
-            }
+        } else if ($purpose === '') {
+            $purpose = 'INCIDENT DOCUMENTATION';
         }
     }
 
@@ -202,62 +168,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error_message = 'Please complete all required request fields.';
     } elseif ($error_message === '' && empty($_FILES['valid_id']['name'])) {
         $error_message = 'Please upload a valid ID.';
+    } elseif ($error_message === '' && $payment_method === 'online' && empty($_FILES['payment_receipt']['name'])) {
+        $error_message = 'Please upload your payment receipt for online transactions.';
     } elseif ($error_message === '') {
+
+        // VALID ID
         $upload_dir = __DIR__ . '/../assets/uploads/requirements/';
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0755, true);
-        }
+        if (!is_dir($upload_dir)) mkdir($upload_dir, 0755, true);
 
         $extension = strtolower(pathinfo($_FILES['valid_id']['name'], PATHINFO_EXTENSION));
-        $allowed_extensions = ['jpg', 'jpeg', 'png', 'pdf'];
-
-        if (!in_array($extension, $allowed_extensions, true)) {
+        if (!in_array($extension, ['jpg', 'jpeg', 'png', 'pdf'])) {
             $error_message = 'Valid ID must be a JPG, PNG, or PDF file.';
         } else {
             $file_name = 'id_' . $resident_id . '_' . time() . '.' . $extension;
-            $target_file = $upload_dir . $file_name;
-
-            if (move_uploaded_file($_FILES['valid_id']['tmp_name'], $target_file)) {
+            if (move_uploaded_file($_FILES['valid_id']['tmp_name'], $upload_dir . $file_name)) {
                 $id_path = 'assets/uploads/requirements/' . $file_name;
             } else {
                 $error_message = 'Failed to upload valid ID.';
+            }
+        }
+
+        // PAID RECEIPT
+        if ($error_message === '' && $payment_method === 'online') {
+            $receipt_dir = __DIR__ . '/../assets/uploads/receipts/';
+            if (!is_dir($receipt_dir)) mkdir($receipt_dir, 0755, true);
+
+            $receipt_ext = strtolower(pathinfo($_FILES['payment_receipt']['name'], PATHINFO_EXTENSION));
+            if (!in_array($receipt_ext, ['jpg', 'jpeg', 'png', 'pdf'])) {
+                $error_message = 'Receipt must be a JPG, PNG, or PDF file.';
+            } else {
+                $receipt_name = 'receipt_' . $resident_id . '_' . time() . '.' . $receipt_ext;
+                if (move_uploaded_file($_FILES['payment_receipt']['tmp_name'], $receipt_dir . $receipt_name)) {
+                    $payment_receipt_path = 'assets/uploads/receipts/' . $receipt_name;
+                } else {
+                    $error_message = 'Failed to upload payment receipt.';
+                }
             }
         }
     }
 
     if ($error_message === '') {
         $reference_no = 'MK-' . strtoupper(substr(uniqid(), -6));
+        
         $insert = "INSERT INTO service_requests (
             user_id, reference_no, document_type, first_name, middle_name, last_name, suffix,
             email, phone, birth_date, gender, civil_status, address, province, city, barangay,
-            purpose, occupation, document_fee, id_path, request_details
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            purpose, occupation, document_fee, payment_method, payment_receipt_path, id_path, status,
+            business_name, business_location, business_operator, business_address, business_nature, business_permit_for,
+            construction_address, construction_purpose, construction_other_purpose, construction_status, construction_other_status, construction_description,
+            cedula_type, cedula_tax_year, cedula_place_issued, cedula_income_source, cedula_tin, cedula_birthplace, cedula_height, cedula_weight, cedula_gross_income,
+            id_emergency_name, id_emergency_relationship, id_emergency_contact, id_blood_type, id_valid_until,
+            incident_date, incident_time, incident_location, incident_persons, incident_narrative, incident_action, incident_witness_name, incident_witness_contact, incident_witness_address
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING',
+                  ?, ?, ?, ?, ?, ?,
+                  ?, ?, ?, ?, ?, ?,
+                  ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                  ?, ?, ?, ?, ?,
+                  ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = mysqli_prepare($conn, $insert);
+        
         mysqli_stmt_bind_param(
             $stmt,
-            "issssssssssssssssssss",
-            $resident_id,
-            $reference_no,
-            $document_type,
-            $first_name,
-            $middle_name,
-            $last_name,
-            $suffix,
-            $email,
-            $phone,
-            $birth_date,
-            $gender,
-            $civil_status,
-            $address,
-            $province,
-            $city,
-            $barangay,
-            $purpose,
-            $occupation,
-            $document_fee,
-            $id_path,
-            $request_details
+            "issssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+            $resident_id, $reference_no, $document_type, $first_name, $middle_name, $last_name, $suffix,
+            $email, $phone, $birth_date, $gender, $civil_status, $address, $province, $city, $barangay,
+            $purpose, $occupation, $document_fee, $payment_method, $payment_receipt_path, $id_path,
+            $business_name, $business_location, $business_operator, $business_address, $business_nature, $business_permit_for,
+            $construction_address, $construction_purpose, $construction_other_purpose, $construction_status, $construction_other_status, $construction_description,
+            $cedula_type, $cedula_tax_year, $cedula_place_issued, $cedula_income_source, $cedula_tin, $cedula_birthplace, $cedula_height, $cedula_weight, $cedula_gross_income,
+            $id_emergency_name, $id_emergency_relationship, $id_emergency_contact, $id_blood_type, $id_valid_until,
+            $incident_date, $incident_time, $incident_location, $incident_persons, $incident_narrative, $incident_action, $incident_witness_name, $incident_witness_contact, $incident_witness_address
         );
 
         if (mysqli_stmt_execute($stmt)) {
@@ -352,54 +333,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="form-grid">
                             <div class="field">
                                 <label for="first_name">First Name *</label>
-                                <input id="first_name" name="first_name" type="text" value="Juan" required>
+                                <input id="first_name" name="first_name" type="text" value="<?php echo $pref_fname; ?>" required>
                             </div>
                             <div class="field">
                                 <label for="middle_name">Middle Name</label>
-                                <input id="middle_name" name="middle_name" type="text" value="Santos">
+                                <input id="middle_name" name="middle_name" type="text" value="<?php echo $pref_mname; ?>">
                             </div>
                             <div class="field">
                                 <label for="last_name">Last Name *</label>
-                                <input id="last_name" name="last_name" type="text" value="Dela Cruz" required>
+                                <input id="last_name" name="last_name" type="text" value="<?php echo $pref_lname; ?>" required>
                             </div>
                             <div class="field">
                                 <label for="suffix">Suffix</label>
-                                <input id="suffix" name="suffix" type="text">
+                                <input id="suffix" name="suffix" type="text" value="<?php echo $pref_suffix; ?>">
                             </div>
                             <div class="field">
                                 <label for="email">Email Address *</label>
-                                <input id="email" name="email" type="email" placeholder="example@email.com" required>
+                                <input id="email" name="email" type="email" value="<?php echo $pref_email; ?>" placeholder="example@email.com" required>
                             </div>
                             <div class="field">
                                 <label for="phone">Phone Number *</label>
-                                <input id="phone" name="phone" type="tel" placeholder="+63 912 345 6789" required>
+                                <input id="phone" name="phone" type="tel" value="<?php echo $pref_phone; ?>" placeholder="+63 912 345 6789" required>
                             </div>
                             <div class="field">
                                 <label for="birth_date">Birth Date *</label>
-                                <input id="birth_date" name="birth_date" type="date" required>
+                                <input id="birth_date" name="birth_date" type="date" value="<?php echo $pref_bdate; ?>" required>
                             </div>
                             <div class="field">
                                 <label for="gender">Gender *</label>
                                 <select id="gender" name="gender" required>
                                     <option value="">Select gender</option>
-                                    <option>Female</option>
-                                    <option>Male</option>
-                                    <option>Prefer not to say</option>
+                                    <option <?php echo ($pref_gender == 'Female') ? 'selected' : ''; ?>>Female</option>
+                                    <option <?php echo ($pref_gender == 'Male') ? 'selected' : ''; ?>>Male</option>
+                                    <option <?php echo ($pref_gender == 'Prefer not to say') ? 'selected' : ''; ?>>Prefer not to say</option>
                                 </select>
                             </div>
                             <div class="field">
                                 <label for="civil_status">Civil Status *</label>
                                 <select id="civil_status" name="civil_status" required>
                                     <option value="">Select status</option>
-                                    <option>Single</option>
-                                    <option>Married</option>
-                                    <option>Widowed</option>
-                                    <option>Separated</option>
+                                    <option <?php echo ($pref_civil == 'Single') ? 'selected' : ''; ?>>Single</option>
+                                    <option <?php echo ($pref_civil == 'Married') ? 'selected' : ''; ?>>Married</option>
+                                    <option <?php echo ($pref_civil == 'Widowed') ? 'selected' : ''; ?>>Widowed</option>
+                                    <option <?php echo ($pref_civil == 'Separated') ? 'selected' : ''; ?>>Separated</option>
                                 </select>
                             </div>
                             <div class="field full">
                                 <label for="address">Full Address *</label>
-                                <input id="address" name="address" type="text" placeholder="Enter full address" required>
+                                <input id="address" name="address" type="text" value="<?php echo $pref_address; ?>" placeholder="Enter full address" required>
                             </div>
                             <div class="field">
                                 <label for="province">Province *</label>
@@ -601,16 +582,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label for="incident_witness_address">Witness Address</label>
                                 <input id="incident_witness_address" name="incident_witness_address" type="text" placeholder="Optional" data-optional="true">
                             </div>
-                             
+
                             <div class="field-group-5050">
-                                
+
                                 <div class="field valid-id-field">
                                     <label for="valid_id">Upload Valid ID *</label>
                                     <div class="upload-box">
                                         <i class="fas fa-cloud-upload-alt"></i>
                                         <p>Click to upload or drag and drop</p>
                                         <p class="upload-sub">SVG, PNG, JPG or PDF (max. 5 MB uploaded)</p>
-                                        <input type="file" id="valid_id" name="valid_id" accept="image/*,.pdf" required style="display:none;">
+                                        <input type="file" id="valid_id" name="valid_id" accept="image/*,.pdf" required style="opacity: 0; position: absolute; z-index: -1; width: 1px; height: 1px;">
                                         <label for="valid_id" class="choose-file-btn">Choose File</label>
                                     </div>
                                 </div>
@@ -628,11 +609,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             </div>
                         </div>
-                        
+
                         <div class="payment-main-wrapper-5050">
-                            
+
                             <div class="payment-left-column">
-                                
+
                                 <div class="field payment-method-sub-block">
                                     <label class="section-subtitle">Payment Method *</label>
                                     <div class="radio-group-payment">
@@ -653,10 +634,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <i class="fas fa-cloud-upload-alt"></i>
                                         <p>Click to upload or drag and drop</p>
                                         <p class="upload-sub">SVG, PNG, JPG or PDF (max. 5 MB uploaded)</p>
-                                        <input type="file" id="payment_receipt" name="payment_receipt" accept="image/*,application/pdf" style="display:none;">
+                                        <input type="file" id="payment_receipt" name="payment_receipt" accept="image/*,application/pdf" style="opacity: 0; position: absolute; z-index: -1; width: 1px; height: 1px;">
                                         <label for="payment_receipt" class="choose-file-btn">Choose File</label>
                                     </div>
-                                    
+
                                     <a href="#" class="sample-link">
                                         <i class="fas fa-eye"></i> View Sample Receipt
                                     </a>
@@ -702,7 +683,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </div>
+    <div id="toast-notification-container" class="toast-container">
+        <?php if (!empty($success_message)): ?>
+            <div class="toast-notification success">
+                <i class="fas fa-check-circle"></i> <?php echo htmlspecialchars($success_message); ?>
+            </div>
+        <?php endif; ?>
 
+        <?php if (!empty($error_message)): ?>
+            <div class="toast-notification error">
+                <i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($error_message); ?>
+            </div>
+        <?php endif; ?>
+    </div>
     <?php
     $footerBase = '../public/';
     $footerAssetBase = '../assets';
@@ -710,5 +703,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ?>
     <script src="../assets/js/resident.js?v=20260530a"></script>
 </body>
-
 </html>

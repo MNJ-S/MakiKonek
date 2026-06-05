@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             emptyState.style.display = "none";
             requestForm.classList.add("is-visible");
-            
+
             resetPaymentToggle();
         });
     });
@@ -200,4 +200,35 @@ document.addEventListener("DOMContentLoaded", () => {
     if (checkedRadio) {
         handlePaymentChange(checkedRadio.value);
     }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const fileInputs = document.querySelectorAll('input[type="file"]');
+
+    fileInputs.forEach(input => {
+        input.addEventListener('change', function (e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : "No file chosen";
+
+            const uploadBox = this.closest('.upload-box');
+
+            if (uploadBox) {
+                const subText = uploadBox.querySelector('.upload-sub');
+                if (subText) {
+                    subText.textContent = "Selected: " + fileName;
+                    subText.style.color = "#2e6f40";
+                    subText.style.fontWeight = "bold";
+                }
+            }
+        });
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const toasts = document.querySelectorAll('.toast-notification');
+
+    toasts.forEach(toast => {
+        setTimeout(() => {
+            toast.remove();
+        }, 5000);
+    });
 });
