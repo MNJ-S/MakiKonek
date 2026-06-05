@@ -155,7 +155,6 @@ $result = mysqli_stmt_get_result($stmt);
                             <th class="text-center">Action</th>
                         </tr>
                     </thead>
-                    </thead>
                     <tbody>
                         <?php if (mysqli_num_rows($result) > 0): ?>
                             <?php while ($row = mysqli_fetch_assoc($result)):
