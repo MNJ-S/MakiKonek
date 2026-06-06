@@ -39,7 +39,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $voters_id = mysqli_real_escape_string($conn, trim($_POST['voters_id']));
     $sss_no = mysqli_real_escape_string($conn, trim($_POST['sss_no']));
     $tin_no = mysqli_real_escape_string($conn, trim($_POST['tin_no']));
-    $years_residency = mysqli_real_escape_string($conn, trim($_POST['years_residency']));
+    $years_residency_input = trim($_POST['years_residency']);
+    $years_residency = ($years_residency_input === '') ? 0 : (int)$_POST['years_residency'];
     $employed_status = mysqli_real_escape_string($conn, trim($_POST['employed_status']));
     $pagibig_no = mysqli_real_escape_string($conn, trim($_POST['pagibig_no']));
 
@@ -83,76 +84,115 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if (empty($error_message)) {
-        // UPDATE THE CURRENT IDENTITY IN THE DATABASE
-        $update_query = "
-            UPDATE user_profiles SET 
-                first_name = ?, last_name = ?, middle_name = ?, suffix = ?, sex = ?, civil_status = ?, 
-                birth_date = ?, birth_place = ?, religion = ?, nationality = ?, mobile_number = ?, 
-                house_no = ?, street = ?, purok_no = ?, subdivision = ?, national_id = ?, 
-                philhealth_no = ?, voters_id = ?, sss_no = ?, tin_no = ?, years_residency = ?, 
-                employed_status = ?, pagibig_no = ?, emergency_name = ?, emergency_relationship = ?, 
-                emergency_contact = ?, emergency_address = ?, avatar_path = ?
-            WHERE user_id = ?
-        ";
+        mysqli_begin_transaction($conn);
+        try {
+            // 1. UPDATE user_profiles (Removed the IDs and emergency columns!)
+            $update_query = "
+                UPDATE user_profiles SET 
+                    first_name = ?, last_name = ?, middle_name = ?, suffix = ?, sex = ?, civil_status = ?, 
+                    birth_date = ?, birth_place = ?, religion = ?, nationality = ?, mobile_number = ?, 
+                    house_no = ?, street = ?, purok_no = ?, subdivision = ?, years_residency = ?, 
+                    employed_status = ?, avatar_path = ?
+                WHERE user_id = ?
+            ";
+            $stmt = mysqli_prepare($conn, $update_query);
+            mysqli_stmt_bind_param(
+                $stmt,
+                "ssssssssssssssissi",
+                $given_name,
+                $surname,
+                $middle_name,
+                $suffix,
+                $sex,
+                $civil_status,
+                $birth_date,
+                $birth_place,
+                $religion,
+                $nationality,
+                $mobile_number,
+                $house_no,
+                $street,
+                $purok_no,
+                $subdivision,
+                $years_residency,
+                $employed_status,
+                $avatar_path,
+                $resident_id
+            );
+            mysqli_stmt_execute($stmt);
 
-        $stmt = mysqli_prepare($conn, $update_query);
-        mysqli_stmt_bind_param(
-            $stmt,
-            "ssssssssssssssssssssssssssssi",
-            $given_name,
-            $surname,
-            $middle_name,
-            $suffix,
-            $sex,
-            $civil_status,
-            $birth_date,
-            $birth_place,
-            $religion,
-            $nationality,
-            $mobile_number,
-            $house_no,
-            $street,
-            $purok_no,
-            $subdivision,
-            $national_id,
-            $philhealth_no,
-            $voters_id,
-            $sss_no,
-            $tin_no,
-            $years_residency,
-            $employed_status,
-            $pagibig_no,
-            $emergency_name,
-            $emergency_relationship,
-            $emergency_contact,
-            $emergency_address,
-            $avatar_path,
-            $resident_id
-        );
+            mysqli_query($conn, "DELETE FROM user_emergency_contacts WHERE user_id = $resident_id");
+            if (!empty($emergency_name)) {
+                $emerg_query = "INSERT INTO user_emergency_contacts (user_id, name, relationship, contact_number, address) VALUES (?, ?, ?, ?, ?)";
+                $stmt_em = mysqli_prepare($conn, $emerg_query);
+                mysqli_stmt_bind_param($stmt_em, "issss", $resident_id, $emergency_name, $emergency_relationship, $emergency_contact, $emergency_address);
+                mysqli_stmt_execute($stmt_em);
+            }
 
-        if (mysqli_stmt_execute($stmt)) {
+            // user_government_ids
+            mysqli_query($conn, "DELETE FROM user_government_ids WHERE user_id = $resident_id");
+            $gov_ids = [
+                'National ID' => $national_id,
+                'PhilHealth' => $philhealth_no,
+                'Voters' => $voters_id,
+                'SSS' => $sss_no,
+                'TIN' => $tin_no,
+                'Pag-IBIG' => $pagibig_no
+            ];
+            $stmt_id = mysqli_prepare($conn, "INSERT INTO user_government_ids (user_id, id_type, id_number) VALUES (?, ?, ?)");
+            foreach ($gov_ids as $type => $number) {
+                $clean_number = trim($number);
+
+                if (!empty($clean_number)) {
+                    mysqli_stmt_bind_param(
+                        $stmt_id,
+                        "iss",
+                        $resident_id,
+                        $type,
+                        $clean_number
+                    );
+                    mysqli_stmt_execute($stmt_id);
+                }
+            }
+
+            mysqli_commit($conn);
             $success_message = "SAVED SUCCESSFULLY!";
-        } else {
-            $error_message = "FAILED TO UPDATE PROFILE. PLEASE TRY AGAIN.";
+        } catch (Exception $e) {
+            mysqli_rollback($conn);
+            $error_message = "FAILED TO UPDATE PROFILE.";
         }
     }
 }
 
 // --- ACTIVE DATABASE FETCH FOR CURRENT DATA ---
-$fetch_query = "
-    SELECT u.email, u.created_at, p.* FROM users u 
-    INNER JOIN user_profiles p ON u.user_id = p.user_id 
-    WHERE u.user_id = ? LIMIT 1
-";
-
+$fetch_query = "SELECT u.email, u.created_at, p.* FROM users u INNER JOIN user_profiles p ON u.user_id = p.user_id WHERE u.user_id = ? LIMIT 1";
 $f_stmt = mysqli_prepare($conn, $fetch_query);
 mysqli_stmt_bind_param($f_stmt, "i", $resident_id);
 mysqli_stmt_execute($f_stmt);
 $resident_data = mysqli_fetch_assoc(mysqli_stmt_get_result($f_stmt));
 
-$pageTitle = 'Profile';
-$activePage = 'profile';
+// Fetch Emergency Contact
+$em_res = mysqli_query($conn, "SELECT * FROM user_emergency_contacts WHERE user_id = $resident_id LIMIT 1");
+if ($em_row = mysqli_fetch_assoc($em_res)) {
+    $resident_data['emergency_name'] = $em_row['name'];
+    $resident_data['emergency_relationship'] = $em_row['relationship'];
+    $resident_data['emergency_contact'] = $em_row['contact_number'];
+    $resident_data['emergency_address'] = $em_row['address'];
+}
+
+// Fetch Government IDs
+$gov_res = mysqli_query($conn, "SELECT id_type, id_number FROM user_government_ids WHERE user_id = $resident_id");
+while ($id_row = mysqli_fetch_assoc($gov_res)) {
+    if ($id_row['id_type'] === 'National ID') $resident_data['national_id'] = $id_row['id_number'];
+    if ($id_row['id_type'] === 'PhilHealth') $resident_data['philhealth_no'] = $id_row['id_number'];
+    if ($id_row['id_type'] === 'Voters') $resident_data['voters_id'] = $id_row['id_number'];
+    if ($id_row['id_type'] === 'SSS') $resident_data['sss_no'] = $id_row['id_number'];
+    if ($id_row['id_type'] === 'TIN') $resident_data['tin_no'] = $id_row['id_number'];
+    if ($id_row['id_type'] === 'Pag-IBIG') $resident_data['pagibig_no'] = $id_row['id_number'];
+}
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 

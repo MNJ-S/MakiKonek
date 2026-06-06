@@ -32,17 +32,12 @@ $test_accounts = [
 echo "<h2>MakiKonek Team Setup Engine</h2>";
 echo "<ul>";
 
-// Loop through the array and insert each teammate into the database
 foreach ($test_accounts as $account) {
-    // Hash the password securely
-    $hashed_password = password_hash($account['password'], PASSWORD_DEFAULT);
 
-    // Prepare the SQL statement
-    $query = "INSERT INTO admin_accounts (username, email, password_hash, role) VALUES (?, ?, ?, ?)";
+    $query = "INSERT INTO admin_accounts (username, email, password, role) VALUES (?, ?, ?, ?)";
     $stmt = mysqli_prepare($conn, $query);
-    mysqli_stmt_bind_param($stmt, "ssss", $account['username'], $account['email'], $hashed_password, $account['role']);
+    mysqli_stmt_bind_param($stmt, "ssss", $account['username'], $account['email'], $account['password'], $account['role']);
 
-    // Execute and print the result
     if (mysqli_stmt_execute($stmt)) {
         echo "<li style='color: green;'>Success: Created <strong>{$account['role']}</strong> account for <em>{$account['username']}</em>.</li>";
     } else {

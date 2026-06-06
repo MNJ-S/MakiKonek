@@ -11,23 +11,59 @@ require_once __DIR__ . '/../includes/db_connect.php';
 $success_message = '';
 $error_message = '';
 
-// --- UPDATE CHANGES ---
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['complete_request'])) {
+    $req_id = (int)$_POST['request_id'];
+
+    mysqli_begin_transaction($conn);
+    try {
+        $fetch_query = "
+            SELECT sr.user_id, sr.reference_no, sr.purpose, sr.document_fee, sr.created_at, dt.name AS document_type_name
+            FROM service_requests sr
+            JOIN document_types dt ON sr.document_type_id = dt.document_type_id
+            WHERE sr.request_id = ?";
+        $stmt_fetch = mysqli_prepare($conn, $fetch_query);
+        mysqli_stmt_bind_param($stmt_fetch, "i", $req_id);
+        mysqli_stmt_execute($stmt_fetch);
+        $req_data = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt_fetch));
+
+        if ($req_data) {
+            $insert_query = "INSERT INTO completed_requests (original_request_id, user_id, document_type_name, reference_no, purpose, document_fee, requested_at, completed_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
+            $stmt_insert = mysqli_prepare($conn, $insert_query);
+            mysqli_stmt_bind_param($stmt_insert, "iissdss", $req_id, $req_data['user_id'], $req_data['document_type_name'], $req_data['reference_no'], $req_data['purpose'], $req_data['document_fee'], $req_data['created_at']);
+            mysqli_stmt_execute($stmt_insert);
+
+            $delete_query = "DELETE FROM service_requests WHERE request_id = ?";
+            $stmt_delete = mysqli_prepare($conn, $delete_query);
+            mysqli_stmt_bind_param($stmt_delete, "i", $req_id);
+            mysqli_stmt_execute($stmt_delete);
+
+            mysqli_commit($conn);
+            $success_message = "Request marked as COMPLETED and moved to archives.";
+        }
+    } catch (Exception $e) {
+        mysqli_rollback($conn);
+        $error_message = "System error: Could not complete request.";
+    }
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     $req_id = (int)$_POST['request_id'];
-    $new_status = mysqli_real_escape_string($conn, $_POST['status_value']);
+    $new_status = mysqli_real_escape_string($conn, $_POST['update_status']);
 
-    $update = "UPDATE service_requests SET status = ? WHERE request_id = ?";
-    $stmt = mysqli_prepare($conn, $update);
-    mysqli_stmt_bind_param($stmt, "si", $new_status, $req_id);
+    $process_init = ($new_status === 'APPROVED') ? 'PROCESSING' : 'Pending';
+
+    $update_query = "UPDATE service_requests SET status = ?, process_status = ? WHERE request_id = ?";
+    $stmt = mysqli_prepare($conn, $update_query);
+    mysqli_stmt_bind_param($stmt, "ssi", $new_status, $process_init, $req_id);
+
     if (mysqli_stmt_execute($stmt)) {
-        $success_message = "Request state updated to " . $new_status . " successfully.";
+        $success_message = "Request " . strtolower($new_status) . " successfully.";
     } else {
-        $error_message = "Failed to update target row state records.";
+        $error_message = "Failed to update request status.";
     }
 }
 
 $selected_tab = $_GET['tab'] ?? 'Clearance';
-
 $type_map = [
     'Clearance' => 'Barangay Clearance',
     'Indigency' => 'Certificate of Indigency',
@@ -41,22 +77,28 @@ $type_map = [
     'Identification' => 'Barangay ID',
     'Incident' => 'Incident Report',
 ];
-
 $filter_type = $type_map[$selected_tab] ?? 'Barangay Clearance';
 
-if ($selected_tab === 'Others') {
-    $query = "SELECT * FROM service_requests WHERE document_type NOT IN ('Barangay Clearance', 'Certificate of Indigency', 'Certificate of Residency', 'Good Moral Certificate', 'Business Clearance', 'Building/Construction Permit', 'Cedula', 'Barangay ID', 'Incident Report') ORDER BY created_at DESC";
-} else {
-    $query = "SELECT * FROM service_requests WHERE document_type = ? ORDER BY created_at DESC";
-}
+$query = "
+    SELECT sr.*, dt.name AS document_type, p.first_name, p.last_name, p.mobile_number AS phone, p.house_no, p.street, p.purok_no AS address,
+           rb.business_name, rb.business_location, rb.business_operator, rb.business_nature, rb.business_address,
+           ri.incident_date, ri.incident_time, ri.incident_location, ri.incident_persons, ri.incident_narrative, ri.witness_name AS incident_witness_name
+    FROM service_requests sr
+    JOIN document_types dt ON sr.document_type_id = dt.document_type_id
+    JOIN users u ON sr.user_id = u.user_id
+    JOIN user_profiles p ON u.user_id = p.user_id
+    LEFT JOIN request_business_clearances rb ON sr.request_id = rb.request_id
+    LEFT JOIN request_incident_reports ri ON sr.request_id = ri.request_id
+    WHERE dt.name = ?
+    ORDER BY sr.created_at DESC
+";
 
 $stmt = mysqli_prepare($conn, $query);
-if ($selected_tab !== 'Others') {
-    mysqli_stmt_bind_param($stmt, "s", $filter_type);
-}
+mysqli_stmt_bind_param($stmt, "s", $filter_type);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 ?>
+
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 
@@ -148,64 +190,57 @@ $result = mysqli_stmt_get_result($stmt);
                         <tr>
                             <th>Ref ID</th>
                             <th>Resident Name</th>
-                            <th><?php echo ($selected_tab === 'Business') ? 'Business Name' : (($selected_tab === 'Incident') ? 'Incident Date' : 'Purpose'); ?></th>
-                            <th>Date Submitted</th>
-                            <th>Payment</th>
+                            <th>Purpose</th>
                             <th>Status</th>
+                            <th>Process Status</th>
                             <th class="text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (mysqli_num_rows($result) > 0): ?>
                             <?php while ($row = mysqli_fetch_assoc($result)):
+                                // Status Class Logic
                                 $status_class = 'badge-pending';
                                 if ($row['status'] === 'APPROVED') $status_class = 'badge-approved';
                                 if ($row['status'] === 'REJECTED') $status_class = 'badge-rejected';
-
-                                if ($selected_tab === 'Business') {
-                                    $display_context = htmlspecialchars($row['business_name'] ?? 'N/A');
-                                } elseif ($selected_tab === 'Incident') {
-                                    $display_context = htmlspecialchars($row['incident_date'] ?? 'N/A');
-                                } else {
-                                    $display_context = htmlspecialchars($row['purpose']);
-                                }
                             ?>
                                 <tr>
-                                    <td class="fw-bold font-monospace"><?php echo $row['reference_no']; ?></td>
-                                    <td class="fw-bold"><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?></td>
-                                    <td><small><?php echo $display_context; ?></small></td>
-                                    <td class="small"><?php echo date("M d, Y", strtotime($row['created_at'])); ?></td>
+                                    <td class="fw-bold font-monospace"><?php echo htmlspecialchars($row['reference_no']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?></td>
+                                    <td><small><?php echo htmlspecialchars($row['purpose']); ?></small></td>
+                                    <td><span class="badge <?php echo $status_class; ?>"><?php echo htmlspecialchars($row['status']); ?></span></td>
 
                                     <td>
-                                        <?php if ($row['payment_method'] === 'online'): ?>
-                                            <span class="badge bg-primary mb-1"><i class="bi bi-phone"></i> GCash</span><br>
-                                            <?php if (!empty($row['payment_receipt_path'])): ?>
-                                                <a href="../<?php echo htmlspecialchars($row['payment_receipt_path']); ?>" target="_blank" class="btn btn-sm btn-outline-primary" style="font-size: 0.70rem; padding: 2px 6px;">
-                                                    <i class="bi bi-receipt"></i> View Receipt
-                                                </a>
-                                            <?php else: ?>
-                                                <small class="text-danger" style="font-size: 0.75rem;">No Receipt</small>
-                                            <?php endif; ?>
+                                        <?php if ($row['status'] === 'APPROVED'): ?>
+                                            <form action="manage_requests.php?tab=<?php echo $selected_tab; ?>" method="POST">
+                                                <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
+                                                <select name="process_value" class="form-select form-select-sm" onchange="this.form.submit()">
+                                                    <option value="PROCESSING" <?php echo ($row['process_status'] === 'PROCESSING') ? 'selected' : ''; ?>>Processing</option>
+                                                    <option value="READY FOR PICKUP" <?php echo ($row['process_status'] === 'READY FOR PICKUP') ? 'selected' : ''; ?>>Ready for Pickup</option>
+                                                </select>
+                                                <input type="hidden" name="update_process" value="1">
+                                            </form>
                                         <?php else: ?>
-                                            <span class="badge bg-secondary"><i class="bi bi-cash"></i> On Pickup</span>
+                                            <span class="text-muted small">N/A</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td><span class="badge <?php echo $status_class; ?>"><?php echo $row['status']; ?></span></td>
+
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-1">
-                                            <a href="print_document.php?req_id=<?php echo $row['request_id']; ?>" target="_blank" class="btn btn-sm btn-outline-dark" title="Edit & Print Document">
+                                            <a href="print_document.php?req_id=<?php echo $row['request_id']; ?>" target="_blank" class="btn btn-sm btn-outline-dark" title="Print Document">
                                                 <i class="bi bi-printer"></i>
                                             </a>
+
                                             <button class="btn btn-sm btn-outline-primary view-details-trigger"
                                                 data-bs-toggle="modal" data-bs-target="#requestDetailsModal"
-                                                data-ref="<?php echo $row['reference_no']; ?>"
+                                                data-ref="<?php echo htmlspecialchars($row['reference_no']); ?>"
                                                 data-name="<?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?>"
                                                 data-doc="<?php echo htmlspecialchars($row['document_type']); ?>"
                                                 data-phone="<?php echo htmlspecialchars($row['phone']); ?>"
                                                 data-address="<?php echo htmlspecialchars($row['address']); ?>"
                                                 data-purpose="<?php echo htmlspecialchars($row['purpose']); ?>"
                                                 data-fee="<?php echo htmlspecialchars($row['document_fee']); ?>"
-                                                data-idpath="../<?php echo $row['id_path']; ?>"
+                                                data-idpath="../<?php echo htmlspecialchars($row['id_path']); ?>"
                                                 data-tab="<?php echo $selected_tab; ?>"
                                                 data-bname="<?php echo htmlspecialchars($row['business_name'] ?? ''); ?>"
                                                 data-blocation="<?php echo htmlspecialchars($row['business_location'] ?? ''); ?>"
@@ -221,16 +256,23 @@ $result = mysqli_stmt_get_result($stmt);
                                                 <i class="bi bi-eye"></i>
                                             </button>
 
-                                            <form action="manage_requests.php?tab=<?php echo $selected_tab; ?>" method="POST" class="d-inline">
-                                                <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
-                                                <input type="hidden" name="status_value" value="APPROVED">
-                                                <button type="submit" name="update_status" class="btn btn-sm btn-success" title="Approve"><i class="bi bi-check-lg"></i></button>
-                                            </form>
-                                            <form action="manage_requests.php?tab=<?php echo $selected_tab; ?>" method="POST" class="d-inline">
-                                                <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
-                                                <input type="hidden" name="status_value" value="REJECTED">
-                                                <button type="submit" name="update_status" class="btn btn-sm btn-danger" title="Reject"><i class="bi bi-x-lg"></i></button>
-                                            </form>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <form action="manage_requests.php?tab=<?php echo $selected_tab; ?>" method="POST">
+                                                            <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
+                                                            <button type="submit" name="update_status" value="APPROVED" class="dropdown-item text-success"><i class="bi bi-check-lg"></i> Approve</button>
+                                                        </form>
+                                                    </li>
+                                                    <li>
+                                                        <form action="manage_requests.php?tab=<?php echo $selected_tab; ?>" method="POST">
+                                                            <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
+                                                            <button type="submit" name="update_status" value="REJECTED" class="dropdown-item text-danger"><i class="bi bi-x-lg"></i> Reject</button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>

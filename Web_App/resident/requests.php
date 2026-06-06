@@ -13,7 +13,6 @@ $activePage = 'requests';
 $success_message = '';
 $error_message = '';
 
-// --- 1. FETCH USER PROFILE DATA FOR AUTOFILL ---
 $resident_id = (int) $_SESSION['resident_id'];
 $profile_query = "SELECT u.email, p.* FROM users u LEFT JOIN user_profiles p ON u.user_id = p.user_id WHERE u.user_id = ? LIMIT 1";
 $p_stmt = mysqli_prepare($conn, $profile_query);
@@ -21,7 +20,6 @@ mysqli_stmt_bind_param($p_stmt, "i", $resident_id);
 mysqli_stmt_execute($p_stmt);
 $profile = mysqli_fetch_assoc(mysqli_stmt_get_result($p_stmt)) ?: [];
 
-// Create pre-fill variables
 $pref_fname = htmlspecialchars($profile['first_name'] ?? '');
 $pref_mname = htmlspecialchars($profile['middle_name'] ?? '');
 $pref_lname = htmlspecialchars($profile['last_name'] ?? '');
@@ -29,13 +27,18 @@ $pref_suffix = htmlspecialchars($profile['suffix'] ?? '');
 $pref_email = htmlspecialchars($profile['email'] ?? '');
 $pref_phone = htmlspecialchars($profile['mobile_number'] ?? '');
 $pref_bdate = htmlspecialchars($profile['birth_date'] ?? '');
-$pref_gender = '';
-if (strcasecmp($profile['sex'] ?? '', 'FEMALE') === 0) $pref_gender = 'Female';
-elseif (strcasecmp($profile['sex'] ?? '', 'MALE') === 0) $pref_gender = 'Male';
-else $pref_gender = 'Prefer not to say';
+
+$db_sex = strtoupper(trim($profile['sex'] ?? ''));
+if ($db_sex === 'MALE') {
+    $pref_gender = 'Male';
+} elseif ($db_sex === 'FEMALE') {
+    $pref_gender = 'Female';
+} else {
+    $pref_gender = 'Prefer not to say';
+}
+
 $pref_civil = htmlspecialchars(ucfirst(strtolower($profile['civil_status'] ?? '')));
 $pref_address = htmlspecialchars(trim(implode(' ', array_filter([$profile['house_no'] ?? '', $profile['street'] ?? '', !empty($profile['purok_no']) ? 'Purok ' . $profile['purok_no'] : '', $profile['subdivision'] ?? '']))));
-
 $documentGroups = [
     'Certificates' => [
         ['name' => 'Barangay Clearance', 'fee' => 'P50.00', 'time' => '1-2 working days'],
@@ -209,41 +212,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($error_message === '') {
         $reference_no = 'MK-' . strtoupper(substr(uniqid(), -6));
-        
-        $insert = "INSERT INTO service_requests (
-            user_id, reference_no, document_type, first_name, middle_name, last_name, suffix,
-            email, phone, birth_date, gender, civil_status, address, province, city, barangay,
-            purpose, occupation, document_fee, payment_method, payment_receipt_path, id_path, status,
-            business_name, business_location, business_operator, business_address, business_nature, business_permit_for,
-            construction_address, construction_purpose, construction_other_purpose, construction_status, construction_other_status, construction_description,
-            cedula_type, cedula_tax_year, cedula_place_issued, cedula_income_source, cedula_tin, cedula_birthplace, cedula_height, cedula_weight, cedula_gross_income,
-            id_emergency_name, id_emergency_relationship, id_emergency_contact, id_blood_type, id_valid_until,
-            incident_date, incident_time, incident_location, incident_persons, incident_narrative, incident_action, incident_witness_name, incident_witness_contact, incident_witness_address
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING',
-                  ?, ?, ?, ?, ?, ?,
-                  ?, ?, ?, ?, ?, ?,
-                  ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                  ?, ?, ?, ?, ?,
-                  ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        $stmt = mysqli_prepare($conn, $insert);
-        
-        mysqli_stmt_bind_param(
-            $stmt,
-            "issssssssssssssssssssssssssssssssssssssssssssssssssssssss",
-            $resident_id, $reference_no, $document_type, $first_name, $middle_name, $last_name, $suffix,
-            $email, $phone, $birth_date, $gender, $civil_status, $address, $province, $city, $barangay,
-            $purpose, $occupation, $document_fee, $payment_method, $payment_receipt_path, $id_path,
-            $business_name, $business_location, $business_operator, $business_address, $business_nature, $business_permit_for,
-            $construction_address, $construction_purpose, $construction_other_purpose, $construction_status, $construction_other_status, $construction_description,
-            $cedula_type, $cedula_tax_year, $cedula_place_issued, $cedula_income_source, $cedula_tin, $cedula_birthplace, $cedula_height, $cedula_weight, $cedula_gross_income,
-            $id_emergency_name, $id_emergency_relationship, $id_emergency_contact, $id_blood_type, $id_valid_until,
-            $incident_date, $incident_time, $incident_location, $incident_persons, $incident_narrative, $incident_action, $incident_witness_name, $incident_witness_contact, $incident_witness_address
-        );
+        mysqli_begin_transaction($conn);
+        try {
+            // 1. Get document_type_id
+            $type_query = "SELECT document_type_id FROM document_types WHERE name = ? LIMIT 1";
+            $stmt_type = mysqli_prepare($conn, $type_query);
+            mysqli_stmt_bind_param($stmt_type, "s", $document_type);
+            mysqli_stmt_execute($stmt_type);
+            $type_result = mysqli_stmt_get_result($stmt_type);
+            $type_row = mysqli_fetch_assoc($type_result);
+            $document_type_id = $type_row ? $type_row['document_type_id'] : 0;
 
-        if (mysqli_stmt_execute($stmt)) {
+            $insert_base = "INSERT INTO service_requests (
+                user_id, document_type_id, reference_no, purpose, document_fee, 
+                payment_method, payment_receipt_path, id_path, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'PENDING')";
+
+            $stmt_base = mysqli_prepare($conn, $insert_base);
+            mysqli_stmt_bind_param($stmt_base, "iissssss", $resident_id, $document_type_id, $reference_no, $purpose, $document_fee, $payment_method, $payment_receipt_path, $id_path);
+            mysqli_stmt_execute($stmt_base);
+
+            $new_request_id = mysqli_insert_id($conn);
+
+            if ($document_type === 'Business Clearance') {
+                $insert_biz = "INSERT INTO request_business_clearances (request_id, business_name, business_location, business_operator, business_address, business_nature) VALUES (?, ?, ?, ?, ?, ?)";
+                $stmt_biz = mysqli_prepare($conn, $insert_biz);
+                mysqli_stmt_bind_param($stmt_biz, "isssss", $new_request_id, $business_name, $business_location, $business_operator, $business_address, $business_nature);
+                mysqli_stmt_execute($stmt_biz);
+            } elseif ($document_type === 'Building/Construction Permit') {
+                $insert_con = "INSERT INTO request_construction_permits (request_id, construction_address, construction_purpose, construction_status, construction_description) VALUES (?, ?, ?, ?, ?)";
+                $stmt_con = mysqli_prepare($conn, $insert_con);
+                mysqli_stmt_bind_param($stmt_con, "issss", $new_request_id, $construction_address, $construction_purpose, $construction_status, $construction_description);
+                mysqli_stmt_execute($stmt_con);
+            } elseif ($document_type === 'Cedula') {
+                $insert_cedula = "INSERT INTO request_cedulas (request_id, cedula_type, tax_year, place_issued, income_source, height, weight, gross_income) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                $stmt_ced = mysqli_prepare($conn, $insert_cedula);
+                mysqli_stmt_bind_param($stmt_ced, "issssssd", $new_request_id, $cedula_type, $cedula_tax_year, $cedula_place_issued, $cedula_income_source, $cedula_height, $cedula_weight, $cedula_gross_income);
+                mysqli_stmt_execute($stmt_ced);
+            } elseif ($document_type === 'Barangay ID') {
+                $insert_id = "INSERT INTO request_barangay_ids (request_id, blood_type, emergency_name, emergency_relationship, valid_until) VALUES (?, ?, ?, ?, ?)";
+                $stmt_id = mysqli_prepare($conn, $insert_id);
+                mysqli_stmt_bind_param($stmt_id, "issss", $new_request_id, $id_blood_type, $id_emergency_name, $id_emergency_relationship, $id_valid_until);
+                mysqli_stmt_execute($stmt_id);
+            } elseif ($document_type === 'Incident Report') {
+                $insert_inc = "INSERT INTO request_incident_reports (request_id, incident_date, incident_time, incident_location, incident_persons, incident_narrative, incident_action, witness_name, witness_contact, witness_address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $stmt_inc = mysqli_prepare($conn, $insert_inc);
+                mysqli_stmt_bind_param($stmt_inc, "isssssssss", $new_request_id, $incident_date, $incident_time, $incident_location, $incident_persons, $incident_narrative, $incident_action, $incident_witness_name, $incident_witness_contact, $incident_witness_address);
+                mysqli_stmt_execute($stmt_inc);
+            }
+
+            mysqli_commit($conn);
             $success_message = 'Your request has been submitted under Reference Number: ' . $reference_no;
-        } else {
+        } catch (Exception $e) {
+            mysqli_rollback($conn);
             $error_message = 'Database error. Failed to submit request.';
         }
     }
@@ -363,9 +385,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label for="gender">Gender *</label>
                                 <select id="gender" name="gender" required>
                                     <option value="">Select gender</option>
-                                    <option <?php echo ($pref_gender == 'Female') ? 'selected' : ''; ?>>Female</option>
-                                    <option <?php echo ($pref_gender == 'Male') ? 'selected' : ''; ?>>Male</option>
-                                    <option <?php echo ($pref_gender == 'Prefer not to say') ? 'selected' : ''; ?>>Prefer not to say</option>
+                                    <option value="Female" <?php echo ($pref_gender == 'Female') ? 'selected' : ''; ?>>Female</option>
+                                    <option value="Male" <?php echo ($pref_gender == 'Male') ? 'selected' : ''; ?>>Male</option>
+                                    <option value="Prefer not to say" <?php echo ($pref_gender == 'Prefer not to say') ? 'selected' : ''; ?>>Prefer not to say</option>
                                 </select>
                             </div>
                             <div class="field">
@@ -703,4 +725,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ?>
     <script src="../assets/js/resident.js?v=20260530a"></script>
 </body>
+
 </html>

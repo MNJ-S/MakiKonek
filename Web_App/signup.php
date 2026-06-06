@@ -12,21 +12,20 @@ $error_message = '';
 $success_message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // 1. Grab and sanitize all the inputs from the UI
     $surname = mysqli_real_escape_string($conn, trim($_POST['surname']));
     $given_name = mysqli_real_escape_string($conn, trim($_POST['given_name']));
     $middle_name = mysqli_real_escape_string($conn, trim($_POST['middle_name']));
     $suffix = mysqli_real_escape_string($conn, trim($_POST['suffix']));
     $username = mysqli_real_escape_string($conn, trim($_POST['username']));
     $email = mysqli_real_escape_string($conn, trim($_POST['email']));
-    $password = $_POST['password'];
+    $password = $password($password, PASSWORD_DEFAULT);
     $confirm_password = $_POST['confirm_password'];
 
-    // 2. Validate passwords match
+    // Validate passwords match
     if ($password !== $confirm_password) {
         $error_message = "Passwords do not match. Please try again.";
     } else {
-        // 3. Check if the username or email is already taken
+        // Check if the username or email is already taken
         $check_query = "SELECT user_id FROM users WHERE email = ? OR username = ?";
         $stmt = mysqli_prepare($conn, $check_query);
         mysqli_stmt_bind_param($stmt, "ss", $email, $username);
@@ -40,30 +39,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             mysqli_begin_transaction($conn);
 
             try {
-                // Hash the password for security
-                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
-                // INSERT INTO users table
-                $insert_user = "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)";
+                $insert_user = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, 'Residente')";
                 $stmt_user = mysqli_prepare($conn, $insert_user);
-                mysqli_stmt_bind_param($stmt_user, "sss", $username, $email, $hashed_password);
+                mysqli_stmt_bind_param($stmt_user, "sss", $username, $email, $password);
                 mysqli_stmt_execute($stmt_user);
 
-                // Grab the new ID created by the database
                 $new_user_id = mysqli_insert_id($conn);
 
-                // INSERT INTO user_profiles table
                 $insert_profile = "INSERT INTO user_profiles (user_id, first_name, last_name, middle_name, suffix) VALUES (?, ?, ?, ?, ?)";
                 $stmt_profile = mysqli_prepare($conn, $insert_profile);
                 mysqli_stmt_bind_param($stmt_profile, "issss", $new_user_id, $given_name, $surname, $middle_name, $suffix);
                 mysqli_stmt_execute($stmt_profile);
 
-                // Save to Database
                 mysqli_commit($conn);
-
                 $success_message = "Account created successfully! You can now log in.";
             } catch (Exception $e) {
-                // If anything fails, rollback so we don't have incomplete data
                 mysqli_rollback($conn);
                 $error_message = "Registration failed due to a system error. Please try again.";
             }

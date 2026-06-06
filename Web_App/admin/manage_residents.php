@@ -8,11 +8,57 @@ if (!isset($_SESSION['admin_id'])) {
 
 require_once __DIR__ . '/../includes/db_connect.php';
 
-// Fetches all structural profile and identity elements from both tables
+$success_message = '';
+$error_message = '';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['archive_user'])) {
+    $target_user_id = (int)$_POST['user_id'];
+    $reason = mysqli_real_escape_string($conn, $_POST['archive_reason'] ?? 'Inactive');
+
+    mysqli_begin_transaction($conn);
+    try {
+        $archive_query = "
+            INSERT INTO archived_users (original_user_id, username, email, role, archived_reason)
+            SELECT user_id, username, email, role, ? FROM users WHERE user_id = ?";
+        $stmt_archive = mysqli_prepare($conn, $archive_query);
+        mysqli_stmt_bind_param($stmt_archive, "si", $reason, $target_user_id);
+        mysqli_stmt_execute($stmt_archive);
+
+        $archive_profile_query = "
+            INSERT INTO archived_user_profiles (
+                original_user_id, first_name, last_name, middle_name, suffix, avatar_path, 
+                sex, civil_status, birth_date, birth_place, religion, nationality, 
+                mobile_number, house_no, street, purok_no, subdivision, years_residency, 
+                employed_status, date_registration
+            )
+            SELECT 
+                user_id, first_name, last_name, middle_name, suffix, avatar_path, 
+                sex, civil_status, birth_date, birth_place, religion, nationality, 
+                mobile_number, house_no, street, purok_no, subdivision, years_residency, 
+                employed_status, date_registration
+            FROM user_profiles WHERE user_id = ?";
+        $stmt_archive_prof = mysqli_prepare($conn, $archive_profile_query);
+        mysqli_stmt_bind_param($stmt_archive_prof, "i", $target_user_id);
+        mysqli_stmt_execute($stmt_archive_prof);
+
+        $delete_query = "DELETE FROM users WHERE user_id = ?";
+        $stmt_delete = mysqli_prepare($conn, $delete_query);
+        mysqli_stmt_bind_param($stmt_delete, "i", $target_user_id);
+        mysqli_stmt_execute($stmt_delete);
+
+        mysqli_commit($conn);
+        $success_message = "Account successfully archived and moved to inactive records.";
+    } catch (Exception $e) {
+        mysqli_rollback($conn);
+        $error_message = "System error: Could not archive the account.";
+    }
+}
+
+// --- FETCH ACTIVE RESIDENTS ---
 $query = "
-    SELECT u.user_id, u.email, u.created_at, p.* 
-    FROM users u
+    SELECT u.user_id, u.email, u.created_at, p.* FROM users u
     INNER JOIN user_profiles p ON u.user_id = p.user_id
+    WHERE u.role = 'Residente'
     ORDER BY u.created_at DESC
 ";
 $result = mysqli_query($conn, $query);
@@ -67,6 +113,13 @@ $result = mysqli_query($conn, $query);
             <h2 class="fw-bold page-title"><i class="bi bi-people text-success me-2"></i> Resident Directory</h2>
         </div>
 
+        <?php if ($success_message): ?>
+            <div class="alert alert-success alert-dismissible fade show shadow-sm"><i class="bi bi-check-circle me-2"></i> <?php echo $success_message; ?> <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+        <?php endif; ?>
+        <?php if ($error_message): ?>
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm"><i class="bi bi-exclamation-triangle me-2"></i> <?php echo $error_message; ?> <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+        <?php endif; ?>
+
         <div class="custom-card p-4 shadow-sm">
             <div class="table-responsive">
                 <table class="table table-light table-hover align-middle border-secondary">
@@ -93,34 +146,43 @@ $result = mysqli_query($conn, $query);
                                     <td class="text-muted"><?php echo htmlspecialchars($row['email']); ?></td>
                                     <td class="small"><?php echo date("M d, Y", strtotime($row['created_at'])); ?></td>
                                     <td class="text-center">
-                                        <!-- VIEW MODAL FETCH DATA -->
-                                        <button class="btn btn-sm btn-primary view-profile-trigger"
-                                            title="View Full Profile"
-                                            data-name="<?php echo htmlspecialchars($full_name); ?>"
-                                            data-avatar="<?php echo htmlspecialchars($avatar); ?>"
-                                            data-email="<?php echo htmlspecialchars($row['email']); ?>"
-                                            data-mobile="<?php echo htmlspecialchars($row['mobile_number']); ?>"
-                                            data-sex="<?php echo htmlspecialchars($row['sex'] ?? 'N/A'); ?>"
-                                            data-civil="<?php echo htmlspecialchars($row['civil_status'] ?? 'N/A'); ?>"
-                                            data-birthdate="<?php echo htmlspecialchars(!empty($row['birth_date']) ? date('M d, Y', strtotime($row['birth_date'])) : 'N/A'); ?>"
-                                            data-birthplace="<?php echo htmlspecialchars($row['birth_place'] ?? 'N/A'); ?>"
-                                            data-religion="<?php echo htmlspecialchars($row['religion'] ?? 'N/A'); ?>"
-                                            data-nationality="<?php echo htmlspecialchars($row['nationality'] ?? 'N/A'); ?>"
-                                            data-address="<?php echo htmlspecialchars("House " . ($row['house_no'] ?? '') . ", " . ($row['street'] ?? '') . ", Purok " . $row['purok_no'] . " " . ($row['subdivision'] ?? '')); ?>"
-                                            data-nationalid="<?php echo htmlspecialchars($row['national_id'] ?? 'N/A'); ?>"
-                                            data-philhealth="<?php echo htmlspecialchars($row['philhealth_no'] ?? 'N/A'); ?>"
-                                            data-voters="<?php echo htmlspecialchars($row['voters_id'] ?? 'N/A'); ?>"
-                                            data-sss="<?php echo htmlspecialchars($row['sss_no'] ?? 'N/A'); ?>"
-                                            data-tin="<?php echo htmlspecialchars($row['tin_no'] ?? 'N/A'); ?>"
-                                            data-years="<?php echo htmlspecialchars($row['years_residency'] ?? 'N/A'); ?>"
-                                            data-employed="<?php echo htmlspecialchars($row['employed_status'] ?? 'N/A'); ?>"
-                                            data-pagibig="<?php echo htmlspecialchars($row['pagibig_no'] ?? 'N/A'); ?>"
-                                            data-ename="<?php echo htmlspecialchars($row['emergency_name'] ?? 'N/A'); ?>"
-                                            data-erel="<?php echo htmlspecialchars($row['emergency_relationship'] ?? 'N/A'); ?>"
-                                            data-ephone="<?php echo htmlspecialchars($row['emergency_contact'] ?? 'N/A'); ?>"
-                                            data-eaddress="<?php echo htmlspecialchars($row['emergency_address'] ?? 'N/A'); ?>">
-                                            <i class="bi bi-eye"></i> View
-                                        </button>
+                                        <div class="d-flex justify-content-center gap-1">
+                                            <button class="btn btn-sm btn-primary view-profile-trigger"
+                                                title="View Full Profile"
+                                                data-name="<?php echo htmlspecialchars($full_name); ?>"
+                                                data-avatar="<?php echo htmlspecialchars($avatar); ?>"
+                                                data-email="<?php echo htmlspecialchars($row['email']); ?>"
+                                                data-mobile="<?php echo htmlspecialchars($row['mobile_number']); ?>"
+                                                data-sex="<?php echo htmlspecialchars($row['sex'] ?? 'N/A'); ?>"
+                                                data-civil="<?php echo htmlspecialchars($row['civil_status'] ?? 'N/A'); ?>"
+                                                data-birthdate="<?php echo htmlspecialchars(!empty($row['birth_date']) ? date('M d, Y', strtotime($row['birth_date'])) : 'N/A'); ?>"
+                                                data-birthplace="<?php echo htmlspecialchars($row['birth_place'] ?? 'N/A'); ?>"
+                                                data-religion="<?php echo htmlspecialchars($row['religion'] ?? 'N/A'); ?>"
+                                                data-nationality="<?php echo htmlspecialchars($row['nationality'] ?? 'N/A'); ?>"
+                                                data-address="<?php echo htmlspecialchars("House " . ($row['house_no'] ?? '') . ", " . ($row['street'] ?? '') . ", Purok " . $row['purok_no'] . " " . ($row['subdivision'] ?? '')); ?>"
+                                                data-nationalid="<?php echo htmlspecialchars($row['national_id'] ?? 'N/A'); ?>"
+                                                data-philhealth="<?php echo htmlspecialchars($row['philhealth_no'] ?? 'N/A'); ?>"
+                                                data-voters="<?php echo htmlspecialchars($row['voters_id'] ?? 'N/A'); ?>"
+                                                data-sss="<?php echo htmlspecialchars($row['sss_no'] ?? 'N/A'); ?>"
+                                                data-tin="<?php echo htmlspecialchars($row['tin_no'] ?? 'N/A'); ?>"
+                                                data-years="<?php echo htmlspecialchars($row['years_residency'] ?? 'N/A'); ?>"
+                                                data-employed="<?php echo htmlspecialchars($row['employed_status'] ?? 'N/A'); ?>"
+                                                data-pagibig="<?php echo htmlspecialchars($row['pagibig_no'] ?? 'N/A'); ?>"
+                                                data-ename="<?php echo htmlspecialchars($row['emergency_name'] ?? 'N/A'); ?>"
+                                                data-erel="<?php echo htmlspecialchars($row['emergency_relationship'] ?? 'N/A'); ?>"
+                                                data-ephone="<?php echo htmlspecialchars($row['emergency_contact'] ?? 'N/A'); ?>"
+                                                data-eaddress="<?php echo htmlspecialchars($row['emergency_address'] ?? 'N/A'); ?>">
+                                                <i class="bi bi-eye"></i> View
+                                            </button>
+
+                                            <form action="manage_residents.php" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to archive <?php echo htmlspecialchars($full_name); ?>? This will move their data to the inactive archives.');">
+                                                <input type="hidden" name="user_id" value="<?php echo $row['user_id']; ?>">
+                                                <input type="hidden" name="archive_reason" value="Inactive User">
+                                                <button type="submit" name="archive_user" class="btn btn-sm btn-outline-warning" title="Archive Resident">
+                                                    <i class="bi bi-archive"></i> Archive
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endwhile; ?>
@@ -135,7 +197,6 @@ $result = mysqli_query($conn, $query);
         </div>
     </main>
 
-    <!-- VIEW MODAL SCREEN -->
     <div class="modal fade" id="residentProfileModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content shadow-lg" style="border:none; border-radius:12px; overflow:hidden;">

@@ -22,11 +22,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_staff'])) {
     $new_password = $_POST['password'];
     $new_role = mysqli_real_escape_string($conn, $_POST['role']);
 
-    $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-
-    $insert_query = "INSERT INTO admin_accounts (username, email, password_hash, role) VALUES (?, ?, ?, ?)";
+    $insert_query = "INSERT INTO admin_accounts (username, email, password, role) VALUES (?, ?, ?, ?)";
     $stmt = mysqli_prepare($conn, $insert_query);
-    mysqli_stmt_bind_param($stmt, "ssss", $new_username, $new_email, $hashed_password, $new_role);
+    mysqli_stmt_bind_param($stmt, "ssss", $new_username, $new_email, $new_password, $new_role);
 
     if (mysqli_stmt_execute($stmt)) {
         $success_message = "New {$new_role} account created successfully!";
@@ -50,23 +48,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_role'])) {
     }
 }
 
+// --- ARCHIVE STAFF ---
 if (isset($_GET['archive_id'])) {
     $archive_id = (int) $_GET['archive_id'];
     if ($archive_id === $_SESSION['admin_id']) {
         $error_message = "Security Check: You cannot archive your own active account!";
     } else {
-        $archive_query = "UPDATE admin_accounts SET archived_at = NOW() WHERE admin_id = ?";
-        $stmt = mysqli_prepare($conn, $archive_query);
-        mysqli_stmt_bind_param($stmt, "i", $archive_id);
-        if (mysqli_stmt_execute($stmt)) {
-            $success_message = "Staff account archived successfully.";
-        } else {
+        mysqli_begin_transaction($conn);
+        try {
+            $archive_query = "
+                INSERT INTO archived_admin_accounts (original_admin_id, username, email, role)
+                SELECT admin_id, username, email, role FROM admin_accounts WHERE admin_id = ?";
+            $stmt_archive = mysqli_prepare($conn, $archive_query);
+            mysqli_stmt_bind_param($stmt_archive, "i", $archive_id);
+            mysqli_stmt_execute($stmt_archive);
+
+            $delete_query = "DELETE FROM admin_accounts WHERE admin_id = ?";
+            $stmt_delete = mysqli_prepare($conn, $delete_query);
+            mysqli_stmt_bind_param($stmt_delete, "i", $archive_id);
+            mysqli_stmt_execute($stmt_delete);
+
+            mysqli_commit($conn);
+            $success_message = "Staff account successfully moved to archives.";
+        } catch (Exception $e) {
+            mysqli_rollback($conn);
             $error_message = "Failed to archive account.";
         }
     }
 }
 
-$fetch_query = "SELECT admin_id, username, email, role, created_at FROM admin_accounts WHERE archived_at IS NULL ORDER BY role DESC, username ASC";
+$fetch_query = "SELECT admin_id, username, email, role, created_at FROM admin_accounts ORDER BY role DESC, username ASC";
 $result = mysqli_query($conn, $fetch_query);
 ?>
 <!DOCTYPE html>

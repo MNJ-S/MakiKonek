@@ -12,14 +12,38 @@ if (!isset($_GET['req_id'])) {
 
 $req_id = (int)$_GET['req_id'];
 
-$query = "SELECT * FROM service_requests WHERE request_id = ? LIMIT 1";
+$query = "
+    SELECT sr.*, dt.name AS document_type,
+           p.first_name, p.middle_name, p.last_name, p.suffix,
+           p.birth_date,
+           p.sex AS gender,
+           p.civil_status,
+           p.mobile_number AS phone,
+           CONCAT_WS(' ', p.house_no, p.street, 'Purok', p.purok_no, p.subdivision) AS full_address,
+           rb.business_name, rb.business_location, rb.business_operator, rb.business_address, rb.business_nature,
+           rc.construction_address, rc.construction_purpose, rc.construction_status, rc.construction_description,
+           ced.cedula_type, ced.tax_year, ced.place_issued, ced.income_source, ced.height, ced.weight, ced.gross_income,
+           rid.blood_type, rid.emergency_name, rid.emergency_relationship, rid.emergency_contact, rid.valid_until,
+           rin.incident_date, rin.incident_time, rin.incident_location, rin.incident_persons, rin.incident_narrative, rin.incident_action, 
+           rin.witness_name, rin.witness_contact, rin.witness_address
+    FROM service_requests sr
+    JOIN document_types dt ON sr.document_type_id = dt.document_type_id
+    JOIN user_profiles p ON sr.user_id = p.user_id
+    LEFT JOIN request_business_clearances rb ON sr.request_id = rb.request_id
+    LEFT JOIN request_construction_permits rc ON sr.request_id = rc.request_id
+    LEFT JOIN request_cedulas ced ON sr.request_id = ced.request_id
+    LEFT JOIN request_barangay_ids rid ON sr.request_id = rid.request_id
+    LEFT JOIN request_incident_reports rin ON sr.request_id = rin.request_id
+    WHERE sr.request_id = ? LIMIT 1
+";
+
 $stmt = mysqli_prepare($conn, $query);
 mysqli_stmt_bind_param($stmt, "i", $req_id);
 mysqli_stmt_execute($stmt);
 $request = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 
 if (!$request) {
-    die("Error: Request record not found.");
+    die("Error: Request record not found or data structure mismatch.");
 }
 
 $fullname = $request['first_name'] . ' ' . (!empty($request['middle_name']) ? substr($request['middle_name'], 0, 1) . '. ' : '') . $request['last_name'];
@@ -29,11 +53,12 @@ $bdate = new DateTime($request['birth_date']);
 $today = new DateTime('today');
 $age = $bdate->diff($today)->y;
 
-$sex = strtolower($request['gender']);
+$sex = strtolower($request['sex']);
 $civil_status = strtolower($request['civil_status']);
-$purok = $request['address'];
+$purok = $request['full_address'];
 $purpose = $request['purpose'];
 $document_type = $request['document_type'];
+
 $is_barangay_clearance = strcasecmp($document_type, 'Barangay Clearance') === 0;
 $is_certificate_of_indigency = strcasecmp($document_type, 'Certificate of Indigency') === 0;
 $is_certificate_of_residency = strcasecmp($document_type, 'Certificate of Residency') === 0;
@@ -240,6 +265,7 @@ if ($is_barangay_clearance) {
                 <div class="right-content-panel <?php echo ($is_incident_report || $is_cedula) ? 'full-width' : ''; ?>">
                     <img class="content-watermark" src="../assets/img/Barangay_Makiling_Seal.png" alt="" aria-hidden="true">
 
+                    <!-- Community Tax Certificate Application Form -->
                     <?php if ($is_cedula): ?>
                         <div class="summary-document">
                             <h3>Community Tax Certificate Application Form</h3>

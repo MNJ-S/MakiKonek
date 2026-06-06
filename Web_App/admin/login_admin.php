@@ -21,12 +21,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = mysqli_stmt_get_result($stmt);
 
     if ($row = mysqli_fetch_assoc($result)) {
-        // Verify the typed password against the hashed database password
-        if (password_verify($password, $row['password_hash'])) {
+        // PLAIN TEXT PASSWORD CHECK
+        if ($password === $row['password']) {
 
             $_SESSION['admin_id'] = $row['admin_id'];
             $_SESSION['admin_username'] = $row['username'];
-            $_SESSION['admin_role'] = $row['role']; // RBAC Dashboard
+            $_SESSION['admin_role'] = $row['role'];
 
             header("Location: dashboard.php");
             exit();
