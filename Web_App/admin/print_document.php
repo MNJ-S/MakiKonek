@@ -15,17 +15,18 @@ $req_id = (int)$_GET['req_id'];
 $query = "
     SELECT sr.*, dt.name AS document_type,
            p.first_name, p.middle_name, p.last_name, p.suffix,
-           p.birth_date,
+           p.birth_date, p.birth_place AS cedula_birthplace, p.employed_status AS occupation,
            p.sex AS gender,
            p.civil_status,
            p.mobile_number AS phone,
            CONCAT_WS(' ', p.house_no, p.street, 'Purok', p.purok_no, p.subdivision) AS full_address,
            rb.business_name, rb.business_location, rb.business_operator, rb.business_address, rb.business_nature,
            rc.construction_address, rc.construction_purpose, rc.construction_status, rc.construction_description,
-           ced.cedula_type, ced.tax_year, ced.place_issued, ced.income_source, ced.height, ced.weight, ced.gross_income,
-           rid.blood_type, rid.emergency_name, rid.emergency_relationship, rid.emergency_contact, rid.valid_until,
+           ced.cedula_type, ced.tax_year AS cedula_tax_year, ced.place_issued AS cedula_place_issued, ced.income_source AS cedula_income_source, ced.height AS cedula_height, ced.weight AS cedula_weight, ced.gross_income AS cedula_gross_income,
+           rid.blood_type AS id_blood_type, rid.emergency_name AS id_emergency_name, rid.emergency_relationship AS id_emergency_relationship, rid.emergency_contact AS id_emergency_contact, rid.valid_until AS id_valid_until,
            rin.incident_date, rin.incident_time, rin.incident_location, rin.incident_persons, rin.incident_narrative, rin.incident_action, 
-           rin.witness_name, rin.witness_contact, rin.witness_address
+           rin.witness_name AS incident_witness_name, rin.witness_contact AS incident_witness_contact, rin.witness_address AS incident_witness_address,
+           ugi_tin.id_number AS cedula_tin
     FROM service_requests sr
     JOIN document_types dt ON sr.document_type_id = dt.document_type_id
     JOIN user_profiles p ON sr.user_id = p.user_id
@@ -34,6 +35,7 @@ $query = "
     LEFT JOIN request_cedulas ced ON sr.request_id = ced.request_id
     LEFT JOIN request_barangay_ids rid ON sr.request_id = rid.request_id
     LEFT JOIN request_incident_reports rin ON sr.request_id = rin.request_id
+    LEFT JOIN user_government_ids ugi_tin ON sr.user_id = ugi_tin.user_id AND ugi_tin.id_type = 'TIN'
     WHERE sr.request_id = ? LIMIT 1
 ";
 
@@ -53,7 +55,7 @@ $bdate = new DateTime($request['birth_date']);
 $today = new DateTime('today');
 $age = $bdate->diff($today)->y;
 
-$sex = strtolower($request['sex']);
+$sex = strtolower($request['gender'] ?? '');
 $civil_status = strtolower($request['civil_status']);
 $purok = $request['full_address'];
 $purpose = $request['purpose'];

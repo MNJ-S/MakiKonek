@@ -5,7 +5,7 @@ if (!isset($_SESSION['admin_id'])) {
     header("Location: login_admin.php");
     exit();
 }
-// require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/db_connect.php';
 ?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
