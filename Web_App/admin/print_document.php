@@ -278,7 +278,7 @@ if ($is_barangay_clearance) {
                                     <div class="form-cell"><span class="form-label">Middle Name</span><span class="editable" contenteditable="true"><?php echo htmlspecialchars($request['middle_name']); ?></span></div>
                                 </div>
                                 <div class="form-row">
-                                    <div class="form-cell full"><span class="form-label">Address: Purok, Barangay, Municipality/City</span><span class="editable" contenteditable="true"><?php echo htmlspecialchars($purok); ?>, Barangay Makiling, Calamba City</span></div>
+                                    <div class="form-cell full"><span class="form-label">Address: Purok, Barangay, Municipality/City</span><span class="editable" contenteditable="true"><?php echo htmlspecialchars($purok);?>, Barangay Makiling, Calamba City</span></div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-cell"><span class="form-label">Birthdate</span><span class="editable" contenteditable="true"><?php echo htmlspecialchars(date('F d, Y', strtotime($request['birth_date']))); ?></span></div>
@@ -547,7 +547,7 @@ if ($is_barangay_clearance) {
 
                             <p class="residency-body">
                                 This is to certify that <span class="editable" contenteditable="true"><?php echo htmlspecialchars($fullname); ?></span>,
-                                <span class="editable" contenteditable="true"><?php echo htmlspecialchars($age_phrase); ?></span>,
+                                <span class="editable" contenteditable="true"><?php echo $age; ?> years old</span>,
                                 <span class="editable" contenteditable="true"><?php echo htmlspecialchars($civil_status); ?></span>,
                                 Filipino citizen, whose specimen signature appears below, is a
                                 <strong>PERMANENT RESIDENT</strong> of
@@ -690,7 +690,7 @@ if ($is_barangay_clearance) {
                                 <span class="editable" contenteditable="true"><?php echo $age; ?> years old</span>, Filipino,
                                 <span class="editable" contenteditable="true"><?php echo htmlspecialchars($sex); ?></span>,
                                 <span class="editable" contenteditable="true"><?php echo htmlspecialchars($civil_status); ?></span>,
-                                is a bonafide resident of <span class="editable" contenteditable="true"><?php echo htmlspecialchars($purok); ?></span>,
+                                is a bonafide resident of <span class="editable" contenteditable="true"><?php echo htmlspecialchars($purok);?></span>,
                                 Barangay Makiling, Calamba, Laguna.
                             </p>
 
