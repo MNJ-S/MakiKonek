@@ -18,13 +18,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $suffix = mysqli_real_escape_string($conn, trim($_POST['suffix']));
     $username = mysqli_real_escape_string($conn, trim($_POST['username']));
     $email = mysqli_real_escape_string($conn, trim($_POST['email']));
-    $password = $password($password, PASSWORD_DEFAULT);
-    $confirm_password = $_POST['confirm_password'];
+    $password = mysqli_real_escape_string($conn, trim($_POST['password']));
+    $confirm_password = mysqli_real_escape_string($conn, trim($_POST['confirm_password']));
 
-    // Validate passwords match
-    if ($password !== $confirm_password) {
-        $error_message = "Passwords do not match. Please try again.";
-    } else {
+// Validate passwords match
+if ($password !== $confirm_password) {
+    $error_message = "Passwords do not match. Please try again.";
+} else {
         // Check if the username or email is already taken
         $check_query = "SELECT user_id FROM users WHERE email = ? OR username = ?";
         $stmt = mysqli_prepare($conn, $check_query);
