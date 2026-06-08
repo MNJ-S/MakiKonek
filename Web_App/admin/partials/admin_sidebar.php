@@ -44,6 +44,7 @@ $admin_role = $_SESSION['admin_role'] ?? 'Staff';
         <span class="fs-4 fw-bold">MakiKonek Admin</span>
     </a>
     <ul class="nav nav-pills flex-column mb-auto">
+        <li class="mb-1 text-uppercase text-white small fw-bold px-3">Operations</li>
         <li class="nav-item">
             <a href="dashboard.php" class="nav-link <?php echo $currentPage === 'dashboard.php' ? 'active' : ''; ?>">
                 <i class="bi bi-speedometer2 me-2"></i> Dashboard

@@ -72,6 +72,7 @@ $result = mysqli_query($conn, $query);
     <title>Manage Residents | MakiKonek</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=20260608a">
     <style>
         body {
             background: linear-gradient(180deg, #f6fff7 0%, #e9f8ff 100%);
@@ -146,7 +147,7 @@ $result = mysqli_query($conn, $query);
                                     <td class="text-muted"><?php echo htmlspecialchars($row['email']); ?></td>
                                     <td class="small"><?php echo date("M d, Y", strtotime($row['created_at'])); ?></td>
                                     <td class="text-center">
-                                        <div class="d-flex justify-content-center gap-1">
+                                        <div class="table-actions">
                                             <button class="btn btn-sm btn-primary view-profile-trigger"
                                                 title="View Full Profile"
                                                 data-name="<?php echo htmlspecialchars($full_name); ?>"

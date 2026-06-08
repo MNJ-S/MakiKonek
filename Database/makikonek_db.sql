@@ -350,6 +350,21 @@ INSERT INTO `request_incident_reports` (`request_id`, `incident_date`, `incident
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `request_remarks`
+--
+
+CREATE TABLE `request_remarks` (
+  `remark_id` int(11) NOT NULL,
+  `request_id` int(11) NOT NULL,
+  `admin_id` int(11) DEFAULT NULL,
+  `admin_name` varchar(100) NOT NULL,
+  `remark` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `service_requests`
 --
 
@@ -594,6 +609,14 @@ ALTER TABLE `request_incident_reports`
   ADD PRIMARY KEY (`request_id`);
 
 --
+-- Indexes for table `request_remarks`
+--
+ALTER TABLE `request_remarks`
+  ADD PRIMARY KEY (`remark_id`),
+  ADD KEY `idx_request_remarks_request` (`request_id`),
+  ADD KEY `idx_request_remarks_admin` (`admin_id`);
+
+--
 -- Indexes for table `service_requests`
 --
 ALTER TABLE `service_requests`
@@ -702,6 +725,12 @@ ALTER TABLE `service_requests`
   MODIFY `request_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
+-- AUTO_INCREMENT for table `request_remarks`
+--
+ALTER TABLE `request_remarks`
+  MODIFY `remark_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
@@ -778,6 +807,13 @@ ALTER TABLE `request_construction_permits`
 --
 ALTER TABLE `request_incident_reports`
   ADD CONSTRAINT `fk_incidents_requests` FOREIGN KEY (`request_id`) REFERENCES `service_requests` (`request_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `request_remarks`
+--
+ALTER TABLE `request_remarks`
+  ADD CONSTRAINT `fk_request_remarks_admins` FOREIGN KEY (`admin_id`) REFERENCES `admin_accounts` (`admin_id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_request_remarks_requests` FOREIGN KEY (`request_id`) REFERENCES `service_requests` (`request_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `service_requests`
