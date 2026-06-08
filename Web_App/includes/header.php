@@ -4,7 +4,9 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 $navBase = $navBase ?? '';
 $assetBase = $assetBase ?? '../assets';
 $loginHref = '../login_reg.php';
-$isResidentHeader = $isResidentHeader ?? false;
+$isResidentHeader = $isResidentHeader ?? isset($_SESSION['resident_id']);
+$residentProfileHref = $residentProfileHref ?? 'profile.php';
+$residentLogoutHref = $residentLogoutHref ?? 'logout.php';
 
 // username default as Resident
 $header_username = isset($_SESSION['resident_username']) ? $_SESSION['resident_username'] : 'Resident';
@@ -93,15 +95,17 @@ $residentUnreadCount = count(array_filter($residentNotifications, function ($not
                         </div>
                     </section>
                 </div>
-                <span class="resident-header-avatar" aria-hidden="true">
-                    <i class="fa-regular fa-user"></i>
-                </span>
-                <span class="resident-header-user">
-                    <strong><?php echo htmlspecialchars($header_username); ?></strong>
-                    <small>Resident</small>
-                </span>
+                <a class="resident-profile-link" href="<?php echo htmlspecialchars($residentProfileHref); ?>" aria-label="Open resident profile">
+                    <span class="resident-header-avatar" aria-hidden="true">
+                        <i class="fa-regular fa-user"></i>
+                    </span>
+                    <span class="resident-header-user">
+                        <strong><?php echo htmlspecialchars($header_username); ?></strong>
+                        <small>Resident</small>
+                    </span>
+                </a>
 
-                <a class="resident-logout" href="logout.php">Logout</a>
+                <a class="resident-logout" href="<?php echo htmlspecialchars($residentLogoutHref); ?>">Logout</a>
             </div>
         <?php else: ?>
             <a class="btn btn-small btn-primary nav-login" href="<?php echo $loginHref; ?>">Login</a>

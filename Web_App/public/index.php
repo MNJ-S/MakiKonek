@@ -1,3 +1,14 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$isResidentHeader = isset($_SESSION['resident_id']);
+$residentProfileHref = '../resident/profile.php';
+$residentLogoutHref = '../resident/logout.php';
+$serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login_reg.php';
+$contactActionHref = $isResidentHeader ? '../resident/dashboard.php' : '../login_reg.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,7 +17,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MakiKonek | Barangay Makiling Digital Service Portal</title>
     <link rel="stylesheet" href="../assets/css/home.css?v=20260530a">
-    <link rel="stylesheet" href="../assets/css/header.css?v=20260529e">
+    <link rel="stylesheet" href="../assets/css/header.css?v=20260608b">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <script defer src="../assets/js/public.js?v=20260530a"></script>
@@ -29,7 +40,7 @@
                     </h1>
                     <p>Mag-request ng dokumento, i-track ang aplikasyon, at manatiling updated sa isang digital platform.</p>
                     <div class="hero-actions">
-                        <a class="btn btn-primary" href="../login_reg.php">Request Service</a>
+                        <a class="btn btn-primary" href="<?php echo $serviceRequestHref; ?>">Request Service</a>
                         <a class="btn btn-glass" href="#announcements">Browse Announcements</a>
                     </div>
                     <div class="hero-status" aria-label="Quick portal highlights">
@@ -82,37 +93,37 @@
                     <div class="service-icon green">▣</div>
                     <h3>Barangay Clearance</h3>
                     <p>Request a Barangay Clearance online.</p>
-                    <a href="../login_reg.php">Learn more</a>
+                    <a href="<?php echo $serviceRequestHref; ?>">Learn more</a>
                 </article>
                 <article class="service-card">
                     <div class="service-icon blue">⌂</div>
                     <h3>Certificate of Residency</h3>
                     <p>Get proof of residency for official transactions.</p>
-                    <a href="../login_reg.php">Learn more</a>
+                    <a href="<?php echo $serviceRequestHref; ?>">Learn more</a>
                 </article>
                 <article class="service-card">
                     <div class="service-icon orange">●</div>
                     <h3>Indigency Certificate</h3>
                     <p>Request an Indigency Certificate for assistance programs.</p>
-                    <a href="../login_reg.php">Learn more</a>
+                    <a href="<?php echo $serviceRequestHref; ?>">Learn more</a>
                 </article>
                 <article class="service-card">
                     <div class="service-icon green">▦</div>
                     <h3>Event Permit</h3>
                     <p>Apply for permits for community and private events.</p>
-                    <a href="../login_reg.php">Learn more</a>
+                    <a href="<?php echo $serviceRequestHref; ?>">Learn more</a>
                 </article>
                 <article class="service-card">
                     <div class="service-icon violet">▤</div>
                     <h3>Business Permit</h3>
                     <p>Apply for business permits and barangay registration.</p>
-                    <a href="../login_reg.php">Learn more</a>
+                    <a href="<?php echo $serviceRequestHref; ?>">Learn more</a>
                 </article>
                 <article class="service-card">
                     <div class="service-icon blue">•••</div>
                     <h3>Other Services</h3>
                     <p>Explore additional services offered by the barangay.</p>
-                    <a href="../login_reg.php">View all</a>
+                    <a href="<?php echo $serviceRequestHref; ?>">View all</a>
                 </article>
             </div>
 
@@ -252,7 +263,7 @@
                     <h2>Have a concern or suggestion?</h2>
                     <p>We are here to listen and help.</p>
                 </div>
-                <a class="btn btn-secondary" href="../login_reg.php">Send a Message</a>
+                <a class="btn btn-secondary" href="<?php echo $contactActionHref; ?>">Send a Message</a>
             </div>
         </section>
     </main>

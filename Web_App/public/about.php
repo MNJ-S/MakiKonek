@@ -1,3 +1,12 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$isResidentHeader = isset($_SESSION['resident_id']);
+$residentProfileHref = '../resident/profile.php';
+$residentLogoutHref = '../resident/logout.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,7 +16,7 @@
     <title>About Us | MakiKonek Digital Service Portal</title>
     <link rel="stylesheet" href="../assets/css/home.css?v=20260529e">
     <link rel="stylesheet" href="../assets/css/about.css?v=20260530c">
-    <link rel="stylesheet" href="../assets/css/header.css?v=20260529e">
+    <link rel="stylesheet" href="../assets/css/header.css?v=20260608b">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <script defer src="../assets/js/public.js?v=20260528g"></script>

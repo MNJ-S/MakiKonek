@@ -84,6 +84,25 @@
     position: relative;
 }
 
+.resident-profile-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.resident-profile-link:hover .resident-header-user strong,
+.resident-profile-link:focus-visible .resident-header-user strong {
+    color: var(--green-dark, #26912f);
+}
+
+.resident-profile-link:focus-visible {
+    border-radius: 8px;
+    outline: 2px solid rgba(117, 184, 59, 0.35);
+    outline-offset: 4px;
+}
+
 .resident-notification {
     position: relative;
     display: grid;

@@ -1,3 +1,13 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$isResidentHeader = isset($_SESSION['resident_id']);
+$residentProfileHref = '../resident/profile.php';
+$residentLogoutHref = '../resident/logout.php';
+$serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login_reg.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -10,35 +20,13 @@
 
     <!-- Gagamit ng home.css para sa global styles, at services.css para sa cards -->
     <link rel="stylesheet" href="../assets/css/home.css?v=20260529d">
+    <link rel="stylesheet" href="../assets/css/header.css?v=20260608b">
     <link rel="stylesheet" href="../assets/css/services.css?v=20260529d">
 </head>
 
 <body>
 
-    <!-- FIXED SITE HEADER -->
-    <header class="site-header">
-        <nav class="nav-shell" aria-label="Primary navigation">
-            <a class="brand-link" href="index.php">
-                <img src="../assets/img/logo-makikonek.png" alt="MakiKonek logo">
-            </a>
-
-            <div class="nav-menu" id="navMenu">
-                <a href="index.php">Home</a>
-                <a href="about.php">About</a>
-                <a href="services.php" class="active">Services</a>
-                <a href="announcements.php">Announcements</a>
-                <a href="index.php#contact">Contact</a>
-            </div>
-
-            <a class="btn btn-small btn-primary nav-login" href="../login_reg.php">Login</a>
-
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-        </nav>
-    </header>
+    <?php include '../includes/header.php'; ?>
 
     <!-- Services Content -->
     <main class="services-container">
@@ -76,7 +64,7 @@
                         <div class="srv-meta-row"><span>Processing Time:</span><strong>3-5 working days</strong></div>
                         <div class="srv-meta-row"><span>Fee:</span><strong>₱100.00</strong></div>
                     </div>
-                    <a href="../login_reg.php" class="srv-btn">Request Now</a>
+                    <a href="<?php echo $serviceRequestHref; ?>" class="srv-btn">Request Now</a>
                 </div>
             </article>
 
@@ -100,7 +88,7 @@
                         <div class="srv-meta-row"><span>Processing Time:</span><strong>2-3 working days</strong></div>
                         <div class="srv-meta-row"><span>Fee:</span><strong>₱50.00</strong></div>
                     </div>
-                    <a href="../login_reg.php" class="srv-btn">Request Now</a>
+                    <a href="<?php echo $serviceRequestHref; ?>" class="srv-btn">Request Now</a>
                 </div>
             </article>
 
@@ -125,7 +113,7 @@
                         <div class="srv-meta-row"><span>Processing Time:</span><strong>5-7 working days</strong></div>
                         <div class="srv-meta-row"><span>Fee:</span><strong>₱500.00</strong></div>
                     </div>
-                    <a href="../login_reg.php" class="srv-btn">Request Now</a>
+                    <a href="<?php echo $serviceRequestHref; ?>" class="srv-btn">Request Now</a>
                 </div>
             </article>
 
@@ -149,7 +137,7 @@
                         <div class="srv-meta-row"><span>Processing Time:</span><strong>2-3 working days</strong></div>
                         <div class="srv-meta-row"><span>Fee:</span><strong class="fee-free">Free</strong></div>
                     </div>
-                    <a href="../login_reg.php" class="srv-btn">Request Now</a>
+                    <a href="<?php echo $serviceRequestHref; ?>" class="srv-btn">Request Now</a>
                 </div>
             </article>
 
@@ -173,7 +161,7 @@
                         <div class="srv-meta-row"><span>Processing Time:</span><strong>1-2 working days</strong></div>
                         <div class="srv-meta-row"><span>Fee:</span><strong>₱50.00</strong></div>
                     </div>
-                    <a href="../login_reg.php" class="srv-btn">Request Now</a>
+                    <a href="<?php echo $serviceRequestHref; ?>" class="srv-btn">Request Now</a>
                 </div>
             </article>
 
@@ -197,7 +185,7 @@
                         <div class="srv-meta-row"><span>Processing Time:</span><strong>7-10 working days</strong></div>
                         <div class="srv-meta-row"><span>Fee:</span><strong>₱150.00</strong></div>
                     </div>
-                    <a href="../login_reg.php" class="srv-btn">Request Now</a>
+                    <a href="<?php echo $serviceRequestHref; ?>" class="srv-btn">Request Now</a>
                 </div>
             </article>
 
@@ -221,7 +209,7 @@
                         <div class="srv-meta-row"><span>Processing Time:</span><strong>Same day</strong></div>
                         <div class="srv-meta-row"><span>Fee:</span><strong class="fee-varies">Varies by income</strong></div>
                     </div>
-                    <a href="../login_reg.php" class="srv-btn">Request Now</a>
+                    <a href="<?php echo $serviceRequestHref; ?>" class="srv-btn">Request Now</a>
                 </div>
             </article>
 
@@ -245,7 +233,7 @@
                         <div class="srv-meta-row"><span>Processing Time:</span><strong>3-5 working days</strong></div>
                         <div class="srv-meta-row"><span>Fee:</span><strong>₱75.00</strong></div>
                     </div>
-                    <a href="../login_reg.php" class="srv-btn">Request Now</a>
+                    <a href="<?php echo $serviceRequestHref; ?>" class="srv-btn">Request Now</a>
                 </div>
             </article>
 
@@ -270,7 +258,7 @@
                         <div class="srv-meta-row"><span>Processing Time:</span><strong>7-14 working days</strong></div>
                         <div class="srv-meta-row"><span>Fee:</span><strong>₱300.00</strong></div>
                     </div>
-                    <a href="../login_reg.php" class="srv-btn">Request Now</a>
+                    <a href="<?php echo $serviceRequestHref; ?>" class="srv-btn">Request Now</a>
                 </div>
             </article>
 
