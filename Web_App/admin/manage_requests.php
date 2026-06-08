@@ -210,6 +210,99 @@ function inferPaymentStatus(array $row): string
     return 'Unpaid';
 }
 
+function h(?string $value): string
+{
+    return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+}
+
+function displayRequestStatus(string $status): string
+{
+    return $status === 'Pending' ? 'Pending Review' : $status;
+}
+
+function documentShortName(string $name): string
+{
+    $map = [
+        'Certificate of Residency' => 'Residency',
+        'Certificate of Indigency' => 'Indigency',
+        'Building/Construction Permit' => 'Construction Permit',
+        'Barangay Clearance' => 'Barangay Clearance',
+        'Business Clearance' => 'Business Clearance',
+        'Good Moral Certificate' => 'Good Moral',
+        'Barangay ID' => 'Barangay ID',
+        'Cedula' => 'Cedula',
+        'Incident Report' => 'Incident Report',
+    ];
+
+    return $map[$name] ?? $name;
+}
+
+function paymentDisplayStatus(array $row): string
+{
+    $payment_status = inferPaymentStatus($row);
+    $method = strtolower((string)($row['payment_method'] ?? ''));
+
+    if ((float)($row['document_fee'] ?? 0) <= 0 || $payment_status === 'No Fee') {
+        return '-';
+    }
+
+    if ($payment_status === 'Paid at Pickup') {
+        return 'Paid Upon Pickup';
+    }
+
+    if ($payment_status === 'Verified') {
+        return $method === 'online' ? 'Online Payment Verified' : 'Payment Verified';
+    }
+
+    if ($payment_status === 'Receipt Submitted') {
+        return 'Pending Verification';
+    }
+
+    if ($payment_status === 'Rejected') {
+        return 'Refunded';
+    }
+
+    return 'Pending Payment';
+}
+
+function paymentDisplayClass(string $status): string
+{
+    $normalized = strtoupper($status);
+    if ($normalized === '-') return 'service-payment-empty';
+    if ($normalized === 'ONLINE PAYMENT VERIFIED' || $normalized === 'PAYMENT VERIFIED') return 'service-payment-online';
+    if ($normalized === 'PAID UPON PICKUP') return 'service-payment-pickup';
+    if ($normalized === 'PENDING VERIFICATION') return 'service-payment-review';
+    if ($normalized === 'REFUNDED') return 'service-payment-refunded';
+    return 'service-payment-pending';
+}
+
+function buildResidentAddress(array $row): string
+{
+    $parts = array_filter([
+        !empty($row['house_no']) ? 'House ' . $row['house_no'] : '',
+        $row['street'] ?? '',
+        !empty($row['purok_no']) ? 'Purok ' . $row['purok_no'] : '',
+        $row['subdivision'] ?? '',
+    ]);
+
+    return !empty($parts) ? implode(', ', $parts) : 'Not specified';
+}
+
+function statusOptionsJson(array $statuses): string
+{
+    $payload = array_map(function ($status) {
+        $meta = statusMeta($status);
+        return [
+            'value' => $status,
+            'label' => displayRequestStatus($status),
+            'description' => $meta['description'],
+            'tone' => $meta['tone'],
+        ];
+    }, $statuses);
+
+    return h(json_encode($payload));
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['complete_request'])) {
     $req_id = (int)$_POST['request_id'];
 
@@ -314,24 +407,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_remark'])) {
     }
 }
 
-$selected_tab = $_GET['tab'] ?? 'Clearance';
-$type_map = [
-    'Clearance' => 'Barangay Clearance',
-    'Indigency' => 'Certificate of Indigency',
-    'Residency' => 'Certificate of Residency',
-    'Moral' => 'Good Moral Certificate',
-
-    'Business' => 'Business Clearance',
-    'Construction' => 'Building/Construction Permit',
-    'Cedula' => 'Cedula',
-
-    'Identification' => 'Barangay ID',
-    'Incident' => 'Incident Report',
-];
-$filter_type = $type_map[$selected_tab] ?? 'Barangay Clearance';
-
 $query = "
-    SELECT sr.*, dt.name AS document_type, p.first_name, p.last_name, p.mobile_number AS phone, p.house_no, p.street, p.purok_no AS address,
+    SELECT sr.*, dt.name AS document_type, u.email, p.first_name, p.last_name, p.mobile_number AS phone,
+           p.house_no, p.street, p.purok_no, p.subdivision,
            rb.business_name, rb.business_location, rb.business_operator, rb.business_nature, rb.business_address,
            ri.incident_date, ri.incident_time, ri.incident_location, ri.incident_persons, ri.incident_narrative, ri.witness_name AS incident_witness_name
     FROM service_requests sr
@@ -340,17 +418,33 @@ $query = "
     JOIN user_profiles p ON u.user_id = p.user_id
     LEFT JOIN request_business_clearances rb ON sr.request_id = rb.request_id
     LEFT JOIN request_incident_reports ri ON sr.request_id = ri.request_id
-    WHERE dt.name = ?
     ORDER BY sr.created_at DESC
 ";
 
-$stmt = mysqli_prepare($conn, $query);
-mysqli_stmt_bind_param($stmt, "s", $filter_type);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
+$result = mysqli_query($conn, $query);
 $requests = [];
-while ($request_row = mysqli_fetch_assoc($result)) {
-    $requests[] = $request_row;
+if ($result) {
+    while ($request_row = mysqli_fetch_assoc($result)) {
+        $requests[] = $request_row;
+    }
+}
+
+$category_order = [
+    'Barangay Clearance',
+    'Certificate of Residency',
+    'Certificate of Indigency',
+    'Cedula',
+    'Incident Report',
+    'Business Clearance',
+    'Building/Construction Permit',
+    'Good Moral Certificate',
+    'Barangay ID',
+];
+$category_counts = array_fill_keys($category_order, 0);
+foreach ($requests as $request_row) {
+    if (array_key_exists($request_row['document_type'], $category_counts)) {
+        $category_counts[$request_row['document_type']]++;
+    }
 }
 
 $remarks_by_request = [];
@@ -382,114 +476,40 @@ if (!empty($request_ids)) {
     <title>Service Requests | MakiKonek</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/admin.css?v=20260608b">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=20260608e">
     <style>
-        body {
-            background: linear-gradient(180deg, #f6fff7 0%, #e9f8ff 100%);
-        }
-
-        .main-content {
-            margin-left: 280px;
-            min-height: 100vh;
-            padding: 2rem;
-        }
-
-        .custom-card {
-            background-color: #f4fff5;
-            border: 1px solid #d8efd5;
-            border-radius: 16px;
-        }
-
-        .page-title {
-            color: #0b6d36;
-        }
-
-        .nav-tabs .nav-link {
-            color: #0b6d36;
-            font-weight: bold;
-            border-radius: 8px 8px 0 0;
-        }
-
-        .nav-tabs .nav-link.active {
-            background-color: #3f9f25;
-            color: white !important;
-            border-color: #3f9f25;
-        }
-
-        .badge-pending {
-            background-color: #ffd54f;
-            color: #3c2f00;
-        }
-
-        .badge-approved {
-            background-color: #22c55e;
-            color: white;
-        }
-
-        .badge-review {
-            background-color: #6366f1;
-            color: white;
-        }
-
-        .badge-rejected {
-            background-color: #ef4444;
-            color: white;
-        }
-
-        .badge-processing {
-            background-color: #0d6efd;
-            color: white;
-        }
-
-        .badge-ready {
-            background-color: #14b8a6;
-            color: white;
-        }
-
-        .badge-completed {
-            background-color: #16a34a;
-            color: white;
-        }
-
-        .badge-payment-pending {
-            background-color: #f59e0b;
-            color: #2f2100;
-        }
-
-        .badge-muted {
-            background-color: #e5e7eb;
-            color: #374151;
-        }
-
-        .remarks-log {
-            display: grid;
-            gap: 10px;
-            max-height: 230px;
-            overflow: auto;
-        }
-
-        .remark-entry {
-            border: 1px solid #d8efd5;
-            border-left: 4px solid #3f9f25;
-            border-radius: 8px;
-            padding: 10px 12px;
-            background: #fbfffb;
-        }
-
-        .remark-entry p {
-            white-space: pre-wrap;
-        }
+        .remarks-log { display: grid; gap: 10px; max-height: 230px; overflow: auto; }
+        .remark-entry { border: 1px solid #d8efd5; border-left: 4px solid #0f7a43; border-radius: 8px; padding: 10px 12px; background: #fbfffb; }
+        .remark-entry p { white-space: pre-wrap; }
     </style>
 </head>
 
-<body>
+<body class="dashboard-body">
 
     <?php include __DIR__ . '/partials/admin_sidebar.php'; ?>
 
-    <main class="main-content">
-        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary">
-            <h2 class="fw-bold page-title"><i class="bi bi-file-earmark-text text-success me-2"></i> Resident Service Requests</h2>
-        </div>
+    <main class="main-content service-requests-main">
+        <header class="service-page-header">
+            <div>
+                <h1>Service Requests</h1>
+                <p>Manage and monitor all incoming service requests.</p>
+            </div>
+            <div class="dashboard-header-tools">
+                <div class="dashboard-date-card">
+                    <i class="bi bi-calendar3"></i>
+                    <span>
+                        <strong><?php echo date('F d, Y'); ?></strong>
+                        <small><?php echo date('l, h:i A'); ?></small>
+                    </span>
+                </div>
+                <button class="dashboard-notification" type="button" aria-label="Notifications">
+                    <i class="bi bi-bell"></i>
+                    <?php if (count($requests) > 0): ?>
+                        <span><?php echo min(9, count($requests)); ?></span>
+                    <?php endif; ?>
+                </button>
+            </div>
+        </header>
 
         <?php if ($success_message): ?>
             <div class="alert alert-success"><i class="bi bi-check-circle me-2"></i> <?php echo $success_message; ?></div>
@@ -498,190 +518,207 @@ if (!empty($request_ids)) {
             <div class="alert alert-danger"><i class="bi bi-exclamation-circle me-2"></i> <?php echo $error_message; ?></div>
         <?php endif; ?>
 
-        <ul class="nav nav-tabs admin-page-tabs mb-4 border-bottom border-success">
-            <li class="nav-item"><a class="nav-link <?php echo $selected_tab === 'Clearance' ? 'active' : ''; ?>" href="manage_requests.php?tab=Clearance">Barangay Clearance</a></li>
-            <li class="nav-item"><a class="nav-link <?php echo $selected_tab === 'Indigency' ? 'active' : ''; ?>" href="manage_requests.php?tab=Indigency">Indigency</a></li>
-            <li class="nav-item"><a class="nav-link <?php echo $selected_tab === 'Residency' ? 'active' : ''; ?>" href="manage_requests.php?tab=Residency">Residency</a></li>
-            <li class="nav-item"><a class="nav-link <?php echo $selected_tab === 'Moral' ? 'active' : ''; ?>" href="manage_requests.php?tab=Moral">Good Moral Certificate</a></li>
-            <li class="nav-item"><a class="nav-link <?php echo $selected_tab === 'Business' ? 'active' : ''; ?>" href="manage_requests.php?tab=Business">Business Clearance</a></li>
-            <li class="nav-item"><a class="nav-link <?php echo $selected_tab === 'Construction' ? 'active' : ''; ?>" href="manage_requests.php?tab=Construction">Construction Permit</a></li>
-            <li class="nav-item"><a class="nav-link <?php echo $selected_tab === 'Cedula' ? 'active' : ''; ?>" href="manage_requests.php?tab=Cedula">Cedula</a></li>
-            <li class="nav-item"><a class="nav-link <?php echo $selected_tab === 'Identification' ? 'active' : ''; ?>" href="manage_requests.php?tab=Identification">Barangay ID</a></li>
-            <li class="nav-item"><a class="nav-link <?php echo $selected_tab === 'Incident' ? 'active' : ''; ?>" href="manage_requests.php?tab=Incident">Incident Report</a></li>
-        </ul>
+        <section class="service-tabs-card" aria-label="Service categories">
+            <div class="service-category-tabs" role="tablist">
+                <button class="service-tab is-active" type="button" data-category="All Requests">All Requests <span><?php echo count($requests); ?></span></button>
+                <?php foreach (array_slice($category_order, 0, 6) as $category): ?>
+                    <button class="service-tab" type="button" data-category="<?php echo h($category); ?>"><?php echo h(documentShortName($category)); ?> <span><?php echo (int)$category_counts[$category]; ?></span></button>
+                <?php endforeach; ?>
+                <?php if (count($category_order) > 6): ?>
+                    <div class="dropdown">
+                        <button class="service-tab service-more-tab" type="button" data-bs-toggle="dropdown">More <i class="bi bi-chevron-down"></i></button>
+                        <div class="dropdown-menu service-more-menu">
+                            <?php foreach (array_slice($category_order, 6) as $category): ?>
+                                <button class="dropdown-item service-more-item" type="button" data-category="<?php echo h($category); ?>">
+                                    <?php echo h(documentShortName($category)); ?> <span><?php echo (int)$category_counts[$category]; ?></span>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </section>
 
-        <div class="custom-card p-4 shadow-sm">
-            <div class="table-responsive">
-                <table class="table table-light table-hover align-middle border-secondary">
-                    <thead class="table-active">
+        <section class="service-table-card">
+            <div class="service-filter-toolbar">
+                <label class="service-search">
+                    <span class="visually-hidden">Search service requests</span>
+                    <input type="search" id="requestSearch" placeholder="Search by reference no., resident name, or document type...">
+                    <i class="bi bi-search"></i>
+                </label>
+                <select id="statusFilter" aria-label="Status filter">
+                    <option value="">Status</option>
+                    <option value="Pending Review">Pending Review</option>
+                    <option value="Under Review">Under Review</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Ready for Pickup">Ready for Pickup</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+                <select id="paymentFilter" aria-label="Payment filter">
+                    <option value="">Payment</option>
+                    <option value="Paid Upon Pickup">Paid Upon Pickup</option>
+                    <option value="Online Payment Verified">Online Payment Verified</option>
+                    <option value="Pending Verification">Pending Verification</option>
+                    <option value="Refunded">Refunded</option>
+                </select>
+                <div class="service-date-range">
+                    <input type="date" id="startDate" aria-label="Start Date">
+                    <span></span>
+                    <input type="date" id="endDate" aria-label="End Date">
+                    <i class="bi bi-calendar3"></i>
+                </div>
+                <button class="service-export-btn" type="button" id="exportRequests"><i class="bi bi-download"></i> Export</button>
+            </div>
+
+            <div class="service-table-wrap" id="requestTableWrap" <?php echo count($requests) > 0 ? '' : 'hidden'; ?>>
+                <table class="service-request-table">
+                    <thead>
                         <tr>
-                            <th>Ref ID</th>
+                            <th>Reference No.</th>
                             <th>Resident Name</th>
-                            <th>Purpose</th>
-                            <th>Submitted</th>
-                            <th class="process-status-cell">Request Status</th>
-                            <th class="process-status-cell">Payment</th>
-                            <th class="text-center">Action</th>
+                            <th>Document Type</th>
+                            <th>Date Submitted</th>
+                            <th>Request Status</th>
+                            <th>Payment</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (count($requests) > 0): ?>
-                            <?php foreach ($requests as $row):
-                                $request_status = normalizeRequestStatus($row['status'], $row['process_status']);
-                                $payment_status = inferPaymentStatus($row);
-                                $status_class = statusBadgeClass($request_status);
-                                $payment_class = paymentBadgeClass($payment_status);
-                                $allowed_statuses = allowedRequestStatuses($request_status);
-                                $current_status_meta = statusMeta($request_status);
-                                $display_purpose = formatPurpose($row['purpose']);
+                        <?php foreach ($requests as $row):
+                            $request_status = normalizeRequestStatus($row['status'], $row['process_status']);
+                            $status_label = displayRequestStatus($request_status);
+                            $payment_label = paymentDisplayStatus($row);
+                            $payment_class = paymentDisplayClass($payment_label);
+                            $allowed_statuses = allowedRequestStatuses($request_status);
+                            $current_status_meta = statusMeta($request_status);
+                            $display_purpose = formatPurpose($row['purpose']);
+                            $resident_name = trim($row['first_name'] . ' ' . $row['last_name']);
+                            $resident_address = buildResidentAddress($row);
+                            $submitted_date = date('Y-m-d', strtotime($row['created_at']));
+                            $submitted_display = date('M d, Y', strtotime($row['created_at'])) . '<small>' . date('h:i A', strtotime($row['created_at'])) . '</small>';
+                            $attachment_path = !empty($row['id_path']) ? '../' . $row['id_path'] : '';
+                            $receipt_path = !empty($row['payment_receipt_path']) ? '../' . $row['payment_receipt_path'] : '';
+                            $status_options = statusOptionsJson($allowed_statuses);
                             ?>
-                                <tr>
-                                    <td class="fw-bold font-monospace"><?php echo htmlspecialchars($row['reference_no']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?></td>
-                                    <td><small><?php echo htmlspecialchars($display_purpose); ?></small></td>
-                                    <td><?php echo date('M d, Y', strtotime($row['created_at'])); ?></td>
-
-                                    <td class="process-status-cell">
-                                        <?php if (count($allowed_statuses) <= 1): ?>
-                                            <span class="badge <?php echo $status_class; ?> status-lock-badge"><?php echo htmlspecialchars($request_status); ?> - Final</span>
-                                        <?php else: ?>
-                                            <div class="dropdown status-action-dropdown">
-                                                <button class="status-pill status-pill-<?php echo htmlspecialchars($current_status_meta['tone']); ?> dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport" data-bs-display="static" aria-expanded="false">
-                                                    <?php echo htmlspecialchars($request_status); ?>
-                                                </button>
-                                                <div class="dropdown-menu status-change-menu">
-                                                    <div class="status-menu-title">Change Status</div>
-                                                    <?php foreach ($allowed_statuses as $status_option):
-                                                        $option_meta = statusMeta($status_option);
-                                                        $is_current_status = $request_status === $status_option;
-                                                    ?>
-                                                        <?php if ($is_current_status): ?>
-                                                            <div class="status-menu-item is-current">
-                                                                <span class="status-dot status-dot-<?php echo htmlspecialchars($option_meta['tone']); ?>"></span>
+                                <tr class="service-request-row"
+                                    data-category="<?php echo h($row['document_type']); ?>"
+                                    data-search="<?php echo h(strtolower($row['reference_no'] . ' ' . $resident_name . ' ' . $row['document_type'])); ?>"
+                                    data-status="<?php echo h($status_label); ?>"
+                                    data-payment="<?php echo h($payment_label); ?>"
+                                    data-date="<?php echo h($submitted_date); ?>">
+                                    <td class="font-monospace fw-bold"><?php echo h($row['reference_no']); ?></td>
+                                    <td><?php echo h($resident_name); ?></td>
+                                    <td><?php echo h(documentShortName($row['document_type'])); ?></td>
+                                    <td class="service-date-cell"><?php echo $submitted_display; ?></td>
+                                    <td>
+                                        <div class="dropdown status-action-dropdown">
+                                            <button class="status-pill status-pill-<?php echo h($current_status_meta['tone']); ?> dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false">
+                                                <?php echo h($status_label); ?>
+                                            </button>
+                                            <div class="dropdown-menu status-change-menu">
+                                                <div class="status-menu-title">Change Status</div>
+                                                <?php foreach ($allowed_statuses as $status_option):
+                                                    $option_meta = statusMeta($status_option);
+                                                    $is_current_status = $request_status === $status_option;
+                                                ?>
+                                                    <?php if ($is_current_status): ?>
+                                                        <div class="status-menu-item is-current">
+                                                            <span class="status-dot status-dot-<?php echo h($option_meta['tone']); ?>"></span>
+                                                            <span>
+                                                                <strong><?php echo h(displayRequestStatus($status_option)); ?></strong>
+                                                                <small><?php echo h($option_meta['description']); ?></small>
+                                                            </span>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <form action="manage_requests.php" method="POST">
+                                                            <input type="hidden" name="request_id" value="<?php echo (int)$row['request_id']; ?>">
+                                                            <input type="hidden" name="request_status" value="<?php echo h($status_option); ?>">
+                                                            <button type="submit" name="update_status" value="1" class="status-menu-item" data-current-status="<?php echo h($status_label); ?>" data-next-status="<?php echo h(displayRequestStatus($status_option)); ?>">
+                                                                <span class="status-dot status-dot-<?php echo h($option_meta['tone']); ?>"></span>
                                                                 <span>
-                                                                    <strong><?php echo htmlspecialchars($status_option); ?></strong>
-                                                                    <small><?php echo htmlspecialchars($option_meta['description']); ?></small>
+                                                                    <strong><?php echo h(displayRequestStatus($status_option)); ?></strong>
+                                                                    <small><?php echo h($option_meta['description']); ?></small>
                                                                 </span>
-                                                            </div>
-                                                        <?php else: ?>
-                                                            <form action="manage_requests.php?tab=<?php echo htmlspecialchars($selected_tab); ?>" method="POST">
-                                                                <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
-                                                                <input type="hidden" name="request_status" value="<?php echo htmlspecialchars($status_option); ?>">
-                                                                <button type="submit"
-                                                                    name="update_status"
-                                                                    value="1"
-                                                                    class="status-menu-item"
-                                                                    data-current-status="<?php echo htmlspecialchars($request_status); ?>"
-                                                                    data-next-status="<?php echo htmlspecialchars($status_option); ?>">
-                                                                    <span class="status-dot status-dot-<?php echo htmlspecialchars($option_meta['tone']); ?>"></span>
-                                                                    <span>
-                                                                        <strong><?php echo htmlspecialchars($status_option); ?></strong>
-                                                                        <small><?php echo htmlspecialchars($option_meta['description']); ?></small>
-                                                                    </span>
-                                                                </button>
-                                                            </form>
-                                                        <?php endif; ?>
-                                                    <?php endforeach; ?>
-                                                </div>
+                                                            </button>
+                                                        </form>
+                                                    <?php endif; ?>
+                                                <?php endforeach; ?>
                                             </div>
-                                        <?php endif; ?>
-                                    </td>
-
-                                    <td class="process-status-cell">
-                                        <div class="payment-status-stack">
-                                            <span class="badge <?php echo $payment_class; ?>"><?php echo htmlspecialchars($payment_status); ?></span>
-                                            <?php if ($payment_status === 'Receipt Submitted'): ?>
-                                                <form action="manage_requests.php?tab=<?php echo htmlspecialchars($selected_tab); ?>" method="POST">
-                                                    <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
-                                                    <input type="hidden" name="payment_status" value="Verified">
-                                                    <button class="btn btn-sm btn-outline-success" type="submit" name="confirm_payment" value="1">Verify Receipt</button>
-                                                </form>
-                                                <form action="manage_requests.php?tab=<?php echo htmlspecialchars($selected_tab); ?>" method="POST">
-                                                    <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
-                                                    <input type="hidden" name="payment_status" value="Rejected">
-                                                    <button class="btn btn-sm btn-outline-danger" type="submit" name="confirm_payment" value="1">Reject Receipt</button>
-                                                </form>
-                                            <?php elseif ($payment_status === 'Unpaid'): ?>
-                                                <form action="manage_requests.php?tab=<?php echo htmlspecialchars($selected_tab); ?>" method="POST">
-                                                    <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
-                                                    <input type="hidden" name="payment_status" value="Paid at Pickup">
-                                                    <button class="btn btn-sm btn-outline-success" type="submit" name="confirm_payment" value="1">Mark Paid</button>
-                                                </form>
-                                            <?php endif; ?>
                                         </div>
                                     </td>
-
-                                    <td class="text-center">
-                                        <div class="table-actions">
-                                            <a href="print_document.php?req_id=<?php echo $row['request_id']; ?>" target="_blank" class="btn btn-sm btn-outline-dark" title="Print Document">
-                                                Print
-                                            </a>
-
-                                            <button class="btn btn-sm btn-outline-primary view-details-trigger"
+                                    <td>
+                                        <span class="service-payment-badge <?php echo h($payment_class); ?>"><?php echo h($payment_label); ?></span>
+                                    </td>
+                                    <td>
+                                        <div class="service-row-actions">
+                                            <button class="service-view-btn view-details-trigger" type="button"
                                                 data-bs-toggle="modal" data-bs-target="#requestDetailsModal"
-                                                data-ref="<?php echo htmlspecialchars($row['reference_no']); ?>"
-                                                data-name="<?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?>"
-                                                data-doc="<?php echo htmlspecialchars($row['document_type']); ?>"
-                                                data-phone="<?php echo htmlspecialchars($row['phone']); ?>"
-                                                data-address="<?php echo htmlspecialchars($row['address']); ?>"
-                                                data-purpose="<?php echo htmlspecialchars($row['purpose']); ?>"
-                                                data-fee="<?php echo htmlspecialchars($row['document_fee']); ?>"
-                                                data-idpath="../<?php echo htmlspecialchars($row['id_path']); ?>"
+                                                data-ref="<?php echo h($row['reference_no']); ?>"
+                                                data-name="<?php echo h($resident_name); ?>"
+                                                data-doc="<?php echo h($row['document_type']); ?>"
+                                                data-phone="<?php echo h($row['phone']); ?>"
+                                                data-email="<?php echo h($row['email']); ?>"
+                                                data-address="<?php echo h($resident_address); ?>"
+                                                data-purpose="<?php echo h($display_purpose); ?>"
+                                                data-created="<?php echo h(date('M d, Y h:i A', strtotime($row['created_at']))); ?>"
+                                                data-status="<?php echo h($status_label); ?>"
+                                                data-payment="<?php echo h($payment_label); ?>"
+                                                data-fee="<?php echo h(number_format((float)$row['document_fee'], 2)); ?>"
+                                                data-method="<?php echo h(ucwords((string)$row['payment_method'])); ?>"
+                                                data-idpath="<?php echo h($attachment_path); ?>"
+                                                data-receiptpath="<?php echo h($receipt_path); ?>"
                                                 data-requestid="<?php echo (int)$row['request_id']; ?>"
-                                                data-tab="<?php echo htmlspecialchars($selected_tab); ?>"
-                                                data-bname="<?php echo htmlspecialchars($row['business_name'] ?? ''); ?>"
-                                                data-blocation="<?php echo htmlspecialchars($row['business_location'] ?? ''); ?>"
-                                                data-boperator="<?php echo htmlspecialchars($row['business_operator'] ?? ''); ?>"
-                                                data-bnature="<?php echo htmlspecialchars($row['business_nature'] ?? ''); ?>"
-                                                data-baddress="<?php echo htmlspecialchars($row['business_address'] ?? ''); ?>"
-                                                data-idate="<?php echo htmlspecialchars($row['incident_date'] ?? ''); ?>"
-                                                data-itime="<?php echo htmlspecialchars($row['incident_time'] ?? ''); ?>"
-                                                data-ilocation="<?php echo htmlspecialchars($row['incident_location'] ?? ''); ?>"
-                                                data-ipersons="<?php echo htmlspecialchars($row['incident_persons'] ?? ''); ?>"
-                                                data-inarrative="<?php echo htmlspecialchars($row['incident_narrative'] ?? ''); ?>"
-                                                data-iwitness="<?php echo htmlspecialchars($row['incident_witness_name'] ?? ''); ?>">
-                                                View Details
+                                                data-tab="<?php echo h($row['document_type']); ?>"
+                                                data-status-options="<?php echo $status_options; ?>"
+                                                data-bname="<?php echo h($row['business_name'] ?? ''); ?>"
+                                                data-blocation="<?php echo h($row['business_location'] ?? ''); ?>"
+                                                data-boperator="<?php echo h($row['business_operator'] ?? ''); ?>"
+                                                data-bnature="<?php echo h($row['business_nature'] ?? ''); ?>"
+                                                data-baddress="<?php echo h($row['business_address'] ?? ''); ?>"
+                                                data-idate="<?php echo h($row['incident_date'] ?? ''); ?>"
+                                                data-itime="<?php echo h($row['incident_time'] ?? ''); ?>"
+                                                data-ilocation="<?php echo h($row['incident_location'] ?? ''); ?>"
+                                                data-ipersons="<?php echo h($row['incident_persons'] ?? ''); ?>"
+                                                data-inarrative="<?php echo h($row['incident_narrative'] ?? ''); ?>"
+                                                data-iwitness="<?php echo h($row['incident_witness_name'] ?? ''); ?>">
+                                                View
                                             </button>
-
                                             <div class="dropdown">
-                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">More</button>
-                                                <ul class="dropdown-menu">
-                                                    <?php if ($request_status !== 'Under Review' && in_array('Under Review', $allowed_statuses, true)): ?>
-                                                        <li>
-                                                            <form action="manage_requests.php?tab=<?php echo htmlspecialchars($selected_tab); ?>" method="POST">
-                                                                <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
-                                                                <input type="hidden" name="request_status" value="Under Review">
-                                                                <button type="submit" name="update_status" value="1" class="dropdown-item text-success">Move to Under Review</button>
-                                                            </form>
-                                                        </li>
+                                                <button class="service-dots-btn" type="button" data-bs-toggle="dropdown" aria-label="More actions"><i class="bi bi-three-dots-vertical"></i></button>
+                                                <div class="dropdown-menu service-action-menu">
+                                                    <a class="dropdown-item" href="print_document.php?req_id=<?php echo (int)$row['request_id']; ?>" target="_blank"><i class="bi bi-printer"></i> Print Document</a>
+                                                    <button class="dropdown-item view-details-trigger" type="button" data-bs-toggle="modal" data-bs-target="#requestDetailsModal"
+                                                        data-ref="<?php echo h($row['reference_no']); ?>" data-name="<?php echo h($resident_name); ?>" data-doc="<?php echo h($row['document_type']); ?>" data-phone="<?php echo h($row['phone']); ?>" data-email="<?php echo h($row['email']); ?>" data-address="<?php echo h($resident_address); ?>" data-purpose="<?php echo h($display_purpose); ?>" data-created="<?php echo h(date('M d, Y h:i A', strtotime($row['created_at']))); ?>" data-status="<?php echo h($status_label); ?>" data-payment="<?php echo h($payment_label); ?>" data-fee="<?php echo h(number_format((float)$row['document_fee'], 2)); ?>" data-method="<?php echo h(ucwords((string)$row['payment_method'])); ?>" data-idpath="<?php echo h($attachment_path); ?>" data-receiptpath="<?php echo h($receipt_path); ?>" data-requestid="<?php echo (int)$row['request_id']; ?>" data-tab="<?php echo h($row['document_type']); ?>" data-status-options="<?php echo $status_options; ?>"><i class="bi bi-pencil-square"></i> Edit Request</button>
+                                                    <button class="dropdown-item payment-trigger" type="button" data-bs-toggle="modal" data-bs-target="#paymentModal" data-payment="<?php echo h($payment_label); ?>" data-method="<?php echo h(ucwords((string)$row['payment_method'])); ?>" data-amount="<?php echo h(number_format((float)$row['document_fee'], 2)); ?>" data-name="<?php echo h($resident_name); ?>" data-created="<?php echo h(date('M d, Y h:i A', strtotime($row['created_at']))); ?>" data-ref="<?php echo h($row['reference_no']); ?>" data-requestid="<?php echo (int)$row['request_id']; ?>" data-rawpayment="<?php echo h(inferPaymentStatus($row)); ?>" data-receiptpath="<?php echo h($receipt_path); ?>"><i class="bi bi-credit-card"></i> View Payment</button>
+                                                    <button class="dropdown-item update-status-trigger" type="button" data-bs-toggle="modal" data-bs-target="#updateStatusModal" data-requestid="<?php echo (int)$row['request_id']; ?>" data-current="<?php echo h($status_label); ?>" data-options="<?php echo $status_options; ?>"><i class="bi bi-arrow-repeat"></i> Update Status</button>
+                                                    <?php if (in_array('Rejected', $allowed_statuses, true) && $request_status !== 'Rejected'): ?>
+                                                        <form action="manage_requests.php" method="POST">
+                                                            <input type="hidden" name="request_id" value="<?php echo (int)$row['request_id']; ?>">
+                                                            <input type="hidden" name="request_status" value="Rejected">
+                                                            <button type="submit" name="update_status" value="1" class="dropdown-item service-danger-action"><i class="bi bi-x-circle"></i> Cancel Request</button>
+                                                        </form>
+                                                    <?php else: ?>
+                                                        <span class="dropdown-item-text text-muted"><i class="bi bi-x-circle"></i> Cancel Request</span>
                                                     <?php endif; ?>
-                                                    <?php if ($request_status !== 'Rejected' && in_array('Rejected', $allowed_statuses, true)): ?>
-                                                        <li>
-                                                            <form action="manage_requests.php?tab=<?php echo htmlspecialchars($selected_tab); ?>" method="POST">
-                                                                <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
-                                                                <input type="hidden" name="request_status" value="Rejected">
-                                                                <button type="submit" name="update_status" value="1" class="dropdown-item text-danger">Reject Request</button>
-                                                            </form>
-                                                        </li>
-                                                    <?php endif; ?>
-                                                    <?php if (!in_array('Under Review', $allowed_statuses, true) && !in_array('Rejected', $allowed_statuses, true)): ?>
-                                                        <li><span class="dropdown-item-text text-muted">No quick actions</span></li>
-                                                    <?php endif; ?>
-                                                </ul>
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
                                 </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="7" class="text-center text-muted py-4">No active records found in this queue tab.</td>
-                            </tr>
-                        <?php endif; ?>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
-        </div>
+            <div class="service-empty-state" id="requestEmptyState" <?php echo count($requests) > 0 ? 'hidden' : ''; ?>>
+                <i class="bi bi-folder2-open"></i>
+                <strong>No service requests found.</strong>
+                <span>Try adjusting your filters or search terms.</span>
+            </div>
+            <div class="service-table-footer">
+                <span id="requestResultCount">Showing <?php echo count($requests) > 0 ? '1 to ' . count($requests) . ' of ' . count($requests) : '0'; ?> entries</span>
+            </div>
+        </section>
     </main>
 
     <?php foreach ($requests as $row): ?>
@@ -704,50 +741,108 @@ if (!empty($request_ids)) {
         </template>
     <?php endforeach; ?>
 
-    <div class="modal fade" id="requestDetailsModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal fade service-modal" id="requestDetailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title fw-bold">Request Summary: <span id="md-ref"></span></h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <div class="modal-header">
+                    <div>
+                        <span class="modal-kicker">Request Details</span>
+                        <h5 class="modal-title">Reference No. <span id="md-ref"></span></h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p><strong>Resident Name:</strong> <span id="md-name"></span></p>
-                    <p><strong>Document Requested:</strong> <span id="md-doc"></span></p>
-                    <p><strong>Mobile Number:</strong> <span id="md-phone"></span></p>
-                    <p><strong>Home Address:</strong> <span id="md-address"></span></p>
-                    <p><strong>Purpose:</strong> <span id="md-purpose"></span></p>
-                    <p><strong>Total Cost Fee:</strong> <span id="md-fee" class="fw-bold text-success"></span></p>
-
-                    <div id="md-extra-container" class="mt-3 p-3 bg-light border rounded style-box" style="display:none;">
-                        <h6 class="fw-bold text-success border-bottom pb-1 mb-2">Form Specific Requirements Data:</h6>
-                        <div id="md-extra-content" class="small"></div>
-                    </div>
-
-                    <hr>
-                    <h6>Uploaded Attachment Verification:</h6>
-                    <a id="md-download-link" href="#" target="_blank" class="btn btn-sm btn-outline-secondary w-100 mb-2"><i class="bi bi-download"></i> View Full File Asset</a>
-
-                    <hr>
-                    <div class="row g-3">
-                        <div class="col-md-5">
-                            <h6 class="fw-bold text-success">Add Note / Remarks</h6>
-                            <form action="manage_requests.php?tab=<?php echo htmlspecialchars($selected_tab); ?>" method="POST">
-                                <input type="hidden" name="request_id" id="md-remark-request-id">
-                                <textarea class="form-control mb-2" name="remark" rows="5" placeholder="Add processing notes, missing requirements, pickup reminders, or release remarks..." required></textarea>
-                                <button type="submit" name="add_remark" class="btn btn-success btn-sm w-100">
-                                    <i class="bi bi-journal-plus me-1"></i> Save Remark
-                                </button>
-                            </form>
-                        </div>
-                        <div class="col-md-7">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="fw-bold mb-0">Remark History</h6>
-                                <span class="badge bg-light text-dark border">Newest first</span>
+                    <div class="service-detail-grid">
+                        <section>
+                            <div class="service-detail-list">
+                                <p><span>Resident Name</span><strong id="md-name"></strong></p>
+                                <p><span>Document Type</span><strong id="md-doc"></strong></p>
+                                <p><span>Purpose</span><strong id="md-purpose"></strong></p>
+                                <p><span>Date Submitted</span><strong id="md-created"></strong></p>
+                                <p><span>Contact Number</span><strong id="md-phone"></strong></p>
+                                <p><span>Email Address</span><strong id="md-email"></strong></p>
+                                <p><span>Address</span><strong id="md-address"></strong></p>
                             </div>
-                            <div id="md-remarks-log"></div>
-                        </div>
+                            <div id="md-extra-container" class="service-extra-box" hidden>
+                                <h6>Request Purpose / Details</h6>
+                                <div id="md-extra-content"></div>
+                            </div>
+                        </section>
+                        <aside>
+                            <div class="service-status-summary">
+                                <p><span>Request Status</span><strong id="md-status"></strong></p>
+                                <p><span>Payment Status</span><strong id="md-payment"></strong></p>
+                                <p><span>Amount</span><strong>PHP <span id="md-fee"></span></strong></p>
+                            </div>
+                            <div class="service-attachments">
+                                <h6>Attachments</h6>
+                                <div id="md-attachments"></div>
+                            </div>
+                            <div class="service-remarks-panel">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0">Remarks</h6>
+                                    <span>Newest first</span>
+                                </div>
+                                <div id="md-remarks-log"></div>
+                                <form action="manage_requests.php" method="POST" class="mt-3">
+                                    <input type="hidden" name="request_id" id="md-remark-request-id">
+                                    <textarea class="form-control" name="remark" rows="3" placeholder="Add processing note..." required></textarea>
+                                    <button type="submit" name="add_remark" class="service-save-note-btn">Save Remark</button>
+                                </form>
+                            </div>
+                        </aside>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade service-modal" id="paymentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <span class="modal-kicker">Payment</span>
+                        <h5 class="modal-title">Payment Information</h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="service-detail-list compact">
+                        <p><span>Payment Status</span><strong id="pay-status"></strong></p>
+                        <p><span>Payment Method</span><strong id="pay-method"></strong></p>
+                        <p><span>Amount</span><strong>PHP <span id="pay-amount"></span></strong></p>
+                        <p><span>Paid By</span><strong id="pay-name"></strong></p>
+                        <p><span>Date Paid</span><strong id="pay-date"></strong></p>
+                        <p><span>OR Number</span><strong id="pay-or"></strong></p>
+                        <p><span>Notes</span><strong id="pay-notes"></strong></p>
+                    </div>
+                    <div id="pay-actions" class="service-payment-actions"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade service-modal" id="updateStatusModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <span class="modal-kicker">Update Status</span>
+                        <h5 class="modal-title">Change Request Status</h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="service-current-status">
+                        <span>Current Status</span>
+                        <strong id="us-current"></strong>
+                    </div>
+                    <form action="manage_requests.php" method="POST">
+                        <input type="hidden" name="request_id" id="us-request-id">
+                        <div id="us-options" class="service-status-timeline"></div>
+                        <button type="submit" name="update_status" value="1" class="service-save-note-btn">Update Status</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -763,61 +858,203 @@ if (!empty($request_ids)) {
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#039;');
 
-            document.querySelectorAll('.status-menu-item[name="update_status"]').forEach(button => {
+            const rows = Array.from(document.querySelectorAll('.service-request-row'));
+            const searchInput = document.getElementById('requestSearch');
+            const statusFilter = document.getElementById('statusFilter');
+            const paymentFilter = document.getElementById('paymentFilter');
+            const startDate = document.getElementById('startDate');
+            const endDate = document.getElementById('endDate');
+            const emptyState = document.getElementById('requestEmptyState');
+            const tableWrap = document.getElementById('requestTableWrap');
+            const resultCount = document.getElementById('requestResultCount');
+            let activeCategory = 'All Requests';
+
+            function applyFilters() {
+                const query = (searchInput.value || '').toLowerCase().trim();
+                const status = statusFilter.value;
+                const payment = paymentFilter.value;
+                const start = startDate.value;
+                const end = endDate.value;
+                let visible = 0;
+
+                rows.forEach(row => {
+                    const matchesCategory = activeCategory === 'All Requests' || row.dataset.category === activeCategory;
+                    const matchesSearch = !query || row.dataset.search.includes(query);
+                    const matchesStatus = !status || row.dataset.status === status;
+                    const matchesPayment = !payment || row.dataset.payment === payment;
+                    const matchesStart = !start || row.dataset.date >= start;
+                    const matchesEnd = !end || row.dataset.date <= end;
+                    const show = matchesCategory && matchesSearch && matchesStatus && matchesPayment && matchesStart && matchesEnd;
+                    row.hidden = !show;
+                    if (show) visible++;
+                });
+
+                emptyState.hidden = visible > 0;
+                tableWrap.hidden = visible === 0;
+                resultCount.textContent = visible > 0 ? `Showing 1 to ${visible} of ${visible} entries` : 'Showing 0 entries';
+            }
+
+            document.querySelectorAll('.service-tab, .service-more-item').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    activeCategory = this.dataset.category || 'All Requests';
+                    document.querySelectorAll('.service-tab').forEach(item => item.classList.remove('is-active'));
+                    const matchingTopTab = Array.from(document.querySelectorAll('.service-tab')).find(item => item.dataset.category === activeCategory);
+                    if (matchingTopTab) {
+                        matchingTopTab.classList.add('is-active');
+                    } else {
+                        document.querySelector('.service-more-tab').classList.add('is-active');
+                    }
+                    applyFilters();
+                });
+            });
+
+            [searchInput, statusFilter, paymentFilter, startDate, endDate].forEach(control => {
+                control.addEventListener('input', applyFilters);
+                control.addEventListener('change', applyFilters);
+            });
+
+            document.querySelectorAll('.status-menu-item[name="update_status"], .service-danger-action').forEach(button => {
                 button.addEventListener('click', function(event) {
                     const currentStatus = this.dataset.currentStatus || '';
                     const nextStatus = this.dataset.nextStatus || '';
 
-                    if (!confirm(`Move request from ${currentStatus} to ${nextStatus}?`)) {
+                    if (currentStatus && nextStatus && !confirm(`Move request from ${currentStatus} to ${nextStatus}?`)) {
                         event.preventDefault();
                     }
                 });
             });
 
+            function populateDetails(button) {
+                document.getElementById('md-ref').textContent = button.dataset.ref || '';
+                document.getElementById('md-name').textContent = button.dataset.name || 'N/A';
+                document.getElementById('md-doc').textContent = button.dataset.doc || 'N/A';
+                document.getElementById('md-phone').textContent = button.dataset.phone || 'N/A';
+                document.getElementById('md-email').textContent = button.dataset.email || 'N/A';
+                document.getElementById('md-address').textContent = button.dataset.address || 'N/A';
+                document.getElementById('md-purpose').textContent = button.dataset.purpose || 'N/A';
+                document.getElementById('md-created').textContent = button.dataset.created || 'N/A';
+                document.getElementById('md-status').textContent = button.dataset.status || 'N/A';
+                document.getElementById('md-payment').textContent = button.dataset.payment || 'N/A';
+                document.getElementById('md-fee').textContent = button.dataset.fee || '0.00';
+                document.getElementById('md-remark-request-id').value = button.dataset.requestid || '';
+
+                const attachments = [];
+                if (button.dataset.idpath) {
+                    attachments.push(`<a href="${escapeHtml(button.dataset.idpath)}" target="_blank"><i class="bi bi-paperclip"></i> Valid ID / Requirement</a>`);
+                }
+                if (button.dataset.receiptpath) {
+                    attachments.push(`<a href="${escapeHtml(button.dataset.receiptpath)}" target="_blank"><i class="bi bi-receipt"></i> Payment Receipt</a>`);
+                }
+                document.getElementById('md-attachments').innerHTML = attachments.length ? attachments.join('') : '<span class="text-muted small">No uploaded attachments found.</span>';
+
+                const container = document.getElementById('md-extra-container');
+                const contentArea = document.getElementById('md-extra-content');
+                const remarksArea = document.getElementById('md-remarks-log');
+                const remarksTemplate = document.getElementById(`remarks-template-${button.dataset.requestid}`);
+
+                contentArea.innerHTML = '';
+                remarksArea.innerHTML = remarksTemplate ? remarksTemplate.innerHTML : '<div class="text-center text-muted border rounded p-3 small">No remarks found.</div>';
+
+                if (button.dataset.tab === 'Business Clearance' && button.dataset.bname) {
+                    contentArea.innerHTML = `
+                        <p><strong>Trade Name:</strong> ${escapeHtml(button.dataset.bname)}</p>
+                        <p><strong>Location:</strong> ${escapeHtml(button.dataset.blocation)}</p>
+                        <p><strong>Operator:</strong> ${escapeHtml(button.dataset.boperator)}</p>
+                        <p><strong>Business Nature:</strong> ${escapeHtml(button.dataset.bnature)}</p>
+                        <p><strong>Business Address:</strong> ${escapeHtml(button.dataset.baddress)}</p>
+                    `;
+                    container.hidden = false;
+                } else if (button.dataset.tab === 'Incident Report' && button.dataset.idate) {
+                    contentArea.innerHTML = `
+                        <p><strong>Incident Date/Time:</strong> ${escapeHtml(button.dataset.idate)} at ${escapeHtml(button.dataset.itime)}</p>
+                        <p><strong>Location:</strong> ${escapeHtml(button.dataset.ilocation)}</p>
+                        <p><strong>Involved Persons:</strong> ${escapeHtml(button.dataset.ipersons)}</p>
+                        <p><strong>Narrative:</strong> ${escapeHtml(button.dataset.inarrative)}</p>
+                        <p><strong>Witness:</strong> ${escapeHtml(button.dataset.iwitness)}</p>
+                    `;
+                    container.hidden = false;
+                } else {
+                    container.hidden = true;
+                }
+            }
+
             document.querySelectorAll('.view-details-trigger').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.getElementById('md-ref').textContent = this.dataset.ref;
-                    document.getElementById('md-name').textContent = this.dataset.name;
-                    document.getElementById('md-doc').textContent = this.dataset.doc;
-                    document.getElementById('md-phone').textContent = this.dataset.phone;
-                    document.getElementById('md-address').textContent = this.dataset.address;
-                    document.getElementById('md-purpose').textContent = this.dataset.purpose;
-                    document.getElementById('md-fee').textContent = this.dataset.fee;
-                    document.getElementById('md-download-link').href = this.dataset.idpath;
-                    document.getElementById('md-remark-request-id').value = this.dataset.requestid;
+                btn.addEventListener('click', function() { populateDetails(this); });
+            });
 
-                    const tabType = this.dataset.tab;
-                    const container = document.getElementById('md-extra-container');
-                    const contentArea = document.getElementById('md-extra-content');
-                    const remarksArea = document.getElementById('md-remarks-log');
-                    const remarksTemplate = document.getElementById(`remarks-template-${this.dataset.requestid}`);
-
-                    contentArea.innerHTML = '';
-                    remarksArea.innerHTML = remarksTemplate ? remarksTemplate.innerHTML : '<div class="text-center text-muted border rounded p-3 small">No remarks found.</div>';
-
-                    if (tabType === 'Business' && this.dataset.bname) {
-                        contentArea.innerHTML = `
-                            <p class="mb-1"><strong>Trade Name:</strong> ${escapeHtml(this.dataset.bname)}</p>
-                            <p class="mb-1"><strong>Location:</strong> ${escapeHtml(this.dataset.blocation)}</p>
-                            <p class="mb-1"><strong>Manager:</strong> ${escapeHtml(this.dataset.boperator)}</p>
-                            <p class="mb-1"><strong>Business Nature:</strong> ${escapeHtml(this.dataset.bnature)}</p>
-                            <p class="mb-1"><strong>Business Address:</strong> ${escapeHtml(this.dataset.baddress)}</p>
-                        `;
-                        container.style.display = 'block';
-                    } else if (tabType === 'Incident' && this.dataset.idate) {
-                        contentArea.innerHTML = `
-                            <p class="mb-1"><strong>Incident Date/Time:</strong> ${escapeHtml(this.dataset.idate)} @ ${escapeHtml(this.dataset.itime)}</p>
-                            <p class="mb-1"><strong>Location:</strong> ${escapeHtml(this.dataset.ilocation)}</p>
-                            <p class="mb-1"><strong>Involved Profiles:</strong> ${escapeHtml(this.dataset.ipersons)}</p>
-                            <p class="mb-1"><strong>Narrative Summary:</strong> ${escapeHtml(this.dataset.inarrative)}</p>
-                            <p class="mb-1"><strong>Witness Profile Name:</strong> ${escapeHtml(this.dataset.iwitness)}</p>
-                        `;
-                        container.style.display = 'block';
-                    } else {
-                        container.style.display = 'none';
+            rows.forEach(row => {
+                row.addEventListener('click', function(event) {
+                    if (event.target.closest('button, a, .dropdown-menu, input, select, form')) return;
+                    const trigger = this.querySelector('.view-details-trigger');
+                    if (trigger) {
+                        populateDetails(trigger);
+                        bootstrap.Modal.getOrCreateInstance(document.getElementById('requestDetailsModal')).show();
                     }
                 });
             });
+
+            document.querySelectorAll('.payment-trigger').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.getElementById('pay-status').textContent = this.dataset.payment || 'N/A';
+                    document.getElementById('pay-method').textContent = this.dataset.method || 'N/A';
+                    document.getElementById('pay-amount').textContent = this.dataset.amount || '0.00';
+                    document.getElementById('pay-name').textContent = this.dataset.name || 'N/A';
+                    document.getElementById('pay-date').textContent = this.dataset.rawpayment === 'Verified' || this.dataset.rawpayment === 'Paid at Pickup' ? this.dataset.created : 'Not recorded';
+                    document.getElementById('pay-or').textContent = this.dataset.ref || 'N/A';
+                    document.getElementById('pay-notes').textContent = this.dataset.receiptpath ? 'Receipt is available for review.' : 'No payment attachment uploaded.';
+
+                    const actions = document.getElementById('pay-actions');
+                    const requestId = this.dataset.requestid;
+                    const raw = this.dataset.rawpayment;
+                    const receipt = this.dataset.receiptpath;
+                    let html = '';
+                    if (receipt) {
+                        html += `<a href="${escapeHtml(receipt)}" target="_blank" class="service-outline-action"><i class="bi bi-eye"></i> Preview Receipt</a>`;
+                    }
+                    if (raw === 'Receipt Submitted') {
+                        html += `<form action="manage_requests.php" method="POST"><input type="hidden" name="request_id" value="${escapeHtml(requestId)}"><input type="hidden" name="payment_status" value="Verified"><button type="submit" name="confirm_payment" value="1">Verify Payment</button></form>`;
+                        html += `<form action="manage_requests.php" method="POST"><input type="hidden" name="request_id" value="${escapeHtml(requestId)}"><input type="hidden" name="payment_status" value="Rejected"><button class="danger" type="submit" name="confirm_payment" value="1">Reject Payment</button></form>`;
+                    } else if (raw === 'Unpaid') {
+                        html += `<form action="manage_requests.php" method="POST"><input type="hidden" name="request_id" value="${escapeHtml(requestId)}"><input type="hidden" name="payment_status" value="Paid at Pickup"><button type="submit" name="confirm_payment" value="1">Mark Paid Upon Pickup</button></form>`;
+                    }
+                    actions.innerHTML = html || '<span class="text-muted small">No payment action needed.</span>';
+                });
+            });
+
+            document.querySelectorAll('.update-status-trigger').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const options = JSON.parse(this.dataset.options || '[]');
+                    document.getElementById('us-current').textContent = this.dataset.current || 'N/A';
+                    document.getElementById('us-request-id').value = this.dataset.requestid || '';
+                    document.getElementById('us-options').innerHTML = options.map((option, index) => `
+                        <label class="service-status-step ${index === 0 ? 'is-current' : ''}">
+                            <input type="radio" name="request_status" value="${escapeHtml(option.value)}" ${index === 0 ? 'checked' : 'required'}>
+                            <span class="status-dot status-dot-${escapeHtml(option.tone)}"></span>
+                            <strong>${escapeHtml(option.label)}</strong>
+                            <small>${escapeHtml(option.description)}</small>
+                        </label>
+                    `).join('');
+                });
+            });
+
+            document.getElementById('exportRequests').addEventListener('click', function() {
+                const visibleRows = rows.filter(row => !row.hidden);
+                const lines = [['Reference No.', 'Resident Name', 'Document Type', 'Date Submitted', 'Request Status', 'Payment']];
+                visibleRows.forEach(row => {
+                    const cells = Array.from(row.children).slice(0, 6).map(cell => cell.innerText.replace(/\s+/g, ' ').trim());
+                    lines.push(cells);
+                });
+                const csv = lines.map(line => line.map(value => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'maki-konek-service-requests.csv';
+                link.click();
+                URL.revokeObjectURL(url);
+            });
+
+            applyFilters();
         });
     </script>
 </body>

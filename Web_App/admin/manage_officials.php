@@ -82,7 +82,7 @@ $officials_result = mysqli_query($conn, $fetch_query);
     <title>Manage Officials | MakiKonek</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/admin.css?v=20260608a">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=20260608e">
     <style>
         body {
             background: linear-gradient(180deg, #f6fff7 0%, #e9f8ff 100%);

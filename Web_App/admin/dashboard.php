@@ -226,7 +226,7 @@ while (count($activities) < 5) {
     <title>Admin Dashboard | MakiKonek</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/admin.css?v=20260608c">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=20260608e">
 </head>
 
 <body class="dashboard-body">
