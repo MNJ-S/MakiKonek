@@ -10,7 +10,9 @@ if (!isset($_SESSION['resident_id'])) {
     exit();
 }
 
-$resident_id = $_SESSION['resident_id'];
+require_once __DIR__ . '/../includes/db_connect.php';
+
+$resident_id = (int) $_SESSION['resident_id'];
 $pageTitle = 'Facility Reservations';
 $activePage = 'reservations';
 $success_message = '';
@@ -37,8 +39,18 @@ $facilityOptions = [
     ],
 ];
 
-if (!isset($_SESSION['facility_reservations'][$resident_id])) {
-    $_SESSION['facility_reservations'][$resident_id] = [];
+$facility_stmt = mysqli_prepare($conn, "
+    SELECT facility_id, name, base_fee, open_time, close_time, max_guests
+    FROM facilities
+    WHERE name IN ('Basketball Court', 'Events Hall')
+    ORDER BY facility_id ASC
+");
+mysqli_stmt_execute($facility_stmt);
+$facility_result = mysqli_stmt_get_result($facility_stmt);
+$facilitiesByName = [];
+
+while ($row = mysqli_fetch_assoc($facility_result)) {
+    $facilitiesByName[$row['name']] = $row;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -51,39 +63,97 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $notes = trim($_POST['notes'] ?? '');
 
     $today = date('Y-m-d');
+    $selectedFacility = $facilitiesByName[$facility] ?? null;
+    $start_time_db = strlen($start_time) === 5 ? $start_time . ':00' : $start_time;
+    $end_time_db = strlen($end_time) === 5 ? $end_time . ':00' : $end_time;
+    $date_object = DateTime::createFromFormat('Y-m-d', $reservation_date);
+    $valid_date = $date_object && $date_object->format('Y-m-d') === $reservation_date;
 
-    if (!isset($facilityOptions[$facility])) {
+    if (!isset($facilityOptions[$facility]) || $selectedFacility === null) {
         $error_message = 'Please choose a valid facility.';
+    } elseif (!$valid_date) {
+        $error_message = 'Please choose a valid reservation date.';
     } elseif ($reservation_date < $today) {
         $error_message = 'Please choose today or a future date.';
     } elseif (empty($start_time) || empty($end_time) || $start_time >= $end_time) {
         $error_message = 'Please choose a valid start and end time.';
+    } elseif ($start_time_db < $selectedFacility['open_time'] || $end_time_db > $selectedFacility['close_time']) {
+        $error_message = 'Please choose a time within the facility operating hours.';
     } elseif (!is_numeric($guest_count) || (int) $guest_count < 1) {
         $error_message = 'Please enter the expected number of guests.';
+    } elseif ((int) $guest_count > (int) $selectedFacility['max_guests']) {
+        $error_message = 'The expected guests exceed the facility capacity.';
     } elseif ($purpose === '') {
         $error_message = 'Please enter the purpose of reservation.';
     }
 
     if ($error_message === '') {
-        $reference_no = 'FR-' . strtoupper(substr(uniqid(), -6));
-        $_SESSION['facility_reservations'][$resident_id][] = [
-            'reference_no' => $reference_no,
-            'facility' => $facility,
-            'reservation_date' => $reservation_date,
-            'start_time' => $start_time,
-            'end_time' => $end_time,
-            'guest_count' => (int) $guest_count,
-            'purpose' => strtoupper($purpose),
-            'notes' => $notes,
-            'status' => 'Pending',
-            'created_at' => date('M d, Y g:i A'),
-        ];
+        do {
+            $reference_no = 'FR-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
+            $reference_stmt = mysqli_prepare($conn, "SELECT reservation_id FROM facility_reservations WHERE reference_no = ? LIMIT 1");
+            mysqli_stmt_bind_param($reference_stmt, "s", $reference_no);
+            mysqli_stmt_execute($reference_stmt);
+            $reference_result = mysqli_stmt_get_result($reference_stmt);
+            $reference_exists = mysqli_num_rows($reference_result) > 0;
+            mysqli_stmt_close($reference_stmt);
+        } while ($reference_exists);
 
-        $success_message = 'Your reservation has been submitted under Reference Number: ' . $reference_no;
+        $facility_id = (int) $selectedFacility['facility_id'];
+        $expected_guests = (int) $guest_count;
+        $purpose = strtoupper($purpose);
+        $reservation_fee = (float) $selectedFacility['base_fee'];
+        $status = 'Pending';
+        $created_at = date('Y-m-d H:i:s');
+
+        $insert_stmt = mysqli_prepare($conn, "
+            INSERT INTO facility_reservations
+                (user_id, facility_id, reference_no, reservation_date, start_time, end_time,
+                 expected_guests, purpose, additional_notes, reservation_fee, status, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+        mysqli_stmt_bind_param(
+            $insert_stmt,
+            "iissssissdss",
+            $resident_id,
+            $facility_id,
+            $reference_no,
+            $reservation_date,
+            $start_time_db,
+            $end_time_db,
+            $expected_guests,
+            $purpose,
+            $notes,
+            $reservation_fee,
+            $status,
+            $created_at
+        );
+
+        if (mysqli_stmt_execute($insert_stmt)) {
+            $success_message = 'Your reservation has been submitted under Reference Number: ' . $reference_no;
+        } else {
+            $error_message = 'Your reservation could not be submitted. Please try again.';
+        }
     }
 }
 
-$myReservations = array_reverse($_SESSION['facility_reservations'][$resident_id]);
+$reservations_stmt = mysqli_prepare($conn, "
+    SELECT fr.reference_no, fr.reservation_date, fr.start_time, fr.end_time,
+           fr.expected_guests, fr.purpose, fr.additional_notes, fr.status, fr.created_at,
+           f.name AS facility
+    FROM facility_reservations fr
+    JOIN facilities f ON fr.facility_id = f.facility_id
+    WHERE fr.user_id = ?
+    ORDER BY fr.created_at DESC, fr.reservation_id DESC
+");
+mysqli_stmt_bind_param($reservations_stmt, "i", $resident_id);
+mysqli_stmt_execute($reservations_stmt);
+$reservations_result = mysqli_stmt_get_result($reservations_stmt);
+$myReservations = [];
+
+while ($row = mysqli_fetch_assoc($reservations_result)) {
+    $myReservations[] = $row;
+}
+
 $minDate = date('Y-m-d');
 
 ?>
@@ -97,7 +167,7 @@ $minDate = date('Y-m-d');
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/header.css?v=20260608a">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
-    <link rel="stylesheet" href="../assets/css/resident.css?v=20260530a">
+    <link rel="stylesheet" href="../assets/css/resident.css?v=20260609a">
 </head>
 
 <body class="resident-page">
@@ -234,16 +304,16 @@ $minDate = date('Y-m-d');
                                     <h3><?php echo htmlspecialchars($reservation['facility']); ?></h3>
                                     <span><?php echo htmlspecialchars($reservation['reference_no']); ?> • Submitted <?php echo htmlspecialchars($reservation['created_at']); ?></span>
                                 </div>
-                                <strong class="status pending"><?php echo htmlspecialchars($reservation['status']); ?></strong>
+                                <strong class="status <?php echo htmlspecialchars(strtolower($reservation['status'])); ?>"><?php echo htmlspecialchars($reservation['status']); ?></strong>
                             </div>
                             <div class="reservation-details">
                                 <span><i class="fa-regular fa-calendar"></i><?php echo date('M d, Y', strtotime($reservation['reservation_date'])); ?></span>
                                 <span><i class="fa-regular fa-clock"></i><?php echo date('g:i A', strtotime($reservation['start_time'])); ?> - <?php echo date('g:i A', strtotime($reservation['end_time'])); ?></span>
-                                <span><i class="fa-solid fa-users"></i><?php echo htmlspecialchars((string) $reservation['guest_count']); ?> guests</span>
+                                <span><i class="fa-solid fa-users"></i><?php echo htmlspecialchars((string) $reservation['expected_guests']); ?> guests</span>
                             </div>
                             <p><?php echo htmlspecialchars($reservation['purpose']); ?></p>
-                            <?php if (!empty($reservation['notes'])): ?>
-                            <small><?php echo htmlspecialchars($reservation['notes']); ?></small>
+                            <?php if (!empty($reservation['additional_notes'])): ?>
+                            <small><?php echo htmlspecialchars($reservation['additional_notes']); ?></small>
                             <?php endif; ?>
                         </div>
                     </article>

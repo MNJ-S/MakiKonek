@@ -12,7 +12,7 @@ date_default_timezone_set('Asia/Manila');
 
 $success_message = '';
 $error_message = '';
-$allowed_statuses = ['Pending', 'Approved', 'Completed', 'Cancelled'];
+$allowed_statuses = ['Pending', 'Approved', 'Rejected', 'Completed', 'Cancelled'];
 
 function h(?string $value): string
 {
@@ -65,108 +65,6 @@ function reservationIcon(string $facility): string
     return stripos($facility, 'court') !== false ? 'bi-trophy' : 'bi-building';
 }
 
-function seedDemoReservations(mysqli $conn): void
-{
-    $resident_result = mysqli_query($conn, "
-        SELECT u.user_id
-        FROM users u
-        INNER JOIN user_profiles p ON u.user_id = p.user_id
-        WHERE u.role = 'Residente'
-        ORDER BY u.user_id ASC
-        LIMIT 2
-    ");
-    if (!$resident_result || mysqli_num_rows($resident_result) === 0) {
-        return;
-    }
-
-    $resident_ids = [];
-    while ($row = mysqli_fetch_assoc($resident_result)) {
-        $resident_ids[] = (int)$row['user_id'];
-    }
-    $first_resident = $resident_ids[0];
-    $second_resident = $resident_ids[1] ?? $resident_ids[0];
-
-    $facility_result = mysqli_query($conn, "SELECT facility_id, name, base_fee FROM facilities WHERE name IN ('Basketball Court', 'Events Hall')");
-    $facilities = [];
-    if ($facility_result) {
-        while ($row = mysqli_fetch_assoc($facility_result)) {
-            $facilities[$row['name']] = $row;
-        }
-    }
-
-    if (!isset($facilities['Basketball Court'], $facilities['Events Hall'])) {
-        return;
-    }
-
-    $demo_rows = [
-        [
-            'reference_no' => 'APP-COURT-DEMO',
-            'user_id' => $first_resident,
-            'facility_id' => (int)$facilities['Basketball Court']['facility_id'],
-            'reservation_date' => date('Y-m-d'),
-            'start_time' => '09:00:00',
-            'end_time' => '10:30:00',
-            'expected_guests' => 18,
-            'purpose' => 'Basketball practice',
-            'notes' => 'Seed reservation for admin schedule preview.',
-            'reservation_fee' => (float)$facilities['Basketball Court']['base_fee'],
-            'status' => 'Approved',
-        ],
-        [
-            'reference_no' => 'APP-HALL-DEMO',
-            'user_id' => $second_resident,
-            'facility_id' => (int)$facilities['Events Hall']['facility_id'],
-            'reservation_date' => date('Y-m-d', strtotime('+1 day')),
-            'start_time' => '14:00:00',
-            'end_time' => '17:00:00',
-            'expected_guests' => 80,
-            'purpose' => 'Community assembly',
-            'notes' => 'Seed reservation for events hall preview.',
-            'reservation_fee' => (float)$facilities['Events Hall']['base_fee'],
-            'status' => 'Pending',
-        ],
-    ];
-
-    $exists_stmt = mysqli_prepare($conn, "SELECT reservation_id FROM facility_reservations WHERE reference_no = ? LIMIT 1");
-    $insert_stmt = mysqli_prepare($conn, "
-        INSERT INTO facility_reservations
-            (user_id, facility_id, reference_no, reservation_date, start_time, end_time, expected_guests, purpose, additional_notes, reservation_fee, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ");
-
-    if (!$exists_stmt || !$insert_stmt) {
-        return;
-    }
-
-    foreach ($demo_rows as $demo) {
-        mysqli_stmt_bind_param($exists_stmt, "s", $demo['reference_no']);
-        mysqli_stmt_execute($exists_stmt);
-        $existing = mysqli_stmt_get_result($exists_stmt);
-        if ($existing && mysqli_num_rows($existing) > 0) {
-            continue;
-        }
-
-        mysqli_stmt_bind_param(
-            $insert_stmt,
-            "iissssissds",
-            $demo['user_id'],
-            $demo['facility_id'],
-            $demo['reference_no'],
-            $demo['reservation_date'],
-            $demo['start_time'],
-            $demo['end_time'],
-            $demo['expected_guests'],
-            $demo['purpose'],
-            $demo['notes'],
-            $demo['reservation_fee'],
-            $demo['status']
-        );
-        mysqli_stmt_execute($insert_stmt);
-    }
-}
-
-seedDemoReservations($conn);
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_reservation_status'])) {
     $reservation_id = (int)($_POST['reservation_id'] ?? 0);
     $new_status = trim($_POST['status'] ?? '');
@@ -194,7 +92,9 @@ $reservations_query = "
     LEFT JOIN user_profiles p ON u.user_id = p.user_id
     ORDER BY fr.reservation_date ASC, fr.start_time ASC
 ";
-$reservations_result = mysqli_query($conn, $reservations_query);
+$reservations_stmt = mysqli_prepare($conn, $reservations_query);
+mysqli_stmt_execute($reservations_stmt);
+$reservations_result = mysqli_stmt_get_result($reservations_stmt);
 $reservations = [];
 if ($reservations_result) {
     while ($row = mysqli_fetch_assoc($reservations_result)) {
@@ -228,10 +128,19 @@ foreach ($reservations as $row) {
 
 $today_reservations = array_values(array_filter($reservations, fn($row) => $row['reservation_date'] === $today));
 $upcoming_reservations = array_values(array_filter($reservations, fn($row) => $row['reservation_date'] >= $today));
+$active_calendar_reservations = array_values(array_filter(
+    $reservations,
+    fn($row) => !in_array(strtolower($row['status']), ['rejected', 'cancelled'], true)
+));
 $calendar_days = [];
-foreach ($reservations as $row) {
+foreach ($active_calendar_reservations as $row) {
     if (date('Y-m', strtotime($row['reservation_date'])) === date('Y-m')) {
-        $calendar_days[(int)date('j', strtotime($row['reservation_date']))][] = $row;
+        $calendar_days[(int)date('j', strtotime($row['reservation_date']))][] = [
+            'facility_name' => $row['facility_name'],
+            'start_time' => $row['start_time'],
+            'end_time' => $row['end_time'],
+            'status' => $row['status'],
+        ];
     }
 }
 ?>
@@ -361,17 +270,18 @@ foreach ($reservations as $row) {
                     $days_in_month = (int)date('t');
                     for ($blank = 1; $blank < $first_day; $blank++): ?><span></span><?php endfor; ?>
                     <?php for ($day = 1; $day <= $days_in_month; $day++): ?>
-                        <button type="button" class="<?php echo $day === (int)date('j') ? 'is-today' : ''; ?> <?php echo isset($calendar_days[$day]) ? 'has-reservation' : ''; ?>">
+                        <button
+                            type="button"
+                            class="<?php echo $day === (int)date('j') ? 'is-today' : ''; ?> <?php echo isset($calendar_days[$day]) ? 'has-reservation' : ''; ?>"
+                            data-calendar-day="<?php echo $day; ?>">
                             <?php echo $day; ?>
                         </button>
                     <?php endfor; ?>
                 </div>
                 <div class="appointment-calendar-summary">
-                    <strong><?php echo date('F d'); ?></strong>
-                    <span><?php echo count($today_reservations); ?> reservations</span>
-                    <?php foreach (array_slice($today_reservations, 0, 3) as $row): ?>
-                        <p><?php echo h(reservationTypeLabel($row['facility_name'])); ?></p>
-                    <?php endforeach; ?>
+                    <strong id="calendarSummaryDate"><?php echo date('F d'); ?></strong>
+                    <span id="calendarSummaryCount">0 reservations</span>
+                    <div id="calendarSummaryEvents"></div>
                 </div>
             </aside>
         </section>
@@ -458,7 +368,7 @@ foreach ($reservations as $row) {
             </form>
             <form action="manage_appointments.php" method="POST">
                 <input type="hidden" name="reservation_id" id="rejectReservationId">
-                <input type="hidden" name="status" value="Cancelled">
+                <input type="hidden" name="status" value="Rejected">
                 <button type="submit" name="update_reservation_status" class="reject">Reject Reservation</button>
             </form>
         </div>
@@ -469,6 +379,7 @@ foreach ($reservations as $row) {
         document.addEventListener('DOMContentLoaded', function() {
             const drawer = document.getElementById('appointmentDrawer');
             const openButtons = Array.from(document.querySelectorAll('.appointment-open-trigger'));
+            const calendarReservations = <?php echo json_encode($calendar_days, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 
             function openDrawer(button) {
                 document.getElementById('drawerType').textContent = button.dataset.type || 'Reservation';
@@ -507,6 +418,33 @@ foreach ($reservations as $row) {
                     });
                 });
             });
+
+            function showCalendarDay(day) {
+                const rows = calendarReservations[day] || [];
+                const selectedDate = new Date(<?php echo (int)date('Y'); ?>, <?php echo (int)date('n') - 1; ?>, day);
+                document.getElementById('calendarSummaryDate').textContent = selectedDate.toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric'
+                });
+                document.getElementById('calendarSummaryCount').textContent = rows.length + (rows.length === 1 ? ' reservation' : ' reservations');
+
+                const events = document.getElementById('calendarSummaryEvents');
+                events.replaceChildren(...rows.map(row => {
+                    const item = document.createElement('p');
+                    const start = new Date('1970-01-01T' + row.start_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                    const end = new Date('1970-01-01T' + row.end_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                    item.textContent = 'Reserved: ' + row.facility_name + ' - ' + start + ' to ' + end + ' (' + row.status + ')';
+                    return item;
+                }));
+            }
+
+            document.querySelectorAll('[data-calendar-day]').forEach(button => {
+                button.addEventListener('click', function() {
+                    showCalendarDay(this.dataset.calendarDay);
+                });
+            });
+
+            showCalendarDay(<?php echo (int)date('j'); ?>);
         });
     </script>
 </body>

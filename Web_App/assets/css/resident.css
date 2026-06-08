@@ -373,6 +373,11 @@ body.resident-page .resident-nav a.logout-btn {
     color: #ff4c13;
 }
 
+.status.rejected,
+.status.cancelled {
+    color: #c62828;
+}
+
 .view-all-btn {
     display: flex;
     min-height: 36px;

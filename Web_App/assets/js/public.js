@@ -36,29 +36,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const calendarToday = document.querySelector("[data-calendar-today]");
 
     if (calendarGrid && calendarTitle) {
-        const today = new Date(2026, 4, 30);
+        const today = new Date();
         let visibleDate = new Date(today.getFullYear(), today.getMonth(), 1);
         const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-        const events = {
-            "2026-05-02": [
-                { title: "Community Clean-up", time: "6:00 AM", type: "green" },
-                { title: "Zumba Session", time: "4:00 PM", type: "green" },
-            ],
-            "2026-05-04": [{ title: "Basketball League", time: "5:00 PM", type: "green" }],
-            "2026-05-09": [{ title: "Town Hall Meeting", time: "3:00 PM", type: "green" }],
-            "2026-05-11": [{ title: "Free Check-up", time: "9:30 AM", type: "green" }],
-            "2026-05-16": [{ title: "Summer Festival", time: "8:00 AM", type: "green" }],
-            "2026-05-18": [{ title: "Cooking Workshop", time: "1:00 PM", type: "green" }],
-            "2026-05-22": [
-                { title: "Environment Day", time: "7:00 AM", type: "blue" },
-                { title: "Tree Planting", time: "8:00 AM", type: "blue" },
-            ],
-            "2026-05-25": [{ title: "Barangay Assembly", time: "2:00 PM", type: "blue" }],
-            "2026-05-26": [{ title: "Youth Council", time: "4:00 PM", type: "blue" }],
-            "2026-05-27": [{ title: "Senior Program", time: "10:00 AM", type: "blue" }],
-            "2026-05-30": [{ title: "Clean-Up Drive", time: "6:00 AM", type: "green" }],
-            "2026-06-12": [{ title: "Kalayaan Day Program", time: "7:00 AM", type: "blue" }],
-        };
+        const events = window.publicCalendarEvents || {};
 
         const formatKey = (date) => {
             const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -112,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 (events[key] || []).forEach((event) => {
                     const eventNode = document.createElement("strong");
                     eventNode.className = `event ${event.type}`;
-                    eventNode.innerHTML = `${event.title}<br>${event.time}`;
+                    eventNode.textContent = `${event.title} - ${event.time} (${event.status})`;
                     cell.append(eventNode);
                 });
 

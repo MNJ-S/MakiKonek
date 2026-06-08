@@ -3,11 +3,33 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+require_once __DIR__ . '/../includes/db_connect.php';
+
 $isResidentHeader = isset($_SESSION['resident_id']);
 $residentProfileHref = '../resident/profile.php';
 $residentLogoutHref = '../resident/logout.php';
 $serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login_reg.php';
 $contactActionHref = $isResidentHeader ? '../resident/dashboard.php' : '../login_reg.php';
+
+$calendar_stmt = mysqli_prepare($conn, "
+    SELECT fr.reservation_date, fr.start_time, fr.end_time, fr.status, f.name AS facility_name
+    FROM facility_reservations fr
+    JOIN facilities f ON fr.facility_id = f.facility_id
+    WHERE UPPER(fr.status) NOT IN ('REJECTED', 'CANCELLED')
+    ORDER BY fr.reservation_date ASC, fr.start_time ASC
+");
+mysqli_stmt_execute($calendar_stmt);
+$calendar_result = mysqli_stmt_get_result($calendar_stmt);
+$calendar_events = [];
+
+while ($row = mysqli_fetch_assoc($calendar_result)) {
+    $calendar_events[$row['reservation_date']][] = [
+        'title' => 'Reserved: ' . $row['facility_name'],
+        'time' => date('g:i A', strtotime($row['start_time'])) . ' to ' . date('g:i A', strtotime($row['end_time'])),
+        'status' => ucfirst(strtolower($row['status'])),
+        'type' => strtolower($row['status']) === 'approved' ? 'green' : 'blue',
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -20,7 +42,10 @@ $contactActionHref = $isResidentHeader ? '../resident/dashboard.php' : '../login
     <link rel="stylesheet" href="../assets/css/header.css?v=20260608b">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
-    <script defer src="../assets/js/public.js?v=20260530a"></script>
+    <script>
+        window.publicCalendarEvents = <?php echo json_encode($calendar_events, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+    </script>
+    <script defer src="../assets/js/public.js?v=20260609a"></script>
 </head>
 
 <body>
@@ -195,7 +220,7 @@ $contactActionHref = $isResidentHeader ? '../resident/dashboard.php' : '../login
 
             <div class="calendar-panel">
                 <div class="calendar-top">
-                    <h3 data-calendar-title>May 2026</h3>
+                    <h3 data-calendar-title><?php echo date('F Y'); ?></h3>
                     <div class="calendar-controls" aria-label="Calendar controls">
                         <button type="button" data-calendar-today>Today</button>
                         <button type="button" data-calendar-prev>Prev</button>
