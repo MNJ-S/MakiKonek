@@ -16,7 +16,9 @@
         <a class="<?php echo $activePage === 'notifications' ? 'active' : ''; ?>" href="notifications.php">
             <i class="fa-regular fa-bell"></i>
             Notifications
-            <span class="count">3</span>
+            <span class="count" data-notification-sidebar-count <?php echo empty($residentUnreadCount) ? 'hidden' : ''; ?>>
+                <?php echo isset($residentUnreadCount) ? $residentUnreadCount : 0; ?>
+            </span>
         </a>
         <a class="<?php echo $activePage === 'profile' ? 'active' : ''; ?>" href="profile.php">
             <i class="fa-regular fa-user"></i>
