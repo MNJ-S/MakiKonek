@@ -51,6 +51,43 @@ mysqli_query($conn, "
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
 ");
 
+function recordCompletedRequest(mysqli $conn, int $req_id): void
+{
+    $check_query = "SELECT completed_id FROM completed_requests WHERE original_request_id = ? LIMIT 1";
+    $stmt_check = mysqli_prepare($conn, $check_query);
+    mysqli_stmt_bind_param($stmt_check, "i", $req_id);
+    mysqli_stmt_execute($stmt_check);
+    if (mysqli_fetch_assoc(mysqli_stmt_get_result($stmt_check))) {
+        return;
+    }
+
+    $fetch_query = "
+        SELECT sr.request_id, sr.user_id, sr.reference_no, sr.purpose, sr.document_fee, sr.created_at, dt.name as document_type_name
+        FROM service_requests sr
+        JOIN document_types dt ON sr.document_type_id = dt.document_type_id
+        WHERE sr.request_id = ? LIMIT 1
+    ";
+    $stmt_fetch = mysqli_prepare($conn, $fetch_query);
+    mysqli_stmt_bind_param($stmt_fetch, "i", $req_id);
+    mysqli_stmt_execute($stmt_fetch);
+    $req = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt_fetch));
+
+    if ($req) {
+        $insert_query = "INSERT INTO completed_requests (original_request_id, user_id, document_type_name, reference_no, purpose, document_fee, requested_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $stmt_insert = mysqli_prepare($conn, $insert_query);
+        mysqli_stmt_bind_param($stmt_insert, "iisssds", 
+            $req['request_id'], 
+            $req['user_id'], 
+            $req['document_type_name'], 
+            $req['reference_no'], 
+            $req['purpose'], 
+            $req['document_fee'], 
+            $req['created_at']
+        );
+        mysqli_stmt_execute($stmt_insert);
+    }
+}
+
 function markCompletedRequest(mysqli $conn, int $req_id): bool
 {
     $fetch_query = "SELECT document_fee, payment_method, payment_status FROM service_requests WHERE request_id = ? LIMIT 1";
@@ -76,7 +113,11 @@ function markCompletedRequest(mysqli $conn, int $req_id): bool
     $stmt_update = mysqli_prepare($conn, $update_query);
     mysqli_stmt_bind_param($stmt_update, "si", $completion_payment_status, $req_id);
 
-    return mysqli_stmt_execute($stmt_update) && mysqli_stmt_affected_rows($stmt_update) > 0;
+    $result = mysqli_stmt_execute($stmt_update) && mysqli_stmt_affected_rows($stmt_update) > 0;
+    if ($result) {
+        recordCompletedRequest($conn, $req_id);
+    }
+    return $result;
 }
 
 function statusBadgeClass(string $status): string
@@ -359,6 +400,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
 
                 if (mysqli_stmt_execute($stmt)) {
                     $success_message = "Request status updated to " . $new_status . ".";
+                    if ($new_status === 'Completed') {
+                        recordCompletedRequest($conn, $req_id);
+                    }
                 } else {
                     $error_message = "Failed to update request status.";
                 }
