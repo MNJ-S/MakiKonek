@@ -6,6 +6,55 @@ if (session_status() === PHP_SESSION_NONE) {
 $isResidentHeader = isset($_SESSION['resident_id']);
 $residentProfileHref = '../resident/profile.php';
 $residentLogoutHref = '../resident/logout.php';
+
+require_once __DIR__ . '/../includes/db_connect.php';
+
+$published_announcements = [];
+$announcement_table_check = mysqli_query($conn, "SHOW TABLES LIKE 'announcements'");
+if ($announcement_table_check && mysqli_num_rows($announcement_table_check) > 0) {
+    $announcement_result = mysqli_query($conn, "
+        SELECT *
+        FROM announcements
+        WHERE status = 'Published'
+        ORDER BY COALESCE(event_date, DATE(created_at)) DESC, created_at DESC
+        LIMIT 12
+    ");
+
+    if ($announcement_result) {
+        while ($row = mysqli_fetch_assoc($announcement_result)) {
+            $published_announcements[] = $row;
+        }
+    }
+}
+
+function publicAnnouncementEscape(?string $value): string
+{
+    return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+}
+
+function publicAnnouncementCategory(string $category): string
+{
+    $normalized = strtolower($category);
+    if ($normalized === 'program') return 'programa';
+    if ($normalized === 'advisory') return 'abiso';
+    if ($normalized === 'event') return 'events';
+    return 'anunsyo';
+}
+
+function publicAnnouncementTagClass(string $category): string
+{
+    $normalized = strtolower($category);
+    if ($normalized === 'program') return 'green';
+    if ($normalized === 'advisory') return 'orange';
+    if ($normalized === 'event') return 'purple';
+    return 'green';
+}
+
+function publicAnnouncementExcerpt(string $value, int $limit = 155): string
+{
+    $clean = trim(strip_tags($value));
+    return strlen($clean) > $limit ? substr($clean, 0, $limit - 3) . '...' : $clean;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -17,7 +66,7 @@ $residentLogoutHref = '../resident/logout.php';
     <link rel="stylesheet" href="../assets/css/home.css?v=20260529h">
     <link rel="stylesheet" href="../assets/css/header.css?v=20260608b">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
-    <link rel="stylesheet" href="../assets/css/announcements.css?v=20260530c">
+    <link rel="stylesheet" href="../assets/css/announcements.css?v=20260608b">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <script defer src="../assets/js/announcements.js?v=20260529a"></script>
 </head>
@@ -74,6 +123,34 @@ $residentLogoutHref = '../resident/logout.php';
                     <h2 id="latest-announcements">Latest Announcements</h2>
                 </div>
 
+                <?php if (!empty($published_announcements)): ?>
+                    <?php foreach ($published_announcements as $announcement): ?>
+                        <article class="announcement-post" data-category="<?php echo publicAnnouncementEscape(publicAnnouncementCategory($announcement['category'])); ?>">
+                            <?php if (!empty($announcement['cover_image'])): ?>
+                                <div class="post-media db-announcement-poster" role="img" aria-label="<?php echo publicAnnouncementEscape($announcement['title']); ?>" style="background-image: url('<?php echo publicAnnouncementEscape($announcement['cover_image']); ?>');"></div>
+                            <?php else: ?>
+                                <div class="post-media cleanup-poster" role="img" aria-label="<?php echo publicAnnouncementEscape($announcement['title']); ?>">
+                                    <i class="fa-solid fa-bullhorn"></i>
+                                    <strong><?php echo publicAnnouncementEscape($announcement['category']); ?></strong>
+                                    <span>Update</span>
+                                </div>
+                            <?php endif; ?>
+                            <div class="post-body">
+                                <div class="post-top">
+                                    <span class="tag <?php echo publicAnnouncementEscape(publicAnnouncementTagClass($announcement['category'])); ?>"><?php echo publicAnnouncementEscape($announcement['category']); ?></span>
+                                    <button type="button" aria-label="Save announcement"><i class="fa-regular fa-bookmark"></i></button>
+                                </div>
+                                <h3><?php echo publicAnnouncementEscape($announcement['title']); ?></h3>
+                                <p><?php echo publicAnnouncementEscape($announcement['summary'] ?: publicAnnouncementExcerpt($announcement['body'])); ?></p>
+                                <div class="post-meta">
+                                    <span><i class="fa-regular fa-calendar"></i> <?php echo !empty($announcement['event_date']) ? publicAnnouncementEscape(date('F d, Y', strtotime($announcement['event_date']))) : publicAnnouncementEscape(date('F d, Y', strtotime($announcement['created_at']))); ?></span>
+                                    <?php if (!empty($announcement['event_time'])): ?><span><i class="fa-regular fa-clock"></i> <?php echo publicAnnouncementEscape($announcement['event_time']); ?></span><?php endif; ?>
+                                    <?php if (!empty($announcement['location'])): ?><span><i class="fa-solid fa-location-dot"></i> <?php echo publicAnnouncementEscape($announcement['location']); ?></span><?php endif; ?>
+                                </div>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                <?php else: ?>
                 <article class="announcement-post" data-category="programa">
                     <div class="post-media cleanup-poster" role="img" aria-label="Barangay cleanup drive poster">
                         <i class="fa-solid fa-broom"></i>
@@ -157,6 +234,7 @@ $residentLogoutHref = '../resident/logout.php';
                         </div>
                     </div>
                 </article>
+                <?php endif; ?>
 
                 <div class="ann-pagination" aria-label="Pagination">
                     <button type="button" class="active">1</button>

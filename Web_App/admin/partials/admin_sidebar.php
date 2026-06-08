@@ -37,7 +37,7 @@ if ($admin_initials === '') {
             <a href="manage_officials.php" class="nav-link <?php echo $currentPage === 'manage_officials.php' ? 'active' : ''; ?>">
                 <i class="bi bi-person-badge"></i> Officials
             </a>
-            <a href="../public/announcements.php" class="nav-link">
+            <a href="manage_announcements.php" class="nav-link <?php echo $currentPage === 'manage_announcements.php' ? 'active' : ''; ?>">
                 <i class="bi bi-megaphone"></i> Announcements
             </a>
         </section>

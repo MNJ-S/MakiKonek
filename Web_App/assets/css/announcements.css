@@ -140,6 +140,11 @@
     font-weight: 900;
 }
 
+.db-announcement-poster {
+    background-position: center;
+    background-size: cover;
+}
+
 .ann-tools {
     display: grid;
     grid-template-columns: minmax(340px, 420px) 1fr;

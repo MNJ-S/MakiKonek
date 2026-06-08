@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320" role="img" aria-label="Professional official portrait">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fff4dc"/><stop offset="1" stop-color="#e8f7ee"/></linearGradient>
+  </defs>
+  <rect width="320" height="320" rx="42" fill="url(#bg)"/>
+  <path d="M91 132c0-52 27-83 70-83s71 31 71 84c0 52-30 86-71 86s-70-35-70-87z" fill="#1f2937"/>
+  <circle cx="161" cy="136" r="53" fill="#d79a72"/>
+  <path d="M105 126c19-41 51-55 102-35 11 19 13 42 7 67-16-28-39-42-71-42-14 0-26 3-38 10z" fill="#111827"/>
+  <path d="M55 285c11-57 51-91 106-91s95 34 106 91H55z" fill="#0d5f3b"/>
+  <path d="M104 285v-46c15-16 34-25 57-25s42 9 57 25v46H104z" fill="#f8fafc"/>
+  <path d="M131 222l30 35 30-35v63h-60z" fill="#ffffff"/>
+  <circle cx="143" cy="135" r="5" fill="#142033"/><circle cx="180" cy="135" r="5" fill="#142033"/>
+  <path d="M142 163c12 9 27 9 39 0" fill="none" stroke="#854f39" stroke-width="6" stroke-linecap="round"/>
+  <path d="M104 118c3-44 31-68 82-64 21 7 36 27 40 59-32-20-75-24-122 5z" fill="#111827"/>
+</svg>
