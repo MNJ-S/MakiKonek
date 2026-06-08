@@ -9,11 +9,8 @@ if ($admin_initials === '') {
 ?>
 <nav class="sidebar admin-shell-sidebar">
     <a href="dashboard.php" class="admin-brand" aria-label="MakiKonek Admin Dashboard">
-        <span class="admin-brand-mark">
-            <i class="bi bi-flower1"></i>
-        </span>
-        <span>
-            <strong>MakiKonek</strong>
+        <span class="admin-brand-lockup">
+            <img src="../assets/img/logo2-makikonek.png" alt="MakiKonek">
             <small>Admin Panel</small>
         </span>
     </a>
@@ -68,14 +65,6 @@ if ($admin_initials === '') {
             <a href="logout.php" class="admin-profile-action" title="Sign out" aria-label="Sign out">
                 <i class="bi bi-box-arrow-right"></i>
             </a>
-        </div>
-
-        <div class="admin-sidebar-signature">
-            <span class="admin-mini-mark"><i class="bi bi-flower1"></i></span>
-            <span>
-                <strong>MakiKonek</strong>
-                <small>Barangay Digital Services</small>
-            </span>
         </div>
     </div>
 </nav>

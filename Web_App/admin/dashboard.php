@@ -12,7 +12,7 @@ date_default_timezone_set('Asia/Manila');
 
 $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 $admin_role = $_SESSION['admin_role'] ?? 'Staff';
-$admin_role_label = $admin_role === 'Super Admin' ? 'Super Admin' : $admin_role;
+$admin_display_name = $admin_username !== '' ? $admin_username : 'Admin';
 $hour = (int)date('G');
 $greeting = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening');
 
@@ -137,7 +137,7 @@ $pending_requests = dashboardScalar($conn, "SELECT COUNT(request_id) AS total FR
 $under_review_count = dashboardScalar($conn, "SELECT COUNT(request_id) AS total FROM service_requests WHERE status = 'Under Review' OR UPPER(status) = 'APPROVED'");
 $processing_count = dashboardScalar($conn, "SELECT COUNT(request_id) AS total FROM service_requests WHERE status = 'Processing' OR (UPPER(status) = 'APPROVED' AND process_status = 'PROCESSING')");
 $ready_count = dashboardScalar($conn, "SELECT COUNT(request_id) AS total FROM service_requests WHERE status = 'Ready for Pickup' OR process_status = 'READY FOR PICKUP'");
-$appointments_today = 0;
+$appointments_today = dashboardScalar($conn, "SELECT COUNT(reservation_id) AS total FROM facility_reservations WHERE reservation_date = CURRENT_DATE() AND UPPER(status) NOT IN ('CANCELLED', 'REJECTED')");
 $residents_for_verification = 0;
 $notification_count = min(9, $pending_requests + $ready_count);
 
@@ -226,7 +226,7 @@ while (count($activities) < 5) {
     <title>Admin Dashboard | MakiKonek</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/admin.css?v=20260608e">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=20260608l">
 </head>
 
 <body class="dashboard-body">
@@ -235,7 +235,7 @@ while (count($activities) < 5) {
     <main class="main-content dashboard-main">
         <header class="dashboard-header">
             <div>
-                <h1><?php echo htmlspecialchars($greeting); ?>, <?php echo htmlspecialchars($admin_role_label); ?>! <span aria-hidden="true">&#128075;</span></h1>
+                <h1><?php echo htmlspecialchars($greeting); ?>, <?php echo htmlspecialchars($admin_display_name); ?>! <span aria-hidden="true">&#128075;</span></h1>
                 <p>Here's what's happening in MakiKonek today.</p>
             </div>
             <div class="dashboard-header-tools">
@@ -396,7 +396,7 @@ while (count($activities) < 5) {
                                         <td class="font-monospace fw-bold"><?php echo htmlspecialchars($row['reference_no']); ?></td>
                                         <td><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?></td>
                                         <td><?php echo htmlspecialchars(dashboardDocShortName($row['document_type'])); ?></td>
-                                        <td><?php echo date('M d, Y h:i A', strtotime($row['created_at'])); ?></td>
+                                        <td><?php echo date('M d, h:i A', strtotime($row['created_at'])); ?></td>
                                         <td><span class="dash-badge <?php echo dashboardStatusClass($status); ?>"><?php echo htmlspecialchars(dashboardStatusLabel($status)); ?></span></td>
                                         <td><span class="dash-badge <?php echo dashboardPaymentClass($payment); ?>"><?php echo htmlspecialchars($payment); ?></span></td>
                                         <td>
