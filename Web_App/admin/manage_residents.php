@@ -444,6 +444,11 @@ $verified_percent = $total_residents > 0 ? round(($verified_residents / $total_r
                                                             <span class="dropdown-item-text text-muted"><i class="bi bi-check-circle"></i> Approve Resident</span>
                                                             <span class="dropdown-item-text text-muted"><i class="bi bi-x-circle"></i> Reject Verification</span>
                                                         <?php endif; ?>
+                                                        <form action="manage_residents.php" method="POST" onsubmit="return confirm('Archive <?php echo h($full_name); ?> and move this account to archives?');">
+                                                            <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
+                                                            <input type="hidden" name="archive_reason" value="Archived Account">
+                                                            <button type="submit" name="archive_user" class="dropdown-item resident-danger-action"><i class="bi bi-archive"></i> Archive Account</button>
+                                                        </form>
                                                         <form action="manage_residents.php" method="POST" onsubmit="return confirm('Suspend <?php echo h($full_name); ?> and move this account to archives?');">
                                                             <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
                                                             <input type="hidden" name="archive_reason" value="Suspended Account">
@@ -488,10 +493,15 @@ $verified_percent = $total_residents > 0 ? round(($verified_residents / $total_r
                 <div class="drawer-actions">
                     <button type="button" class="drawer-approve" disabled><i class="bi bi-check-circle"></i> Approve Resident</button>
                     <button type="button" class="drawer-reject" disabled><i class="bi bi-x-circle"></i> Reject Verification</button>
-                    <form action="manage_residents.php" method="POST" id="drawerSuspendForm">
+                    <form action="manage_residents.php" method="POST" id="drawerArchiveForm" class="d-inline">
+                        <input type="hidden" name="user_id" id="drawerArchiveId">
+                        <input type="hidden" name="archive_reason" value="Archived Account">
+                        <button type="submit" name="archive_user" class="drawer-suspend"><i class="bi bi-archive"></i> Archive</button>
+                    </form>
+                    <form action="manage_residents.php" method="POST" id="drawerSuspendForm" class="d-inline">
                         <input type="hidden" name="user_id" id="drawerSuspendId">
                         <input type="hidden" name="archive_reason" value="Suspended Account">
-                        <button type="submit" name="archive_user" class="drawer-suspend"><i class="bi bi-slash-circle"></i> Suspend Account</button>
+                        <button type="submit" name="archive_user" class="drawer-suspend"><i class="bi bi-slash-circle"></i> Suspend</button>
                     </form>
                 </div>
                 <nav class="drawer-tabs" aria-label="Resident profile sections">
@@ -618,6 +628,7 @@ $verified_percent = $total_residents > 0 ? round(($verified_residents / $total_r
                 document.getElementById('drawerEmergency').textContent = button.dataset.emergency || 'N/A';
                 document.getElementById('drawerEmergencyPhone').textContent = button.dataset.emergencyphone || 'N/A';
                 document.getElementById('drawerSuspendId').value = button.dataset.userid || '';
+                document.getElementById('drawerArchiveId').value = button.dataset.userid || '';
 
                 const documents = JSON.parse(button.dataset.documents || '[]');
                 document.getElementById('drawerDocuments').innerHTML = documents.length ?

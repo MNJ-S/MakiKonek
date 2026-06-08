@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 06, 2026 at 11:07 PM
+-- Generation Time: Jun 08, 2026 at 01:15 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `makikonek_db`
 --
+CREATE DATABASE IF NOT EXISTS `makikonek_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `makikonek_db`;
 
 -- --------------------------------------------------------
 
@@ -27,6 +29,7 @@ SET time_zone = "+00:00";
 -- Table structure for table `admin_accounts`
 --
 
+DROP TABLE IF EXISTS `admin_accounts`;
 CREATE TABLE `admin_accounts` (
   `admin_id` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
@@ -53,6 +56,7 @@ INSERT INTO `admin_accounts` (`admin_id`, `username`, `email`, `password`, `role
 -- Table structure for table `archived_admin_accounts`
 --
 
+DROP TABLE IF EXISTS `archived_admin_accounts`;
 CREATE TABLE `archived_admin_accounts` (
   `archive_id` int(11) NOT NULL,
   `original_admin_id` int(11) NOT NULL,
@@ -75,6 +79,7 @@ INSERT INTO `archived_admin_accounts` (`archive_id`, `original_admin_id`, `usern
 -- Table structure for table `archived_users`
 --
 
+DROP TABLE IF EXISTS `archived_users`;
 CREATE TABLE `archived_users` (
   `archive_id` int(11) NOT NULL,
   `original_user_id` int(11) NOT NULL,
@@ -91,6 +96,7 @@ CREATE TABLE `archived_users` (
 -- Table structure for table `archived_user_profiles`
 --
 
+DROP TABLE IF EXISTS `archived_user_profiles`;
 CREATE TABLE `archived_user_profiles` (
   `archive_profile_id` int(11) NOT NULL,
   `original_user_id` int(11) NOT NULL,
@@ -122,6 +128,7 @@ CREATE TABLE `archived_user_profiles` (
 -- Table structure for table `barangay_officials`
 --
 
+DROP TABLE IF EXISTS `barangay_officials`;
 CREATE TABLE `barangay_officials` (
   `official_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -145,6 +152,7 @@ INSERT INTO `barangay_officials` (`official_id`, `user_id`, `position`, `committ
 -- Table structure for table `completed_requests`
 --
 
+DROP TABLE IF EXISTS `completed_requests`;
 CREATE TABLE `completed_requests` (
   `completed_id` int(11) NOT NULL,
   `original_request_id` int(11) NOT NULL,
@@ -157,12 +165,20 @@ CREATE TABLE `completed_requests` (
   `completed_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `completed_requests`
+--
+
+INSERT INTO `completed_requests` (`completed_id`, `original_request_id`, `user_id`, `document_type_name`, `reference_no`, `purpose`, `document_fee`, `requested_at`, `completed_at`) VALUES
+(1, 2, 1, 'Barangay Clearance', 'MK-258F5B', 'COMPANY APPLICATION', 50.00, '2026-06-04 20:44:50', '2026-06-08 10:52:22');
+
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `completed_reservations`
 --
 
+DROP TABLE IF EXISTS `completed_reservations`;
 CREATE TABLE `completed_reservations` (
   `completed_id` int(11) NOT NULL,
   `original_reservations_id` int(11) NOT NULL,
@@ -184,6 +200,7 @@ CREATE TABLE `completed_reservations` (
 -- Table structure for table `document_types`
 --
 
+DROP TABLE IF EXISTS `document_types`;
 CREATE TABLE `document_types` (
   `document_type_id` int(11) NOT NULL,
   `category` varchar(50) NOT NULL,
@@ -213,6 +230,7 @@ INSERT INTO `document_types` (`document_type_id`, `category`, `name`, `descripti
 -- Table structure for table `facilities`
 --
 
+DROP TABLE IF EXISTS `facilities`;
 CREATE TABLE `facilities` (
   `facility_id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
@@ -237,6 +255,7 @@ INSERT INTO `facilities` (`facility_id`, `name`, `description`, `base_fee`, `ope
 -- Table structure for table `facility_reservations`
 --
 
+DROP TABLE IF EXISTS `facility_reservations`;
 CREATE TABLE `facility_reservations` (
   `reservation_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -253,12 +272,21 @@ CREATE TABLE `facility_reservations` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `facility_reservations`
+--
+
+INSERT INTO `facility_reservations` (`reservation_id`, `user_id`, `facility_id`, `reference_no`, `reservation_date`, `start_time`, `end_time`, `expected_guests`, `purpose`, `additional_notes`, `reservation_fee`, `status`, `created_at`) VALUES
+(1, 1, 1, 'APP-COURT-DEMO', '2026-06-08', '09:00:00', '10:30:00', 18, 'Basketball practice', 'Seed reservation for admin schedule preview.', 150.00, 'Approved', '2026-06-08 10:58:30'),
+(2, 4, 2, 'APP-HALL-DEMO', '2026-06-09', '14:00:00', '17:00:00', 80, 'Community assembly', 'Seed reservation for events hall preview.', 500.00, 'Pending', '2026-06-08 10:58:30');
+
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `request_barangay_ids`
 --
 
+DROP TABLE IF EXISTS `request_barangay_ids`;
 CREATE TABLE `request_barangay_ids` (
   `request_id` int(11) NOT NULL,
   `blood_type` varchar(10) DEFAULT NULL,
@@ -274,6 +302,7 @@ CREATE TABLE `request_barangay_ids` (
 -- Table structure for table `request_business_clearances`
 --
 
+DROP TABLE IF EXISTS `request_business_clearances`;
 CREATE TABLE `request_business_clearances` (
   `request_id` int(11) NOT NULL,
   `business_name` varchar(100) NOT NULL,
@@ -289,6 +318,7 @@ CREATE TABLE `request_business_clearances` (
 -- Table structure for table `request_cedulas`
 --
 
+DROP TABLE IF EXISTS `request_cedulas`;
 CREATE TABLE `request_cedulas` (
   `request_id` int(11) NOT NULL,
   `cedula_type` varchar(50) DEFAULT NULL,
@@ -313,6 +343,7 @@ INSERT INTO `request_cedulas` (`request_id`, `cedula_type`, `tax_year`, `place_i
 -- Table structure for table `request_construction_permits`
 --
 
+DROP TABLE IF EXISTS `request_construction_permits`;
 CREATE TABLE `request_construction_permits` (
   `request_id` int(11) NOT NULL,
   `construction_address` text NOT NULL,
@@ -327,6 +358,7 @@ CREATE TABLE `request_construction_permits` (
 -- Table structure for table `request_incident_reports`
 --
 
+DROP TABLE IF EXISTS `request_incident_reports`;
 CREATE TABLE `request_incident_reports` (
   `request_id` int(11) NOT NULL,
   `incident_date` date NOT NULL,
@@ -353,6 +385,7 @@ INSERT INTO `request_incident_reports` (`request_id`, `incident_date`, `incident
 -- Table structure for table `request_remarks`
 --
 
+DROP TABLE IF EXISTS `request_remarks`;
 CREATE TABLE `request_remarks` (
   `remark_id` int(11) NOT NULL,
   `request_id` int(11) NOT NULL,
@@ -368,6 +401,7 @@ CREATE TABLE `request_remarks` (
 -- Table structure for table `service_requests`
 --
 
+DROP TABLE IF EXISTS `service_requests`;
 CREATE TABLE `service_requests` (
   `request_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -389,12 +423,12 @@ CREATE TABLE `service_requests` (
 --
 
 INSERT INTO `service_requests` (`request_id`, `user_id`, `document_type_id`, `reference_no`, `purpose`, `document_fee`, `payment_method`, `payment_receipt_path`, `payment_status`, `id_path`, `status`, `process_status`, `created_at`) VALUES
-(1, 1, 1, 'MK-89BE60', 'COMPANY APPLICATION', 50.00, 'cash', NULL, 'Unpaid', 'assets/uploads/requirements/id_1_1780634408.jpg', 'Rejected', 'Rejected', '2026-06-04 20:40:08'),
-(2, 1, 1, 'MK-258F5B', 'COMPANY APPLICATION', 50.00, 'cash', NULL, 'Unpaid', 'assets/uploads/requirements/id_1_1780634690.jpg', 'Under Review', 'Pending', '2026-06-04 20:44:50'),
-(3, 1, 2, 'MK-A069EB', 'SCHOLARSHIP PURPOSES', 0.00, 'cash', NULL, 'No Fee', 'assets/uploads/requirements/id_1_1780634762.jpg', 'Pending', 'Pending', '2026-06-04 20:46:02'),
-(4, 1, 3, 'MK-204186', 'ssss', 20.00, 'cash', NULL, 'Unpaid', 'assets/uploads/requirements/id_1_1780634818.jpg', 'Pending', 'Pending', '2026-06-04 20:46:58'),
+(1, 1, 1, 'MK-89BE60', 'COMPANY APPLICATION', 50.00, 'cash', NULL, 'Unpaid', 'assets/uploads/requirements/id_1_1780634408.jpg', 'Rejected', 'Pending', '2026-06-04 20:40:08'),
+(2, 1, 1, 'MK-258F5B', 'COMPANY APPLICATION', 50.00, 'cash', NULL, 'Paid at Pickup', 'assets/uploads/requirements/id_1_1780634690.jpg', 'Completed', 'COMPLETED', '2026-06-04 20:44:50'),
+(3, 1, 2, 'MK-A069EB', 'SCHOLARSHIP PURPOSES', 0.00, 'cash', NULL, 'Unpaid', 'assets/uploads/requirements/id_1_1780634762.jpg', 'Under Review', 'Pending', '2026-06-04 20:46:02'),
+(4, 1, 3, 'MK-204186', 'ssss', 20.00, 'cash', NULL, 'Unpaid', 'assets/uploads/requirements/id_1_1780634818.jpg', 'Processing', 'PROCESSING', '2026-06-04 20:46:58'),
 (5, 1, 9, 'MK-B09B9D', 'BLOTTER', 50.00, 'online', NULL, 'Unpaid', 'assets/uploads/requirements/id_1_1780634955.jpg', 'Pending', 'Pending', '2026-06-04 20:49:15'),
-(6, 1, 7, 'MK-38A83D', 'CREDIT CARD APPLICATION', 0.00, 'online', 'assets/uploads/receipts/receipt_1_1780636179.png', 'No Fee', 'assets/uploads/requirements/id_1_1780636179.png', 'Pending', 'Pending', '2026-06-04 21:09:39');
+(6, 1, 7, 'MK-38A83D', 'CREDIT CARD APPLICATION', 0.00, 'online', 'assets/uploads/receipts/receipt_1_1780636179.png', 'Unpaid', 'assets/uploads/requirements/id_1_1780636179.png', 'Pending', 'Pending', '2026-06-04 21:09:39');
 
 -- --------------------------------------------------------
 
@@ -402,6 +436,7 @@ INSERT INTO `service_requests` (`request_id`, `user_id`, `document_type_id`, `re
 -- Table structure for table `users`
 --
 
+DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `user_id` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
@@ -426,6 +461,7 @@ INSERT INTO `users` (`user_id`, `username`, `email`, `password`, `role`, `create
 -- Table structure for table `user_emergency_contacts`
 --
 
+DROP TABLE IF EXISTS `user_emergency_contacts`;
 CREATE TABLE `user_emergency_contacts` (
   `contact_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -448,6 +484,7 @@ INSERT INTO `user_emergency_contacts` (`contact_id`, `user_id`, `name`, `relatio
 -- Table structure for table `user_government_ids`
 --
 
+DROP TABLE IF EXISTS `user_government_ids`;
 CREATE TABLE `user_government_ids` (
   `id_record_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -473,6 +510,7 @@ INSERT INTO `user_government_ids` (`id_record_id`, `user_id`, `id_type`, `id_num
 -- Table structure for table `user_profiles`
 --
 
+DROP TABLE IF EXISTS `user_profiles`;
 CREATE TABLE `user_profiles` (
   `profile_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -693,7 +731,7 @@ ALTER TABLE `barangay_officials`
 -- AUTO_INCREMENT for table `completed_requests`
 --
 ALTER TABLE `completed_requests`
-  MODIFY `completed_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `completed_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `completed_reservations`
@@ -717,19 +755,19 @@ ALTER TABLE `facilities`
 -- AUTO_INCREMENT for table `facility_reservations`
 --
 ALTER TABLE `facility_reservations`
-  MODIFY `reservation_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `service_requests`
---
-ALTER TABLE `service_requests`
-  MODIFY `request_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `reservation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `request_remarks`
 --
 ALTER TABLE `request_remarks`
   MODIFY `remark_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `service_requests`
+--
+ALTER TABLE `service_requests`
+  MODIFY `request_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -808,13 +846,6 @@ ALTER TABLE `request_construction_permits`
 --
 ALTER TABLE `request_incident_reports`
   ADD CONSTRAINT `fk_incidents_requests` FOREIGN KEY (`request_id`) REFERENCES `service_requests` (`request_id`) ON DELETE CASCADE;
-
---
--- Constraints for table `request_remarks`
---
-ALTER TABLE `request_remarks`
-  ADD CONSTRAINT `fk_request_remarks_admins` FOREIGN KEY (`admin_id`) REFERENCES `admin_accounts` (`admin_id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `fk_request_remarks_requests` FOREIGN KEY (`request_id`) REFERENCES `service_requests` (`request_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `service_requests`
