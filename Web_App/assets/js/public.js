@@ -93,7 +93,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 (events[key] || []).forEach((event) => {
                     const eventNode = document.createElement("strong");
                     eventNode.className = `event ${event.type}`;
-                    eventNode.textContent = `${event.title} - ${event.time} (${event.status})`;
+                    eventNode.textContent = event.title;
+                    eventNode.append(document.createElement("br"), document.createTextNode(event.time.replace(" to ", " - ")));
                     cell.append(eventNode);
                 });
 

@@ -15,7 +15,7 @@ $calendar_stmt = mysqli_prepare($conn, "
     SELECT fr.reservation_date, fr.start_time, fr.end_time, fr.status, f.name AS facility_name
     FROM facility_reservations fr
     JOIN facilities f ON fr.facility_id = f.facility_id
-    WHERE UPPER(fr.status) NOT IN ('REJECTED', 'CANCELLED')
+    WHERE UPPER(fr.status) = 'APPROVED'
     ORDER BY fr.reservation_date ASC, fr.start_time ASC
 ");
 mysqli_stmt_execute($calendar_stmt);
@@ -27,7 +27,7 @@ while ($row = mysqli_fetch_assoc($calendar_result)) {
         'title' => 'Reserved: ' . $row['facility_name'],
         'time' => date('g:i A', strtotime($row['start_time'])) . ' to ' . date('g:i A', strtotime($row['end_time'])),
         'status' => ucfirst(strtolower($row['status'])),
-        'type' => strtolower($row['status']) === 'approved' ? 'green' : 'blue',
+        'type' => 'green',
     ];
 }
 ?>

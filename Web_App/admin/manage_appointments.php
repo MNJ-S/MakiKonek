@@ -433,7 +433,7 @@ foreach ($active_calendar_reservations as $row) {
                     const item = document.createElement('p');
                     const start = new Date('1970-01-01T' + row.start_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
                     const end = new Date('1970-01-01T' + row.end_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-                    item.textContent = 'Reserved: ' + row.facility_name + ' - ' + start + ' to ' + end + ' (' + row.status + ')';
+                    item.textContent = 'Reserved: ' + row.facility_name + ' - ' + start + ' - ' + end;
                     return item;
                 }));
             }
