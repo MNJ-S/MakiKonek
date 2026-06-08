@@ -8,6 +8,11 @@ if (!isset($_SESSION['resident_id'])) {
 
 require_once __DIR__ . '/../includes/db_connect.php';
 
+$payment_status_column_check = mysqli_query($conn, "SHOW COLUMNS FROM service_requests LIKE 'payment_status'");
+if ($payment_status_column_check && mysqli_num_rows($payment_status_column_check) === 0) {
+    mysqli_query($conn, "ALTER TABLE service_requests ADD COLUMN payment_status VARCHAR(30) DEFAULT 'Unpaid' AFTER payment_receipt_path");
+}
+
 $pageTitle = 'My Requests';
 $activePage = 'requests';
 $success_message = '';
@@ -223,14 +228,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $type_result = mysqli_stmt_get_result($stmt_type);
             $type_row = mysqli_fetch_assoc($type_result);
             $document_type_id = $type_row ? $type_row['document_type_id'] : 0;
+            $payment_status = 'Unpaid';
+
+            if ((float)$document_fee <= 0) {
+                $payment_status = 'No Fee';
+            } elseif ($payment_method === 'online') {
+                $payment_status = 'Receipt Submitted';
+            } elseif ($payment_method === 'cash') {
+                $payment_status = 'Unpaid';
+            }
 
             $insert_base = "INSERT INTO service_requests (
                 user_id, document_type_id, reference_no, purpose, document_fee, 
-                payment_method, payment_receipt_path, id_path, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'PENDING')";
+                payment_method, payment_receipt_path, payment_status, id_path, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')";
 
             $stmt_base = mysqli_prepare($conn, $insert_base);
-            mysqli_stmt_bind_param($stmt_base, "iissssss", $resident_id, $document_type_id, $reference_no, $purpose, $document_fee, $payment_method, $payment_receipt_path, $id_path);
+            mysqli_stmt_bind_param($stmt_base, "iisssssss", $resident_id, $document_type_id, $reference_no, $purpose, $document_fee, $payment_method, $payment_receipt_path, $payment_status, $id_path);
             mysqli_stmt_execute($stmt_base);
 
             $new_request_id = mysqli_insert_id($conn);

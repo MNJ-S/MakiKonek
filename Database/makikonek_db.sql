@@ -377,6 +377,7 @@ CREATE TABLE `service_requests` (
   `document_fee` decimal(10,2) NOT NULL DEFAULT 0.00,
   `payment_method` varchar(20) DEFAULT 'cash',
   `payment_receipt_path` varchar(255) DEFAULT NULL,
+  `payment_status` varchar(30) DEFAULT 'Unpaid',
   `id_path` varchar(255) NOT NULL,
   `status` varchar(20) DEFAULT 'Pending',
   `process_status` varchar(30) DEFAULT 'Pending',
@@ -387,13 +388,13 @@ CREATE TABLE `service_requests` (
 -- Dumping data for table `service_requests`
 --
 
-INSERT INTO `service_requests` (`request_id`, `user_id`, `document_type_id`, `reference_no`, `purpose`, `document_fee`, `payment_method`, `payment_receipt_path`, `id_path`, `status`, `process_status`, `created_at`) VALUES
-(1, 1, 1, 'MK-89BE60', 'COMPANY APPLICATION', 50.00, 'cash', NULL, 'assets/uploads/requirements/id_1_1780634408.jpg', 'Rejected', 'Pending', '2026-06-04 20:40:08'),
-(2, 1, 1, 'MK-258F5B', 'COMPANY APPLICATION', 50.00, 'cash', NULL, 'assets/uploads/requirements/id_1_1780634690.jpg', 'APPROVED', 'Pending', '2026-06-04 20:44:50'),
-(3, 1, 2, 'MK-A069EB', 'SCHOLARSHIP PURPOSES', 0.00, 'cash', NULL, 'assets/uploads/requirements/id_1_1780634762.jpg', 'Pending', 'Pending', '2026-06-04 20:46:02'),
-(4, 1, 3, 'MK-204186', 'ssss', 20.00, 'cash', NULL, 'assets/uploads/requirements/id_1_1780634818.jpg', 'Pending', 'Pending', '2026-06-04 20:46:58'),
-(5, 1, 9, 'MK-B09B9D', 'BLOTTER', 50.00, 'online', NULL, 'assets/uploads/requirements/id_1_1780634955.jpg', 'Pending', 'Pending', '2026-06-04 20:49:15'),
-(6, 1, 7, 'MK-38A83D', 'CREDIT CARD APPLICATION', 0.00, 'online', 'assets/uploads/receipts/receipt_1_1780636179.png', 'assets/uploads/requirements/id_1_1780636179.png', 'Pending', 'Pending', '2026-06-04 21:09:39');
+INSERT INTO `service_requests` (`request_id`, `user_id`, `document_type_id`, `reference_no`, `purpose`, `document_fee`, `payment_method`, `payment_receipt_path`, `payment_status`, `id_path`, `status`, `process_status`, `created_at`) VALUES
+(1, 1, 1, 'MK-89BE60', 'COMPANY APPLICATION', 50.00, 'cash', NULL, 'Unpaid', 'assets/uploads/requirements/id_1_1780634408.jpg', 'Rejected', 'Rejected', '2026-06-04 20:40:08'),
+(2, 1, 1, 'MK-258F5B', 'COMPANY APPLICATION', 50.00, 'cash', NULL, 'Unpaid', 'assets/uploads/requirements/id_1_1780634690.jpg', 'Under Review', 'Pending', '2026-06-04 20:44:50'),
+(3, 1, 2, 'MK-A069EB', 'SCHOLARSHIP PURPOSES', 0.00, 'cash', NULL, 'No Fee', 'assets/uploads/requirements/id_1_1780634762.jpg', 'Pending', 'Pending', '2026-06-04 20:46:02'),
+(4, 1, 3, 'MK-204186', 'ssss', 20.00, 'cash', NULL, 'Unpaid', 'assets/uploads/requirements/id_1_1780634818.jpg', 'Pending', 'Pending', '2026-06-04 20:46:58'),
+(5, 1, 9, 'MK-B09B9D', 'BLOTTER', 50.00, 'online', NULL, 'Unpaid', 'assets/uploads/requirements/id_1_1780634955.jpg', 'Pending', 'Pending', '2026-06-04 20:49:15'),
+(6, 1, 7, 'MK-38A83D', 'CREDIT CARD APPLICATION', 0.00, 'online', 'assets/uploads/receipts/receipt_1_1780636179.png', 'No Fee', 'assets/uploads/requirements/id_1_1780636179.png', 'Pending', 'Pending', '2026-06-04 21:09:39');
 
 -- --------------------------------------------------------
 

@@ -11,7 +11,31 @@ require_once __DIR__ . '/../includes/db_connect.php';
 $success_message = '';
 $error_message = '';
 $admin_username = $_SESSION['admin_username'] ?? 'Admin';
-$process_statuses = ['PROCESSING', 'READY FOR PICKUP', 'COMPLETED'];
+$request_statuses = ['Pending', 'Under Review', 'Processing', 'Ready for Pickup', 'Completed', 'Rejected'];
+
+$payment_status_column_check = mysqli_query($conn, "SHOW COLUMNS FROM service_requests LIKE 'payment_status'");
+if ($payment_status_column_check && mysqli_num_rows($payment_status_column_check) === 0) {
+    mysqli_query($conn, "ALTER TABLE service_requests ADD COLUMN payment_status VARCHAR(30) DEFAULT 'Unpaid' AFTER payment_receipt_path");
+    mysqli_query($conn, "
+        UPDATE service_requests
+        SET payment_status = CASE
+            WHEN document_fee <= 0 THEN 'No Fee'
+            WHEN payment_method = 'online' AND payment_receipt_path IS NOT NULL AND payment_receipt_path <> '' THEN 'Receipt Submitted'
+            WHEN payment_method = 'cash' THEN 'Unpaid'
+            ELSE 'Unpaid'
+        END
+    ");
+}
+
+mysqli_query($conn, "
+    UPDATE service_requests
+    SET payment_status = CASE
+        WHEN payment_status IN ('Cash on Pickup', 'Pending Payment') THEN 'Unpaid'
+        WHEN payment_status IN ('Cash Received', 'Paid Upon Pickup') THEN 'Paid at Pickup'
+        WHEN payment_status = 'Payment Verified' THEN 'Verified'
+        ELSE payment_status
+    END
+");
 
 mysqli_query($conn, "
     CREATE TABLE IF NOT EXISTS request_remarks (
@@ -27,49 +51,163 @@ mysqli_query($conn, "
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
 ");
 
-function archiveCompletedRequest(mysqli $conn, int $req_id): bool
+function markCompletedRequest(mysqli $conn, int $req_id): bool
 {
-    $fetch_query = "
-        SELECT sr.user_id, sr.reference_no, sr.purpose, sr.document_fee, sr.created_at, dt.name AS document_type_name
-        FROM service_requests sr
-        JOIN document_types dt ON sr.document_type_id = dt.document_type_id
-        WHERE sr.request_id = ?";
+    $fetch_query = "SELECT document_fee, payment_method, payment_status FROM service_requests WHERE request_id = ? LIMIT 1";
     $stmt_fetch = mysqli_prepare($conn, $fetch_query);
     mysqli_stmt_bind_param($stmt_fetch, "i", $req_id);
     mysqli_stmt_execute($stmt_fetch);
-    $req_data = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt_fetch));
+    $request = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt_fetch));
 
-    if (!$req_data) {
+    if (!$request) {
         return false;
     }
 
-    $insert_query = "INSERT INTO completed_requests (original_request_id, user_id, document_type_name, reference_no, purpose, document_fee, requested_at, completed_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
-    $stmt_insert = mysqli_prepare($conn, $insert_query);
-    mysqli_stmt_bind_param($stmt_insert, "iissdss", $req_id, $req_data['user_id'], $req_data['document_type_name'], $req_data['reference_no'], $req_data['purpose'], $req_data['document_fee'], $req_data['created_at']);
-    mysqli_stmt_execute($stmt_insert);
+    if ((float)$request['document_fee'] > 0 && $request['payment_method'] === 'online' && $request['payment_status'] !== 'Verified') {
+        return false;
+    }
 
-    $delete_query = "DELETE FROM service_requests WHERE request_id = ?";
-    $stmt_delete = mysqli_prepare($conn, $delete_query);
-    mysqli_stmt_bind_param($stmt_delete, "i", $req_id);
+    $completion_payment_status = $request['payment_status'];
+    if ((float)$request['document_fee'] > 0 && $request['payment_method'] === 'cash' && $completion_payment_status === 'Unpaid') {
+        $completion_payment_status = 'Paid at Pickup';
+    }
 
-    return mysqli_stmt_execute($stmt_delete);
+    $update_query = "UPDATE service_requests SET status = 'Completed', process_status = 'COMPLETED', payment_status = ? WHERE request_id = ?";
+    $stmt_update = mysqli_prepare($conn, $update_query);
+    mysqli_stmt_bind_param($stmt_update, "si", $completion_payment_status, $req_id);
+
+    return mysqli_stmt_execute($stmt_update) && mysqli_stmt_affected_rows($stmt_update) > 0;
 }
 
 function statusBadgeClass(string $status): string
 {
     $normalized = strtoupper($status);
-    if ($normalized === 'APPROVED') return 'badge-approved';
+    if ($normalized === 'UNDER REVIEW') return 'badge-review';
+    if ($normalized === 'APPROVED') return 'badge-review';
+    if ($normalized === 'PROCESSING') return 'badge-processing';
+    if ($normalized === 'READY FOR PICKUP') return 'badge-ready';
+    if ($normalized === 'COMPLETED') return 'badge-completed';
     if ($normalized === 'REJECTED') return 'badge-rejected';
     return 'badge-pending';
 }
 
-function processBadgeClass(string $status): string
+function paymentBadgeClass(string $status): string
+{
+    $normalized = strtoupper(normalizePaymentStatus($status));
+    if ($normalized === 'NO FEE') return 'badge-muted';
+    if ($normalized === 'RECEIPT SUBMITTED') return 'badge-review';
+    if ($normalized === 'VERIFIED') return 'badge-completed';
+    if ($normalized === 'PAID AT PICKUP') return 'badge-muted';
+    if ($normalized === 'REJECTED') return 'badge-rejected';
+    return 'badge-payment-pending';
+}
+
+function normalizePaymentStatus(?string $status): string
+{
+    $normalized = strtoupper(trim((string)$status));
+
+    if ($normalized === 'CASH ON PICKUP' || $normalized === 'PENDING PAYMENT') {
+        return 'Unpaid';
+    }
+
+    if ($normalized === 'CASH RECEIVED' || $normalized === 'PAID UPON PICKUP') {
+        return 'Paid at Pickup';
+    }
+
+    if ($normalized === 'PAYMENT VERIFIED') {
+        return 'Verified';
+    }
+
+    return trim((string)$status);
+}
+
+function allowedRequestStatuses(string $current_status): array
+{
+    $flow = [
+        'Pending' => ['Pending', 'Under Review', 'Rejected'],
+        'Under Review' => ['Under Review', 'Processing', 'Rejected'],
+        'Processing' => ['Processing', 'Ready for Pickup', 'Rejected'],
+        'Ready for Pickup' => ['Ready for Pickup', 'Completed'],
+        'Completed' => ['Completed'],
+        'Rejected' => ['Rejected'],
+    ];
+
+    return $flow[$current_status] ?? ['Pending', 'Under Review', 'Rejected'];
+}
+
+function statusMeta(string $status): array
+{
+    $meta = [
+        'Pending' => ['description' => 'Request submitted', 'tone' => 'pending'],
+        'Under Review' => ['description' => 'For checking requirements', 'tone' => 'review'],
+        'Processing' => ['description' => 'Document is being prepared', 'tone' => 'processing'],
+        'Ready for Pickup' => ['description' => 'Document is ready for release', 'tone' => 'ready'],
+        'Completed' => ['description' => 'Document has been released', 'tone' => 'completed'],
+        'Rejected' => ['description' => 'Request has been rejected', 'tone' => 'rejected'],
+    ];
+
+    return $meta[$status] ?? ['description' => 'Status update', 'tone' => 'pending'];
+}
+
+function formatPurpose(?string $purpose): string
+{
+    $purpose = trim((string)$purpose);
+    if ($purpose === '') {
+        return 'Not specified';
+    }
+
+    return ucwords(strtolower($purpose));
+}
+
+function legacyProcessStatus(string $status): string
 {
     $normalized = strtoupper($status);
-    if ($normalized === 'PROCESSING') return 'badge-processing';
-    if ($normalized === 'READY FOR PICKUP') return 'badge-ready';
-    if ($normalized === 'COMPLETED') return 'badge-completed';
-    return 'badge-pending';
+    if ($normalized === 'PROCESSING') return 'PROCESSING';
+    if ($normalized === 'READY FOR PICKUP') return 'READY FOR PICKUP';
+    if ($normalized === 'COMPLETED') return 'COMPLETED';
+    if ($normalized === 'REJECTED') return 'Rejected';
+    return 'Pending';
+}
+
+function normalizeRequestStatus(string $status, string $process_status = ''): string
+{
+    $normalized = strtoupper(trim($status));
+    $process = strtoupper(trim($process_status));
+
+    if ($normalized === 'APPROVED') {
+        if ($process === 'READY FOR PICKUP') return 'Ready for Pickup';
+        if ($process === 'PROCESSING') return 'Processing';
+        return 'Under Review';
+    }
+
+    foreach (['PENDING' => 'Pending', 'UNDER REVIEW' => 'Under Review', 'PROCESSING' => 'Processing', 'READY FOR PICKUP' => 'Ready for Pickup', 'COMPLETED' => 'Completed', 'REJECTED' => 'Rejected'] as $key => $label) {
+        if ($normalized === $key) {
+            return $label;
+        }
+    }
+
+    return $status !== '' ? $status : 'Pending';
+}
+
+function inferPaymentStatus(array $row): string
+{
+    if (!empty($row['payment_status'])) {
+        return normalizePaymentStatus($row['payment_status']);
+    }
+
+    if ((float)($row['document_fee'] ?? 0) <= 0) {
+        return 'No Fee';
+    }
+
+    if (($row['payment_method'] ?? '') === 'online' && !empty($row['payment_receipt_path'])) {
+        return 'Receipt Submitted';
+    }
+
+    if (($row['payment_method'] ?? '') === 'cash') {
+        return 'Unpaid';
+    }
+
+    return 'Unpaid';
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['complete_request'])) {
@@ -77,12 +215,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['complete_request'])) {
 
     mysqli_begin_transaction($conn);
     try {
-        if (archiveCompletedRequest($conn, $req_id)) {
+        if (markCompletedRequest($conn, $req_id)) {
             mysqli_commit($conn);
-            $success_message = "Request marked as COMPLETED and moved to archives.";
+            $success_message = "Request marked as Completed.";
         } else {
             mysqli_rollback($conn);
-            $error_message = "Request could not be found.";
+            $error_message = "Request could not be completed. Check the payment status first.";
         }
     } catch (Exception $e) {
         mysqli_rollback($conn);
@@ -92,50 +230,66 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['complete_request'])) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     $req_id = (int)$_POST['request_id'];
-    $new_status = mysqli_real_escape_string($conn, $_POST['update_status']);
+    $new_status = trim($_POST['request_status'] ?? $_POST['update_status'] ?? '');
 
-    $process_init = ($new_status === 'APPROVED') ? 'PROCESSING' : 'Pending';
-
-    $update_query = "UPDATE service_requests SET status = ?, process_status = ? WHERE request_id = ?";
-    $stmt = mysqli_prepare($conn, $update_query);
-    mysqli_stmt_bind_param($stmt, "ssi", $new_status, $process_init, $req_id);
-
-    if (mysqli_stmt_execute($stmt)) {
-        $success_message = "Request " . strtolower($new_status) . " successfully.";
+    if (!in_array($new_status, $request_statuses, true)) {
+        $error_message = "Invalid request status selected.";
     } else {
-        $error_message = "Failed to update request status.";
+        $current_query = "SELECT status, process_status, document_fee, payment_method, payment_status, payment_receipt_path FROM service_requests WHERE request_id = ? LIMIT 1";
+        $stmt_current = mysqli_prepare($conn, $current_query);
+        mysqli_stmt_bind_param($stmt_current, "i", $req_id);
+        mysqli_stmt_execute($stmt_current);
+        $current_result = mysqli_stmt_get_result($stmt_current);
+        $current_row = mysqli_fetch_assoc($current_result);
+
+        if (!$current_row) {
+            $error_message = "Request could not be found.";
+        } else {
+            $current_status = normalizeRequestStatus($current_row['status'], $current_row['process_status']);
+            $allowed_next_statuses = allowedRequestStatuses($current_status);
+
+            if (!in_array($new_status, $allowed_next_statuses, true)) {
+                $error_message = "Invalid status move. This request can only move forward in the workflow.";
+            } elseif ($new_status === 'Completed' && (float)$current_row['document_fee'] > 0 && $current_row['payment_method'] === 'online' && inferPaymentStatus($current_row) !== 'Verified') {
+                $error_message = "Verify the online payment before marking this request as Completed.";
+            } else {
+                $legacy_process = legacyProcessStatus($new_status);
+                $new_payment_status = inferPaymentStatus($current_row);
+
+                if ($new_status === 'Completed' && (float)$current_row['document_fee'] > 0 && $current_row['payment_method'] === 'cash' && $new_payment_status === 'Unpaid') {
+                    $new_payment_status = 'Paid at Pickup';
+                }
+
+                $update_query = "UPDATE service_requests SET status = ?, process_status = ?, payment_status = ? WHERE request_id = ?";
+                $stmt = mysqli_prepare($conn, $update_query);
+                mysqli_stmt_bind_param($stmt, "sssi", $new_status, $legacy_process, $new_payment_status, $req_id);
+
+                if (mysqli_stmt_execute($stmt)) {
+                    $success_message = "Request status updated to " . $new_status . ".";
+                } else {
+                    $error_message = "Failed to update request status.";
+                }
+            }
+        }
     }
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_process'])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['confirm_payment'])) {
     $req_id = (int)$_POST['request_id'];
-    $new_process = strtoupper(trim($_POST['process_value'] ?? ''));
+    $new_payment_status = trim($_POST['payment_status'] ?? '');
+    $allowed_payment_confirmations = ['Verified', 'Paid at Pickup', 'Rejected'];
 
-    if (!in_array($new_process, $process_statuses, true)) {
-        $error_message = "Invalid process status selected.";
-    } elseif ($new_process === 'COMPLETED') {
-        mysqli_begin_transaction($conn);
-        try {
-            if (archiveCompletedRequest($conn, $req_id)) {
-                mysqli_commit($conn);
-                $success_message = "Request marked as COMPLETED and moved to archives.";
-            } else {
-                mysqli_rollback($conn);
-                $error_message = "Request could not be found.";
-            }
-        } catch (Exception $e) {
-            mysqli_rollback($conn);
-            $error_message = "System error: Could not complete request.";
-        }
+    if (!in_array($new_payment_status, $allowed_payment_confirmations, true)) {
+        $error_message = "Invalid payment confirmation.";
     } else {
-        $update_query = "UPDATE service_requests SET status = 'APPROVED', process_status = ? WHERE request_id = ?";
+        $update_query = "UPDATE service_requests SET payment_status = ? WHERE request_id = ?";
         $stmt = mysqli_prepare($conn, $update_query);
-        mysqli_stmt_bind_param($stmt, "si", $new_process, $req_id);
+        mysqli_stmt_bind_param($stmt, "si", $new_payment_status, $req_id);
 
         if (mysqli_stmt_execute($stmt)) {
-            $success_message = "Process status updated to " . ucwords(strtolower($new_process)) . ".";
+            $success_message = "Payment marked as " . $new_payment_status . ".";
         } else {
-            $error_message = "Failed to update process status.";
+            $error_message = "Failed to update payment status.";
         }
     }
 }
@@ -228,7 +382,7 @@ if (!empty($request_ids)) {
     <title>Service Requests | MakiKonek</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/admin.css?v=20260608a">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=20260608b">
     <style>
         body {
             background: linear-gradient(180deg, #f6fff7 0%, #e9f8ff 100%);
@@ -364,43 +518,103 @@ if (!empty($request_ids)) {
                             <th>Ref ID</th>
                             <th>Resident Name</th>
                             <th>Purpose</th>
-                            <th>Status</th>
-                            <th class="process-status-cell">Process Status</th>
+                            <th>Submitted</th>
+                            <th class="process-status-cell">Request Status</th>
+                            <th class="process-status-cell">Payment</th>
                             <th class="text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (count($requests) > 0): ?>
                             <?php foreach ($requests as $row):
-                                $status_class = statusBadgeClass($row['status']);
-                                $process_class = processBadgeClass($row['process_status']);
+                                $request_status = normalizeRequestStatus($row['status'], $row['process_status']);
+                                $payment_status = inferPaymentStatus($row);
+                                $status_class = statusBadgeClass($request_status);
+                                $payment_class = paymentBadgeClass($payment_status);
+                                $allowed_statuses = allowedRequestStatuses($request_status);
+                                $current_status_meta = statusMeta($request_status);
+                                $display_purpose = formatPurpose($row['purpose']);
                             ?>
                                 <tr>
                                     <td class="fw-bold font-monospace"><?php echo htmlspecialchars($row['reference_no']); ?></td>
                                     <td><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?></td>
-                                    <td><small><?php echo htmlspecialchars($row['purpose']); ?></small></td>
-                                    <td><span class="badge <?php echo $status_class; ?>"><?php echo htmlspecialchars($row['status']); ?></span></td>
+                                    <td><small><?php echo htmlspecialchars($display_purpose); ?></small></td>
+                                    <td><?php echo date('M d, Y', strtotime($row['created_at'])); ?></td>
 
                                     <td class="process-status-cell">
-                                        <?php if (strtoupper($row['status']) === 'APPROVED'): ?>
-                                            <form class="process-status-control" action="manage_requests.php?tab=<?php echo htmlspecialchars($selected_tab); ?>" method="POST">
-                                                <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
-                                                <select name="process_value" class="form-select form-select-sm <?php echo $process_class; ?>" onchange="this.form.submit()">
-                                                    <option value="PROCESSING" <?php echo ($row['process_status'] === 'PROCESSING') ? 'selected' : ''; ?>>Processing</option>
-                                                    <option value="READY FOR PICKUP" <?php echo ($row['process_status'] === 'READY FOR PICKUP') ? 'selected' : ''; ?>>Ready for Pickup</option>
-                                                    <option value="COMPLETED">Completed</option>
-                                                </select>
-                                                <input type="hidden" name="update_process" value="1">
-                                            </form>
+                                        <?php if (count($allowed_statuses) <= 1): ?>
+                                            <span class="badge <?php echo $status_class; ?> status-lock-badge"><?php echo htmlspecialchars($request_status); ?> - Final</span>
                                         <?php else: ?>
-                                            <span class="badge <?php echo $process_class; ?>"><?php echo htmlspecialchars($row['process_status']); ?></span>
+                                            <div class="dropdown status-action-dropdown">
+                                                <button class="status-pill status-pill-<?php echo htmlspecialchars($current_status_meta['tone']); ?> dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport" data-bs-display="static" aria-expanded="false">
+                                                    <?php echo htmlspecialchars($request_status); ?>
+                                                </button>
+                                                <div class="dropdown-menu status-change-menu">
+                                                    <div class="status-menu-title">Change Status</div>
+                                                    <?php foreach ($allowed_statuses as $status_option):
+                                                        $option_meta = statusMeta($status_option);
+                                                        $is_current_status = $request_status === $status_option;
+                                                    ?>
+                                                        <?php if ($is_current_status): ?>
+                                                            <div class="status-menu-item is-current">
+                                                                <span class="status-dot status-dot-<?php echo htmlspecialchars($option_meta['tone']); ?>"></span>
+                                                                <span>
+                                                                    <strong><?php echo htmlspecialchars($status_option); ?></strong>
+                                                                    <small><?php echo htmlspecialchars($option_meta['description']); ?></small>
+                                                                </span>
+                                                            </div>
+                                                        <?php else: ?>
+                                                            <form action="manage_requests.php?tab=<?php echo htmlspecialchars($selected_tab); ?>" method="POST">
+                                                                <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
+                                                                <input type="hidden" name="request_status" value="<?php echo htmlspecialchars($status_option); ?>">
+                                                                <button type="submit"
+                                                                    name="update_status"
+                                                                    value="1"
+                                                                    class="status-menu-item"
+                                                                    data-current-status="<?php echo htmlspecialchars($request_status); ?>"
+                                                                    data-next-status="<?php echo htmlspecialchars($status_option); ?>">
+                                                                    <span class="status-dot status-dot-<?php echo htmlspecialchars($option_meta['tone']); ?>"></span>
+                                                                    <span>
+                                                                        <strong><?php echo htmlspecialchars($status_option); ?></strong>
+                                                                        <small><?php echo htmlspecialchars($option_meta['description']); ?></small>
+                                                                    </span>
+                                                                </button>
+                                                            </form>
+                                                        <?php endif; ?>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            </div>
                                         <?php endif; ?>
+                                    </td>
+
+                                    <td class="process-status-cell">
+                                        <div class="payment-status-stack">
+                                            <span class="badge <?php echo $payment_class; ?>"><?php echo htmlspecialchars($payment_status); ?></span>
+                                            <?php if ($payment_status === 'Receipt Submitted'): ?>
+                                                <form action="manage_requests.php?tab=<?php echo htmlspecialchars($selected_tab); ?>" method="POST">
+                                                    <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
+                                                    <input type="hidden" name="payment_status" value="Verified">
+                                                    <button class="btn btn-sm btn-outline-success" type="submit" name="confirm_payment" value="1">Verify Receipt</button>
+                                                </form>
+                                                <form action="manage_requests.php?tab=<?php echo htmlspecialchars($selected_tab); ?>" method="POST">
+                                                    <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
+                                                    <input type="hidden" name="payment_status" value="Rejected">
+                                                    <button class="btn btn-sm btn-outline-danger" type="submit" name="confirm_payment" value="1">Reject Receipt</button>
+                                                </form>
+                                            <?php elseif ($payment_status === 'Unpaid'): ?>
+                                                <form action="manage_requests.php?tab=<?php echo htmlspecialchars($selected_tab); ?>" method="POST">
+                                                    <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
+                                                    <input type="hidden" name="payment_status" value="Paid at Pickup">
+                                                    <button class="btn btn-sm btn-outline-success" type="submit" name="confirm_payment" value="1">Mark Paid</button>
+                                                </form>
+                                            <?php endif; ?>
+                                        </div>
                                     </td>
 
                                     <td class="text-center">
                                         <div class="table-actions">
                                             <a href="print_document.php?req_id=<?php echo $row['request_id']; ?>" target="_blank" class="btn btn-sm btn-outline-dark" title="Print Document">
-                                                <i class="bi bi-printer"></i>
+                                                Print
                                             </a>
 
                                             <button class="btn btn-sm btn-outline-primary view-details-trigger"
@@ -426,24 +640,33 @@ if (!empty($request_ids)) {
                                                 data-ipersons="<?php echo htmlspecialchars($row['incident_persons'] ?? ''); ?>"
                                                 data-inarrative="<?php echo htmlspecialchars($row['incident_narrative'] ?? ''); ?>"
                                                 data-iwitness="<?php echo htmlspecialchars($row['incident_witness_name'] ?? ''); ?>">
-                                                <i class="bi bi-eye"></i>
+                                                View Details
                                             </button>
 
                                             <div class="dropdown">
-                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">More</button>
                                                 <ul class="dropdown-menu">
-                                                    <li>
-                                                        <form action="manage_requests.php?tab=<?php echo htmlspecialchars($selected_tab); ?>" method="POST">
-                                                            <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
-                                                            <button type="submit" name="update_status" value="APPROVED" class="dropdown-item text-success"><i class="bi bi-check-lg"></i> Approve</button>
-                                                        </form>
-                                                    </li>
-                                                    <li>
-                                                        <form action="manage_requests.php?tab=<?php echo htmlspecialchars($selected_tab); ?>" method="POST">
-                                                            <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
-                                                            <button type="submit" name="update_status" value="REJECTED" class="dropdown-item text-danger"><i class="bi bi-x-lg"></i> Reject</button>
-                                                        </form>
-                                                    </li>
+                                                    <?php if ($request_status !== 'Under Review' && in_array('Under Review', $allowed_statuses, true)): ?>
+                                                        <li>
+                                                            <form action="manage_requests.php?tab=<?php echo htmlspecialchars($selected_tab); ?>" method="POST">
+                                                                <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
+                                                                <input type="hidden" name="request_status" value="Under Review">
+                                                                <button type="submit" name="update_status" value="1" class="dropdown-item text-success">Move to Under Review</button>
+                                                            </form>
+                                                        </li>
+                                                    <?php endif; ?>
+                                                    <?php if ($request_status !== 'Rejected' && in_array('Rejected', $allowed_statuses, true)): ?>
+                                                        <li>
+                                                            <form action="manage_requests.php?tab=<?php echo htmlspecialchars($selected_tab); ?>" method="POST">
+                                                                <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
+                                                                <input type="hidden" name="request_status" value="Rejected">
+                                                                <button type="submit" name="update_status" value="1" class="dropdown-item text-danger">Reject Request</button>
+                                                            </form>
+                                                        </li>
+                                                    <?php endif; ?>
+                                                    <?php if (!in_array('Under Review', $allowed_statuses, true) && !in_array('Rejected', $allowed_statuses, true)): ?>
+                                                        <li><span class="dropdown-item-text text-muted">No quick actions</span></li>
+                                                    <?php endif; ?>
                                                 </ul>
                                             </div>
                                         </div>
@@ -452,7 +675,7 @@ if (!empty($request_ids)) {
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="6" class="text-center text-muted py-4">No active records found in this queue tab.</td>
+                                <td colspan="7" class="text-center text-muted py-4">No active records found in this queue tab.</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
@@ -539,6 +762,17 @@ if (!empty($request_ids)) {
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#039;');
+
+            document.querySelectorAll('.status-menu-item[name="update_status"]').forEach(button => {
+                button.addEventListener('click', function(event) {
+                    const currentStatus = this.dataset.currentStatus || '';
+                    const nextStatus = this.dataset.nextStatus || '';
+
+                    if (!confirm(`Move request from ${currentStatus} to ${nextStatus}?`)) {
+                        event.preventDefault();
+                    }
+                });
+            });
 
             document.querySelectorAll('.view-details-trigger').forEach(btn => {
                 btn.addEventListener('click', function() {

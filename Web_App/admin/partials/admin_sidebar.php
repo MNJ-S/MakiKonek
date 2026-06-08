@@ -2,93 +2,80 @@
 $currentPage = basename($_SERVER['PHP_SELF']);
 $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 $admin_role = $_SESSION['admin_role'] ?? 'Staff';
+$admin_initials = strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $admin_username), 0, 2));
+if ($admin_initials === '') {
+    $admin_initials = 'AD';
+}
 ?>
-<style>
-    .sidebar {
-        width: 280px;
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        background-color: #102b21;
-        border-right: 1px solid #3f9f25;
-        z-index: 1000;
-    }
-    .sidebar .nav-link {
-        color: #d7eddc;
-        margin-bottom: 5px;
-        border-radius: 8px;
-        transition: background-color 180ms ease, color 180ms ease;
-    }
-    .sidebar .nav-link:hover,
-    .sidebar .nav-link:focus {
-        background-color: rgba(63, 159, 37, 0.18);
-        color: #ffffff;
-    }
-    .sidebar .nav-link.active {
-        background-color: #3f9f25;
-        color: #ffffff;
-    }
-    .sidebar .nav-link.active i {
-        color: #ffffff;
-    }
-    .sidebar hr {
-        border-color: rgba(63, 159, 37, 0.35);
-    }
-    .sidebar .dropdown-toggle::after {
-        color: #ffffff;
-    }
-</style>
-<nav class="sidebar p-3 d-flex flex-column">
-    <a href="dashboard.php" class="d-flex align-items-center mb-4 text-white text-decoration-none">
-        <span class="fs-4 fw-bold">MakiKonek Admin</span>
+<nav class="sidebar admin-shell-sidebar">
+    <a href="dashboard.php" class="admin-brand" aria-label="MakiKonek Admin Dashboard">
+        <span class="admin-brand-mark">
+            <i class="bi bi-flower1"></i>
+        </span>
+        <span>
+            <strong>MakiKonek</strong>
+            <small>Admin Panel</small>
+        </span>
     </a>
-    <ul class="nav nav-pills flex-column mb-auto">
-        <li class="mb-1 text-uppercase text-white small fw-bold px-3">Operations</li>
-        <li class="nav-item">
-            <a href="dashboard.php" class="nav-link <?php echo $currentPage === 'dashboard.php' ? 'active' : ''; ?>">
-                <i class="bi bi-speedometer2 me-2"></i> Dashboard
-            </a>
-        </li>
-        <li>
-            <a href="manage_requests.php" class="nav-link <?php echo $currentPage === 'manage_requests.php' ? 'active' : ''; ?>">
-                <i class="bi bi-file-earmark-text me-2"></i> Service Requests
-            </a>
-        </li>
-        <li>
-            <a href="manage_residents.php" class="nav-link <?php echo $currentPage === 'manage_residents.php' ? 'active' : ''; ?>">
-                <i class="bi bi-people me-2"></i> Residents
-            </a>
-        </li>
-        <li>
-            <a href="manage_appointments.php" class="nav-link <?php echo $currentPage === 'manage_appointments.php' ? 'active' : ''; ?>">
-                <i class="bi bi-calendar-event me-2"></i> Appointments
-            </a>
-        </li>
 
-        <!-- SECURITY: Only Super Admins see these links -->
+    <div class="admin-nav-stack">
+        <section class="admin-nav-group">
+            <p>Operations</p>
+            <a href="dashboard.php" class="nav-link <?php echo $currentPage === 'dashboard.php' ? 'active' : ''; ?>">
+                <i class="bi bi-grid-1x2-fill"></i> Dashboard
+            </a>
+            <a href="manage_requests.php" class="nav-link <?php echo $currentPage === 'manage_requests.php' ? 'active' : ''; ?>">
+                <i class="bi bi-file-earmark-text"></i> Service Requests
+            </a>
+            <a href="manage_residents.php" class="nav-link <?php echo $currentPage === 'manage_residents.php' ? 'active' : ''; ?>">
+                <i class="bi bi-person"></i> Residents
+            </a>
+            <a href="manage_appointments.php" class="nav-link <?php echo $currentPage === 'manage_appointments.php' ? 'active' : ''; ?>">
+                <i class="bi bi-calendar3"></i> Appointments
+            </a>
+        </section>
+
+        <section class="admin-nav-group">
+            <p>Content</p>
+            <a href="manage_officials.php" class="nav-link <?php echo $currentPage === 'manage_officials.php' ? 'active' : ''; ?>">
+                <i class="bi bi-person-badge"></i> Officials
+            </a>
+            <a href="../public/announcements.php" class="nav-link">
+                <i class="bi bi-megaphone"></i> Announcements
+            </a>
+        </section>
+
         <?php if ($admin_role === 'Super Admin'): ?>
-            <li class="mt-3 mb-1 text-uppercase text-white small fw-bold px-3">System Control</li>
-            <li>
-                <a href="manage_officials.php" class="nav-link <?php echo $currentPage === 'manage_officials.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-person-badge me-2"></i> Manage Officials
-                </a>
-            </li>
-            <li>
+            <section class="admin-nav-group">
+                <p>Administration</p>
                 <a href="manage_staff.php" class="nav-link <?php echo $currentPage === 'manage_staff.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-shield-lock me-2"></i> Manage Staff
+                    <i class="bi bi-people"></i> Staff Management
                 </a>
-            </li>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-gear"></i> Settings
+                </a>
+            </section>
         <?php endif; ?>
-    </ul>
-    <hr style="color: #3f9f25;">
-    <div class="dropdown">
-        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
-            <i class="bi bi-person-circle fs-4 me-2"></i>
-            <strong><?php echo htmlspecialchars($admin_username); ?></strong>
-        </a>
-        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-            <li><a class="dropdown-item text-danger" href="logout.php">Sign out</a></li>
-        </ul>
+    </div>
+
+    <div class="admin-sidebar-bottom">
+        <div class="admin-profile-card">
+            <span class="admin-avatar"><?php echo htmlspecialchars($admin_initials); ?></span>
+            <span>
+                <strong><?php echo htmlspecialchars($admin_username); ?></strong>
+                <small><?php echo htmlspecialchars($admin_role === 'Super Admin' ? 'Super Administrator' : $admin_role); ?></small>
+            </span>
+            <a href="logout.php" class="admin-profile-action" title="Sign out" aria-label="Sign out">
+                <i class="bi bi-box-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="admin-sidebar-signature">
+            <span class="admin-mini-mark"><i class="bi bi-flower1"></i></span>
+            <span>
+                <strong>MakiKonek</strong>
+                <small>Barangay Digital Services</small>
+            </span>
+        </div>
     </div>
 </nav>

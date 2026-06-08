@@ -5,66 +5,217 @@ if (!isset($_SESSION['admin_id'])) {
     header("Location: login_admin.php");
     exit();
 }
+
 require_once __DIR__ . '/../includes/db_connect.php';
 
-$admin_username = $_SESSION['admin_username'];
-$admin_role = $_SESSION['admin_role'];
+date_default_timezone_set('Asia/Manila');
 
-// TOTAL VERIFIED USERS (RESIDENTS)
-$res_query = "SELECT COUNT(user_id) AS total FROM users WHERE role = 'Residente'";
-$res_result = mysqli_query($conn, $res_query);
-$total_residents = ($res_result) ? mysqli_fetch_assoc($res_result)['total'] : 0;
+$admin_username = $_SESSION['admin_username'] ?? 'Admin';
+$admin_role = $_SESSION['admin_role'] ?? 'Staff';
+$admin_role_label = $admin_role === 'Super Admin' ? 'Super Admin' : $admin_role;
+$hour = (int)date('G');
+$greeting = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening');
 
-// TOTAL PENDING REQUESTS
-$req_query = "SELECT COUNT(request_id) AS total FROM service_requests WHERE status = 'PENDING'";
-$req_result = mysqli_query($conn, $req_query);
-$pending_requests = ($req_result) ? mysqli_fetch_assoc($req_result)['total'] : 0;
+$payment_status_column_check = mysqli_query($conn, "SHOW COLUMNS FROM service_requests LIKE 'payment_status'");
+if ($payment_status_column_check && mysqli_num_rows($payment_status_column_check) === 0) {
+    mysqli_query($conn, "ALTER TABLE service_requests ADD COLUMN payment_status VARCHAR(30) DEFAULT 'Unpaid' AFTER payment_receipt_path");
+}
 
-$pending_appointments = 0;
+function dashboardScalar(mysqli $conn, string $query): int
+{
+    $result = mysqli_query($conn, $query);
+    if (!$result) {
+        return 0;
+    }
 
-$proc_query = "SELECT COUNT(request_id) AS total FROM service_requests WHERE status = 'APPROVED' AND process_status = 'PROCESSING'";
-$proc_result = mysqli_query($conn, $proc_query);
-$processing_count = ($proc_result) ? mysqli_fetch_assoc($proc_result)['total'] : 0;
+    $row = mysqli_fetch_assoc($result);
+    return (int)($row['total'] ?? 0);
+}
 
-$ready_query = "SELECT COUNT(request_id) AS total FROM service_requests WHERE process_status = 'READY FOR PICKUP'";
-$ready_result = mysqli_query($conn, $ready_query);
-$ready_count = ($ready_result) ? mysqli_fetch_assoc($ready_result)['total'] : 0;
+function normalizeDashboardStatus(string $status, string $process_status = ''): string
+{
+    $normalized = strtoupper(trim($status));
+    $process = strtoupper(trim($process_status));
 
-$processing_requests = mysqli_query($conn, "SELECT sr.*, dt.name AS doc_type, p.first_name, p.last_name FROM service_requests sr JOIN document_types dt ON sr.document_type_id = dt.document_type_id JOIN user_profiles p ON sr.user_id = p.user_id WHERE sr.status = 'APPROVED' AND sr.process_status = 'PROCESSING' ORDER BY sr.created_at ASC");
+    if ($normalized === 'APPROVED') {
+        if ($process === 'READY FOR PICKUP') return 'Ready for Pickup';
+        if ($process === 'PROCESSING') return 'Processing';
+        return 'Under Review';
+    }
 
-$ready_requests = mysqli_query($conn, "SELECT sr.*, dt.name AS doc_type, p.first_name, p.last_name FROM service_requests sr JOIN document_types dt ON sr.document_type_id = dt.document_type_id JOIN user_profiles p ON sr.user_id = p.user_id WHERE sr.process_status = 'READY FOR PICKUP' ORDER BY sr.created_at ASC");
+    foreach ([
+        'PENDING' => 'Pending',
+        'UNDER REVIEW' => 'Under Review',
+        'PROCESSING' => 'Processing',
+        'READY FOR PICKUP' => 'Ready for Pickup',
+        'COMPLETED' => 'Completed',
+        'REJECTED' => 'Rejected',
+    ] as $key => $label) {
+        if ($normalized === $key) {
+            return $label;
+        }
+    }
 
+    return $status !== '' ? $status : 'Pending';
+}
 
-// RECENT PENDING REQUESTS FOR TABLE
+function dashboardStatusLabel(string $status): string
+{
+    return $status === 'Pending' ? 'Pending Review' : $status;
+}
+
+function dashboardStatusClass(string $status): string
+{
+    $normalized = strtoupper($status);
+    if ($normalized === 'UNDER REVIEW') return 'dash-badge-review';
+    if ($normalized === 'PROCESSING') return 'dash-badge-processing';
+    if ($normalized === 'READY FOR PICKUP') return 'dash-badge-ready';
+    if ($normalized === 'COMPLETED') return 'dash-badge-completed';
+    if ($normalized === 'REJECTED') return 'dash-badge-rejected';
+    return 'dash-badge-pending';
+}
+
+function normalizeDashboardPayment(?string $status, ?string $method = '', float $fee = 0): string
+{
+    $normalized = strtoupper(trim((string)$status));
+
+    if ($fee <= 0) {
+        return '-';
+    }
+
+    if ($normalized === 'CASH ON PICKUP' || $normalized === 'PENDING PAYMENT' || $normalized === 'UNPAID') {
+        return 'Unpaid';
+    }
+
+    if ($normalized === 'CASH RECEIVED' || $normalized === 'PAID UPON PICKUP' || $normalized === 'PAID AT PICKUP') {
+        return 'Paid at Pickup';
+    }
+
+    if ($normalized === 'PAYMENT VERIFIED' || $normalized === 'VERIFIED') {
+        return ($method === 'online') ? 'Online Verified' : 'Verified';
+    }
+
+    if ($normalized === 'RECEIPT SUBMITTED') {
+        return 'Receipt Submitted';
+    }
+
+    if ($normalized === 'REJECTED') {
+        return 'Payment Rejected';
+    }
+
+    return trim((string)$status) !== '' ? trim((string)$status) : 'Unpaid';
+}
+
+function dashboardPaymentClass(string $status): string
+{
+    $normalized = strtoupper($status);
+    if ($normalized === '-') return 'dash-badge-empty';
+    if ($normalized === 'ONLINE VERIFIED' || $normalized === 'VERIFIED') return 'dash-badge-paid-online';
+    if ($normalized === 'PAID AT PICKUP') return 'dash-badge-paid-pickup';
+    if ($normalized === 'RECEIPT SUBMITTED') return 'dash-badge-review';
+    if ($normalized === 'PAYMENT REJECTED') return 'dash-badge-rejected';
+    return 'dash-badge-payment-due';
+}
+
+function dashboardDocShortName(string $name): string
+{
+    $map = [
+        'Certificate of Residency' => 'Residency',
+        'Certificate of Indigency' => 'Indigency',
+        'Building/Construction Permit' => 'Construction Permit',
+        'Barangay Clearance' => 'Barangay Clearance',
+        'Business Clearance' => 'Business Clearance',
+        'Cedula' => 'Cedula',
+        'Incident Report' => 'Incident Report',
+    ];
+
+    return $map[$name] ?? $name;
+}
+
+$total_residents = dashboardScalar($conn, "SELECT COUNT(user_id) AS total FROM users WHERE role = 'Residente'");
+$pending_requests = dashboardScalar($conn, "SELECT COUNT(request_id) AS total FROM service_requests WHERE UPPER(status) = 'PENDING'");
+$under_review_count = dashboardScalar($conn, "SELECT COUNT(request_id) AS total FROM service_requests WHERE status = 'Under Review' OR UPPER(status) = 'APPROVED'");
+$processing_count = dashboardScalar($conn, "SELECT COUNT(request_id) AS total FROM service_requests WHERE status = 'Processing' OR (UPPER(status) = 'APPROVED' AND process_status = 'PROCESSING')");
+$ready_count = dashboardScalar($conn, "SELECT COUNT(request_id) AS total FROM service_requests WHERE status = 'Ready for Pickup' OR process_status = 'READY FOR PICKUP'");
+$appointments_today = 0;
+$residents_for_verification = 0;
+$notification_count = min(9, $pending_requests + $ready_count);
+
 $recent_query = "
-    SELECT sr.reference_no, sr.created_at, sr.status, dt.name AS document_type, p.first_name, p.last_name
+    SELECT sr.request_id, sr.reference_no, sr.created_at, sr.status, sr.process_status, sr.document_fee,
+           sr.payment_method, sr.payment_status, dt.name AS document_type, p.first_name, p.last_name
     FROM service_requests sr
     JOIN document_types dt ON sr.document_type_id = dt.document_type_id
     JOIN user_profiles p ON sr.user_id = p.user_id
-    WHERE sr.status = 'PENDING'
     ORDER BY sr.created_at DESC
     LIMIT 5
 ";
 $recent_result = mysqli_query($conn, $recent_query);
+$recent_requests = [];
+if ($recent_result) {
+    while ($row = mysqli_fetch_assoc($recent_result)) {
+        $recent_requests[] = $row;
+    }
+}
 
-// 1. PROCESSING REQUESTS (Approved, but not ready)
-$proc_query = "
-    SELECT sr.reference_no, sr.request_id, dt.name AS doc_type, p.first_name, p.last_name 
-    FROM service_requests sr 
-    JOIN document_types dt ON sr.document_type_id = dt.document_type_id 
-    JOIN user_profiles p ON sr.user_id = p.user_id 
-    WHERE sr.status = 'APPROVED' AND sr.process_status = 'PROCESSING' 
-    ORDER BY sr.created_at ASC";
-$processing_requests = mysqli_query($conn, $proc_query);
+$overview_order = [
+    'Barangay Clearance',
+    'Certificate of Residency',
+    'Certificate of Indigency',
+    'Cedula',
+    'Business Clearance',
+    'Building/Construction Permit',
+    'Incident Report',
+];
+$overview_counts = array_fill_keys($overview_order, 0);
+$overview_query = "
+    SELECT dt.name, COUNT(sr.request_id) AS total
+    FROM document_types dt
+    LEFT JOIN service_requests sr
+        ON sr.document_type_id = dt.document_type_id
+        AND MONTH(sr.created_at) = MONTH(CURRENT_DATE())
+        AND YEAR(sr.created_at) = YEAR(CURRENT_DATE())
+    GROUP BY dt.document_type_id, dt.name
+";
+$overview_result = mysqli_query($conn, $overview_query);
+if ($overview_result) {
+    while ($row = mysqli_fetch_assoc($overview_result)) {
+        if (array_key_exists($row['name'], $overview_counts)) {
+            $overview_counts[$row['name']] = (int)$row['total'];
+        }
+    }
+}
+$total_monthly_requests = array_sum($overview_counts);
+$max_overview_count = max(1, max($overview_counts));
 
-$ready_query = "
-    SELECT sr.reference_no, sr.request_id, dt.name AS doc_type, p.first_name, p.last_name 
-    FROM service_requests sr 
-    JOIN document_types dt ON sr.document_type_id = dt.document_type_id 
-    JOIN user_profiles p ON sr.user_id = p.user_id 
-    WHERE sr.process_status = 'READY FOR PICKUP' 
-    ORDER BY sr.created_at ASC";
-$ready_requests = mysqli_query($conn, $ready_query);
+$activities = [];
+foreach ($recent_requests as $row) {
+    $status = normalizeDashboardStatus($row['status'], $row['process_status']);
+    $name = trim($row['first_name'] . ' ' . $row['last_name']);
+    $doc = dashboardDocShortName($row['document_type']);
+
+    if ($status === 'Ready for Pickup') {
+        $activities[] = [
+            'title' => $doc . ' marked',
+            'detail' => 'Ready for Pickup',
+            'time' => date('M d, h:i A', strtotime($row['created_at'])),
+        ];
+    } else {
+        $activities[] = [
+            'title' => 'New ' . $doc . ' request submitted',
+            'detail' => 'by ' . $name,
+            'time' => date('M d, h:i A', strtotime($row['created_at'])),
+        ];
+    }
+}
+
+while (count($activities) < 5) {
+    $activities[] = [
+        'title' => 'No additional activity yet',
+        'detail' => 'System activity will appear here',
+        'time' => '-',
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
@@ -75,170 +226,236 @@ $ready_requests = mysqli_query($conn, $ready_query);
     <title>Admin Dashboard | MakiKonek</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/admin.css?v=20260608a">
-    <style>
-        body {
-            background: linear-gradient(180deg, #f6fff7 0%, #e9f8ff 100%);
-        }
-
-        .main-content {
-            margin-left: 280px;
-            min-height: 100vh;
-            padding: 2rem;
-        }
-
-        .stat-card {
-            background-color: #f4fff5;
-            border: 1px solid #d8efd5;
-            border-left: 4px solid #3f9f25;
-        }
-
-        .stat-card .card-title {
-            color: #0b6d36;
-        }
-
-        .badge-role {
-            background-color: #3f9f25;
-        }
-
-        .table-light {
-            background-color: rgba(255, 255, 255, 0.98);
-        }
-
-        .table thead {
-            background-color: #e6f6e7;
-        }
-    </style>
+    <link rel="stylesheet" href="../assets/css/admin.css?v=20260608c">
 </head>
 
-<body>
-
+<body class="dashboard-body">
     <?php include __DIR__ . '/partials/admin_sidebar.php'; ?>
 
-    <main class="main-content flex-grow-1 p-4">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom border-secondary">
-            <h1 class="h2">Dashboard Overview</h1>
-            <div class="badge badge-role fs-6">Role: <?php echo htmlspecialchars($admin_role); ?></div>
-        </div>
-
-        <div class="row g-4 mb-4">
-            <div class="col-md-4">
-                <div class="card stat-card shadow-sm h-100">
-                    <div class="card-body">
-                        <h6 class="card-title text-muted text-uppercase fw-bold">Pending Requests</h6>
-                        <h2 class="mb-0 text-warning"><?php echo $pending_requests; ?></h2>
-                    </div>
-                </div>
+    <main class="main-content dashboard-main">
+        <header class="dashboard-header">
+            <div>
+                <h1><?php echo htmlspecialchars($greeting); ?>, <?php echo htmlspecialchars($admin_role_label); ?>! <span aria-hidden="true">&#128075;</span></h1>
+                <p>Here's what's happening in MakiKonek today.</p>
             </div>
-            <div class="col-md-4">
-                <div class="card stat-card shadow-sm h-100">
-                    <div class="card-body">
-                        <h6 class="card-title text-muted text-uppercase fw-bold">Pending Appointments</h6>
-                        <h2 class="mb-0 text-info"><?php echo $pending_appointments; ?></h2>
-                    </div>
+            <div class="dashboard-header-tools">
+                <div class="dashboard-date-card">
+                    <i class="bi bi-calendar3"></i>
+                    <span>
+                        <strong><?php echo date('F d, Y | l'); ?></strong>
+                        <small><?php echo date('h:i A'); ?></small>
+                    </span>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card stat-card shadow-sm h-100">
-                    <div class="card-body">
-                        <h6 class="card-title text-muted text-uppercase fw-bold">Total Verified Residents</h6>
-                        <h2 class="mb-0 text-success"><?php echo $total_residents; ?></h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <h4 class="mb-3">Recent Service Requests</h4>
-        <div class="table-responsive">
-            <table class="table table-light table-hover table-bordered align-middle">
-                <thead class="table-active">
-                    <tr>
-                        <th>Reference No.</th>
-                        <th>Resident Name</th>
-                        <th>Document Type</th>
-                        <th>Date Submitted</th>
-                        <th>Status</th>
-                        <th class="text-center">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (mysqli_num_rows($recent_result) > 0): ?>
-                        <?php while ($row = mysqli_fetch_assoc($recent_result)): ?>
-                            <tr>
-                                <td class="fw-bold font-monospace"><?php echo htmlspecialchars($row['reference_no']); ?></td>
-                                <td><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?></td>
-                                <td><?php echo htmlspecialchars($row['document_type']); ?></td>
-                                <td><?php echo date("M d, Y", strtotime($row['created_at'])); ?></td>
-                                <td><span class="badge bg-warning text-dark"><?php echo htmlspecialchars($row['status']); ?></span></td>
-                                <td class="text-center">
-                                    <a href="manage_requests.php" class="btn btn-sm btn-outline-primary">Review</a>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-4">No pending requests at this time.</td>
-                        </tr>
+                <button class="dashboard-notification" type="button" aria-label="Notifications">
+                    <i class="bi bi-bell"></i>
+                    <?php if ($notification_count > 0): ?>
+                        <span><?php echo $notification_count; ?></span>
                     <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-        <div class="row mt-5">
-            <div class="col-md-6">
-                <h4 class="mb-3 text-primary"><i class="bi bi-gear-wide-connected"></i> Processing (<?php echo mysqli_num_rows($processing_requests); ?>)</h4>
-                <div class="table-responsive custom-card p-3">
-                    <table class="table table-hover align-middle">
-                        <thead>
-                            <tr>
-                                <th>Ref</th>
-                                <th>Resident</th>
-                                <th>Document</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = mysqli_fetch_assoc($processing_requests)): ?>
-                                <tr>
-                                    <td class="font-monospace fw-bold"><?php echo htmlspecialchars($row['reference_no']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?></td>
-                                    <td><small><?php echo htmlspecialchars($row['doc_type']); ?></small></td>
-                                </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
-                </div>
+                </button>
             </div>
+        </header>
 
-            <div class="col-md-6">
-                <h4 class="mb-3 text-success"><i class="bi bi-hand-thumbs-up"></i> Ready for Pickup (<?php echo mysqli_num_rows($ready_requests); ?>)</h4>
-                <div class="table-responsive custom-card p-3">
-                    <table class="table table-hover align-middle">
+        <section class="dashboard-top-grid" aria-label="Dashboard overview">
+            <article class="bento-card overview-hero">
+                <div class="overview-copy">
+                    <span class="eyebrow">Overview</span>
+                    <h2><?php echo $pending_requests; ?> requests need your review</h2>
+                    <p>You have <?php echo $ready_count; ?> document ready for pickup and <?php echo $appointments_today; ?> appointments today.</p>
+                    <a href="manage_requests.php" class="dashboard-primary-action">View Pending Requests <i class="bi bi-arrow-right"></i></a>
+                </div>
+                <div class="barangay-illustration" aria-hidden="true">
+                    <span class="sun"></span>
+                    <span class="hill"></span>
+                    <span class="hall-roof"></span>
+                    <span class="hall-body"></span>
+                    <span class="hall-door"></span>
+                    <span class="flag-pole"></span>
+                    <span class="flag"></span>
+                    <span class="tree"></span>
+                </div>
+            </article>
+
+            <article class="bento-card kpi-card">
+                <div>
+                    <h3>Pending Requests</h3>
+                    <strong><?php echo $pending_requests; ?></strong>
+                    <p>Needs review</p>
+                </div>
+                <span class="kpi-icon"><i class="bi bi-file-earmark-text"></i></span>
+            </article>
+            <article class="bento-card kpi-card">
+                <div>
+                    <h3>Processing</h3>
+                    <strong><?php echo $processing_count; ?></strong>
+                    <p>Being prepared</p>
+                </div>
+                <span class="kpi-icon"><i class="bi bi-list-check"></i></span>
+            </article>
+            <article class="bento-card kpi-card">
+                <div>
+                    <h3>Ready for Pickup</h3>
+                    <strong><?php echo $ready_count; ?></strong>
+                    <p>Awaiting claim</p>
+                </div>
+                <span class="kpi-icon"><i class="bi bi-inbox"></i></span>
+            </article>
+            <article class="bento-card kpi-card">
+                <div>
+                    <h3>Verified Residents</h3>
+                    <strong><?php echo $total_residents; ?></strong>
+                    <p>Total accounts</p>
+                </div>
+                <span class="kpi-icon"><i class="bi bi-people"></i></span>
+            </article>
+        </section>
+
+        <section class="dashboard-mid-grid" aria-label="Operational summary">
+            <article class="bento-card attention-card">
+                <div class="card-heading">
+                    <h2><span><i class="bi bi-flag"></i></span> Needs Attention</h2>
+                </div>
+                <ul class="attention-list">
+                    <li><span>Pending service requests</span><strong><?php echo $pending_requests; ?></strong></li>
+                    <li><span>Requests under review</span><strong><?php echo $under_review_count; ?></strong></li>
+                    <li><span>Residents for verification</span><strong><?php echo $residents_for_verification; ?></strong></li>
+                    <li><span>Documents ready for pickup</span><strong><?php echo $ready_count; ?></strong></li>
+                    <li><span>Appointments today</span><strong><?php echo $appointments_today; ?></strong></li>
+                </ul>
+                <a href="manage_requests.php" class="dashboard-text-link">Go to All Requests <i class="bi bi-arrow-right"></i></a>
+            </article>
+
+            <article class="bento-card activity-card">
+                <div class="card-heading">
+                    <h2><span><i class="bi bi-activity"></i></span> Recent Activity</h2>
+                    <a href="manage_requests.php">View All</a>
+                </div>
+                <div class="activity-timeline">
+                    <?php foreach (array_slice($activities, 0, 5) as $activity): ?>
+                        <div class="activity-item">
+                            <span class="timeline-dot"></span>
+                            <div>
+                                <strong><?php echo htmlspecialchars($activity['title']); ?></strong>
+                                <small><?php echo htmlspecialchars($activity['detail']); ?></small>
+                            </div>
+                            <time><?php echo htmlspecialchars($activity['time']); ?></time>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </article>
+
+            <article class="bento-card overview-card">
+                <div class="card-heading">
+                    <h2>Service Request Overview</h2>
+                    <button class="period-filter" type="button">This Month <i class="bi bi-chevron-down"></i></button>
+                </div>
+                <div class="request-bars">
+                    <?php foreach ($overview_order as $doc_name):
+                        $count = $overview_counts[$doc_name] ?? 0;
+                        $width = max(7, (int)round(($count / $max_overview_count) * 100));
+                    ?>
+                        <div class="request-bar-row">
+                            <span><?php echo htmlspecialchars(dashboardDocShortName($doc_name)); ?></span>
+                            <div class="bar-track"><span style="width: <?php echo $width; ?>%;"></span></div>
+                            <strong><?php echo $count; ?></strong>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <div class="overview-total">
+                    <span>Total Requests</span>
+                    <strong><?php echo $total_monthly_requests; ?></strong>
+                </div>
+            </article>
+        </section>
+
+        <section class="dashboard-bottom-grid" aria-label="Recent requests and quick actions">
+            <article class="bento-card recent-requests-card">
+                <div class="card-heading">
+                    <h2>Recent Service Requests</h2>
+                    <a href="manage_requests.php">View All Requests</a>
+                </div>
+                <div class="table-responsive dashboard-table-wrap">
+                    <table class="dashboard-table">
                         <thead>
                             <tr>
-                                <th>Ref</th>
+                                <th>Reference No.</th>
                                 <th>Resident</th>
-                                <th>Document</th>
+                                <th>Document Type</th>
+                                <th>Submitted</th>
+                                <th>Status</th>
+                                <th>Payment</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php while ($row = mysqli_fetch_assoc($ready_requests)): ?>
+                            <?php if (!empty($recent_requests)): ?>
+                                <?php foreach ($recent_requests as $row):
+                                    $status = normalizeDashboardStatus($row['status'], $row['process_status']);
+                                    $payment = normalizeDashboardPayment($row['payment_status'] ?? '', $row['payment_method'] ?? '', (float)$row['document_fee']);
+                                ?>
+                                    <tr>
+                                        <td class="font-monospace fw-bold"><?php echo htmlspecialchars($row['reference_no']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?></td>
+                                        <td><?php echo htmlspecialchars(dashboardDocShortName($row['document_type'])); ?></td>
+                                        <td><?php echo date('M d, Y h:i A', strtotime($row['created_at'])); ?></td>
+                                        <td><span class="dash-badge <?php echo dashboardStatusClass($status); ?>"><?php echo htmlspecialchars(dashboardStatusLabel($status)); ?></span></td>
+                                        <td><span class="dash-badge <?php echo dashboardPaymentClass($payment); ?>"><?php echo htmlspecialchars($payment); ?></span></td>
+                                        <td>
+                                            <div class="dashboard-row-actions">
+                                                <a href="manage_requests.php" class="table-view-btn">View</a>
+                                                <button type="button" aria-label="More actions"><i class="bi bi-three-dots-vertical"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
                                 <tr>
-                                    <td class="font-monospace fw-bold"><?php echo htmlspecialchars($row['reference_no']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?></td>
-                                    <td><small><?php echo htmlspecialchars($row['doc_type']); ?></small></td>
-                                    <td>
-                                        <form action="manage_requests.php" method="POST">
-                                            <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
-                                            <button type="submit" name="complete_request" class="btn btn-sm btn-success">Picked Up</button>
-                                        </form>
-                                    </td>
+                                    <td colspan="7" class="text-center text-muted py-4">No service requests yet.</td>
                                 </tr>
-                            <?php endwhile; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
+                <a href="manage_requests.php" class="dashboard-table-footer">View All Requests <i class="bi bi-arrow-right"></i></a>
+            </article>
+
+            <aside class="bento-card quick-actions-card">
+                <div class="card-heading">
+                    <h2><span><i class="bi bi-stars"></i></span> Quick Actions</h2>
+                </div>
+                <div class="quick-action-grid">
+                    <a href="manage_requests.php" class="quick-action-item">
+                        <strong>Manage Requests</strong>
+                        <small>View and process service requests</small>
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                    <a href="manage_residents.php" class="quick-action-item">
+                        <strong>Add Resident</strong>
+                        <small>Register new resident</small>
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                    <a href="manage_appointments.php" class="quick-action-item">
+                        <strong>Appointments</strong>
+                        <small>View and manage appointments</small>
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                    <a href="../public/announcements.php" class="quick-action-item">
+                        <strong>Announcements</strong>
+                        <small>Create and manage announcements</small>
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                    <a href="#" class="quick-action-item">
+                        <strong>Generate Reports</strong>
+                        <small>Export system reports</small>
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                    <a href="#" class="quick-action-item">
+                        <strong>System Logs</strong>
+                        <small>View activity logs</small>
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </aside>
+        </section>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
