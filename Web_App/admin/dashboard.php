@@ -226,7 +226,7 @@ while (count($activities) < 5) {
     <title>Admin Dashboard | MakiKonek</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/admin.css?v=20260608m">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=20260608n">
 </head>
 
 <body class="dashboard-body">
@@ -260,7 +260,7 @@ while (count($activities) < 5) {
                 <div class="overview-copy">
                     <span class="eyebrow">Overview</span>
                     <h2><?php echo $pending_requests; ?> requests need your review</h2>
-                    <p>You have <?php echo $ready_count; ?> document ready for pickup and <?php echo $appointments_today; ?> appointments today.</p>
+                    <p><?php echo $ready_count; ?> ready for pickup · <?php echo $appointments_today; ?> appointments today</p>
                     <a href="manage_requests.php" class="dashboard-primary-action">View Pending Requests <i class="bi bi-arrow-right"></i></a>
                 </div>
                 <div class="barangay-illustration" aria-hidden="true">

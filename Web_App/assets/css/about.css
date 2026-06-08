@@ -199,44 +199,76 @@
     display: none;
 }
 
-#about-custom-scope .leaders-grid-5-cols .leader-card:nth-child(8n + 1) .leader-avatar,
-#about-custom-scope .leaders-grid-4-cols .leader-card:nth-child(8n + 1) .leader-avatar {
-    background-image: url("../img/officials/portrait-01.svg");
+#about-custom-scope .leaders-grid-5-cols .leader-card:nth-child(1) .leader-avatar {
+    background-image: url("../img/officials/official-aigrette.webp");
 }
 
-#about-custom-scope .leaders-grid-5-cols .leader-card:nth-child(8n + 2) .leader-avatar,
-#about-custom-scope .leaders-grid-4-cols .leader-card:nth-child(8n + 2) .leader-avatar {
-    background-image: url("../img/officials/portrait-02.svg");
+#about-custom-scope .leaders-grid-5-cols .leader-card:nth-child(2) .leader-avatar {
+    background-image: url("../img/officials/official-teona.webp");
 }
 
-#about-custom-scope .leaders-grid-5-cols .leader-card:nth-child(8n + 3) .leader-avatar,
-#about-custom-scope .leaders-grid-4-cols .leader-card:nth-child(8n + 3) .leader-avatar {
-    background-image: url("../img/officials/portrait-03.svg");
+#about-custom-scope .leaders-grid-5-cols .leader-card:nth-child(3) .leader-avatar {
+    background-image: url("../img/officials/official-rubie.webp");
 }
 
-#about-custom-scope .leaders-grid-5-cols .leader-card:nth-child(8n + 4) .leader-avatar,
-#about-custom-scope .leaders-grid-4-cols .leader-card:nth-child(8n + 4) .leader-avatar {
-    background-image: url("../img/officials/portrait-04.svg");
+#about-custom-scope .leaders-grid-5-cols .leader-card:nth-child(4) .leader-avatar {
+    background-image: url("../img/officials/official-hermano.webp");
 }
 
-#about-custom-scope .leaders-grid-5-cols .leader-card:nth-child(8n + 5) .leader-avatar,
-#about-custom-scope .leaders-grid-4-cols .leader-card:nth-child(8n + 5) .leader-avatar {
-    background-image: url("../img/officials/portrait-05.svg");
+#about-custom-scope .leaders-grid-5-cols .leader-card:nth-child(5) .leader-avatar {
+    background-image: url("../img/officials/official-virgilio.webp");
 }
 
-#about-custom-scope .leaders-grid-5-cols .leader-card:nth-child(8n + 6) .leader-avatar,
-#about-custom-scope .leaders-grid-4-cols .leader-card:nth-child(8n + 6) .leader-avatar {
-    background-image: url("../img/officials/portrait-06.svg");
+#about-custom-scope .leaders-grid-5-cols .leader-card:nth-child(6) .leader-avatar {
+    background-image: url("../img/officials/official-diomedes.webp");
 }
 
-#about-custom-scope .leaders-grid-5-cols .leader-card:nth-child(8n + 7) .leader-avatar,
-#about-custom-scope .leaders-grid-4-cols .leader-card:nth-child(8n + 7) .leader-avatar {
-    background-image: url("../img/officials/portrait-07.svg");
+#about-custom-scope .leaders-grid-5-cols .leader-card:nth-child(7) .leader-avatar {
+    background-image: url("../img/officials/official-rizal.webp");
 }
 
-#about-custom-scope .leaders-grid-5-cols .leader-card:nth-child(8n) .leader-avatar,
-#about-custom-scope .leaders-grid-4-cols .leader-card:nth-child(8n) .leader-avatar {
-    background-image: url("../img/officials/portrait-08.svg");
+#about-custom-scope .leaders-grid-5-cols .leader-card:nth-child(8) .leader-avatar {
+    background-image: url("../img/officials/official-freddie.webp");
+}
+
+#about-custom-scope .leaders-grid-5-cols .leader-card:nth-child(9) .leader-avatar {
+    background-image: url("../img/officials/official-marcelo.webp");
+}
+
+#about-custom-scope .leaders-grid-5-cols .leader-card:nth-child(10) .leader-avatar {
+    background-image: url("../img/officials/official-antonio.webp");
+}
+
+#about-custom-scope .leaders-grid-4-cols .leader-card:nth-child(1) .leader-avatar {
+    background-image: url("../img/officials/official-aaron.webp");
+}
+
+#about-custom-scope .leaders-grid-4-cols .leader-card:nth-child(2) .leader-avatar {
+    background-image: url("../img/officials/official-christian.webp");
+}
+
+#about-custom-scope .leaders-grid-4-cols .leader-card:nth-child(3) .leader-avatar {
+    background-image: url("../img/officials/official-john-paul.webp");
+}
+
+#about-custom-scope .leaders-grid-4-cols .leader-card:nth-child(4) .leader-avatar {
+    background-image: url("../img/officials/official-mark-harold.webp");
+}
+
+#about-custom-scope .leaders-grid-4-cols .leader-card:nth-child(5) .leader-avatar {
+    background-image: url("../img/officials/official-dhanna.webp");
+}
+
+#about-custom-scope .leaders-grid-4-cols .leader-card:nth-child(6) .leader-avatar {
+    background-image: url("../img/officials/official-jaz-elle.webp");
+}
+
+#about-custom-scope .leaders-grid-4-cols .leader-card:nth-child(7) .leader-avatar {
+    background-image: url("../img/officials/official-ellaine.webp");
+}
+
+#about-custom-scope .leaders-grid-4-cols .leader-card:nth-child(8) .leader-avatar {
+    background-image: url("../img/officials/official-jhenie-lee.webp");
 }
 
 /* ==========================================================================

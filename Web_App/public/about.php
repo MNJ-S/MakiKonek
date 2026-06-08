@@ -15,7 +15,7 @@ $residentLogoutHref = '../resident/logout.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us | MakiKonek Digital Service Portal</title>
     <link rel="stylesheet" href="../assets/css/home.css?v=20260529e">
-    <link rel="stylesheet" href="../assets/css/about.css?v=20260608b">
+    <link rel="stylesheet" href="../assets/css/about.css?v=20260608d">
     <link rel="stylesheet" href="../assets/css/header.css?v=20260608b">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
