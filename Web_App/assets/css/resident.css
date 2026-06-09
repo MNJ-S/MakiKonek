@@ -361,7 +361,8 @@ body.resident-page .resident-nav a.logout-btn {
     font-weight: 800;
 }
 
-.status.approved {
+.status.approved,
+.status.completed {
     color: #00a844;
 }
 

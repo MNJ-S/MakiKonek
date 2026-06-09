@@ -15,7 +15,7 @@ $calendar_stmt = mysqli_prepare($conn, "
     SELECT fr.reservation_date, fr.start_time, fr.end_time, fr.status, f.name AS facility_name
     FROM facility_reservations fr
     JOIN facilities f ON fr.facility_id = f.facility_id
-    WHERE UPPER(fr.status) = 'APPROVED'
+    WHERE UPPER(fr.status) IN ('APPROVED', 'COMPLETED', 'CANCELLED')
     ORDER BY fr.reservation_date ASC, fr.start_time ASC
 ");
 mysqli_stmt_execute($calendar_stmt);

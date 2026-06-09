@@ -12,7 +12,10 @@ date_default_timezone_set('Asia/Manila');
 
 $success_message = '';
 $error_message = '';
-$allowed_statuses = ['Pending', 'Approved', 'Rejected', 'Completed', 'Cancelled'];
+$reservation_status_transitions = [
+    'Pending' => ['Approved', 'Rejected'],
+    'Approved' => ['Completed', 'Cancelled'],
+];
 
 function h(?string $value): string
 {
@@ -69,16 +72,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_reservation_st
     $reservation_id = (int)($_POST['reservation_id'] ?? 0);
     $new_status = trim($_POST['status'] ?? '');
 
-    if ($reservation_id <= 0 || !in_array($new_status, $allowed_statuses, true)) {
+    if ($reservation_id <= 0) {
         $error_message = 'Invalid reservation status update.';
     } else {
-        $stmt = mysqli_prepare($conn, "UPDATE facility_reservations SET status = ? WHERE reservation_id = ?");
-        mysqli_stmt_bind_param($stmt, "si", $new_status, $reservation_id);
+        $status_stmt = mysqli_prepare($conn, "SELECT status FROM facility_reservations WHERE reservation_id = ? LIMIT 1");
+        mysqli_stmt_bind_param($status_stmt, "i", $reservation_id);
+        mysqli_stmt_execute($status_stmt);
+        $status_result = mysqli_stmt_get_result($status_stmt);
+        $reservation = mysqli_fetch_assoc($status_result);
+        $current_status = $reservation['status'] ?? '';
+        $allowed_next_statuses = $reservation_status_transitions[$current_status] ?? [];
 
-        if (mysqli_stmt_execute($stmt)) {
-            $success_message = 'Reservation status updated.';
+        if (!in_array($new_status, $allowed_next_statuses, true)) {
+            $error_message = 'This reservation status can no longer be changed using that action.';
         } else {
-            $error_message = 'Could not update reservation status.';
+            $stmt = mysqli_prepare($conn, "
+                UPDATE facility_reservations
+                SET status = ?
+                WHERE reservation_id = ? AND status = ?
+            ");
+            mysqli_stmt_bind_param($stmt, "sis", $new_status, $reservation_id, $current_status);
+
+            if (mysqli_stmt_execute($stmt) && mysqli_stmt_affected_rows($stmt) === 1) {
+                $success_message = 'Reservation status updated.';
+            } else {
+                $error_message = 'Could not update reservation status.';
+            }
         }
     }
 }
@@ -104,8 +123,6 @@ if ($reservations_result) {
 
 $today = date('Y-m-d');
 $week_end = date('Y-m-d', strtotime('+7 days'));
-$month_start = date('Y-m-01');
-$month_end = date('Y-m-t');
 $upcoming_count = 0;
 $today_count = 0;
 $pending_count = 0;
@@ -121,7 +138,7 @@ foreach ($reservations as $row) {
     if (strtolower($row['status']) === 'pending') {
         $pending_count++;
     }
-    if (strtolower($row['status']) === 'completed' && $row['reservation_date'] >= $month_start && $row['reservation_date'] <= $month_end) {
+    if (strtolower($row['status']) === 'completed') {
         $completed_count++;
     }
 }
@@ -130,7 +147,7 @@ $today_reservations = array_values(array_filter($reservations, fn($row) => $row[
 $upcoming_reservations = array_values(array_filter($reservations, fn($row) => $row['reservation_date'] >= $today));
 $active_calendar_reservations = array_values(array_filter(
     $reservations,
-    fn($row) => !in_array(strtolower($row['status']), ['rejected', 'cancelled'], true)
+    fn($row) => in_array(strtolower($row['status']), ['approved', 'completed', 'cancelled'], true)
 ));
 $calendar_days = [];
 foreach ($active_calendar_reservations as $row) {
@@ -206,7 +223,7 @@ foreach ($active_calendar_reservations as $row) {
             </article>
             <article class="appointment-kpi-card">
                 <span><i class="bi bi-check2-circle"></i></span>
-                <div><p>Completed</p><strong><?php echo $completed_count; ?></strong><small>This month</small></div>
+                <div><p>Completed</p><strong><?php echo $completed_count; ?></strong><small>Completed reservations</small></div>
                 <em><i style="width: <?php echo min(100, $completed_count * 10); ?>%;"></i></em>
             </article>
         </section>
@@ -360,7 +377,7 @@ foreach ($active_calendar_reservations as $row) {
             <p id="drawerPurpose">N/A</p>
             <small id="drawerNotes"></small>
         </section>
-        <div class="appointment-drawer-actions">
+        <div class="appointment-drawer-actions" data-reservation-actions="pending">
             <form action="manage_appointments.php" method="POST">
                 <input type="hidden" name="reservation_id" id="approveReservationId">
                 <input type="hidden" name="status" value="Approved">
@@ -371,6 +388,21 @@ foreach ($active_calendar_reservations as $row) {
                 <input type="hidden" name="status" value="Rejected">
                 <button type="submit" name="update_reservation_status" class="reject">Reject Reservation</button>
             </form>
+        </div>
+        <div class="appointment-drawer-actions" data-reservation-actions="approved" hidden>
+            <form action="manage_appointments.php" method="POST">
+                <input type="hidden" name="reservation_id" id="completeReservationId">
+                <input type="hidden" name="status" value="Completed">
+                <button type="submit" name="update_reservation_status" class="approve">Mark as Completed</button>
+            </form>
+            <form action="manage_appointments.php" method="POST">
+                <input type="hidden" name="reservation_id" id="cancelReservationId">
+                <input type="hidden" name="status" value="Cancelled">
+                <button type="submit" name="update_reservation_status" class="reject">Cancel Reservation</button>
+            </form>
+        </div>
+        <div class="appointment-drawer-actions appointment-archive-action" data-reservation-actions="archive" hidden>
+            <button type="button" class="reject">Archive Reservation</button>
         </div>
     </aside>
 
@@ -395,6 +427,15 @@ foreach ($active_calendar_reservations as $row) {
                 document.getElementById('drawerNotes').textContent = button.dataset.notes || '';
                 document.getElementById('approveReservationId').value = button.dataset.id || '';
                 document.getElementById('rejectReservationId').value = button.dataset.id || '';
+                document.getElementById('completeReservationId').value = button.dataset.id || '';
+                document.getElementById('cancelReservationId').value = button.dataset.id || '';
+
+                const status = (button.dataset.status || '').toLowerCase();
+                document.querySelectorAll('[data-reservation-actions]').forEach(actions => {
+                    const actionType = actions.dataset.reservationActions;
+                    const showArchive = actionType === 'archive' && ['completed', 'cancelled', 'rejected'].includes(status);
+                    actions.hidden = actionType !== status && !showArchive;
+                });
                 drawer.classList.add('is-open');
             }
 

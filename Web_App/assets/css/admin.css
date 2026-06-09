@@ -3405,6 +3405,15 @@ body {
     color: #b42318;
 }
 
+.appointment-archive-action {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+}
+
+.appointment-archive-action button {
+    max-width: 220px;
+}
+
 /* Final KPI alignment polish */
 .dashboard-top-grid {
     grid-template-columns: minmax(420px, 1.6fr) repeat(4, minmax(180px, 1fr));
