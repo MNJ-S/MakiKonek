@@ -15,7 +15,7 @@ $residentLogoutHref = '../resident/logout.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us | MakiKonek Digital Service Portal</title>
     <link rel="stylesheet" href="../assets/css/home.css?v=20260529e">
-    <link rel="stylesheet" href="../assets/css/about.css?v=20260608d">
+    <link rel="stylesheet" href="../assets/css/about.css?v=20260609a">
     <link rel="stylesheet" href="../assets/css/header.css?v=20260608b">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
@@ -188,53 +188,53 @@ $residentLogoutHref = '../resident/logout.php';
                 <div class="leaders-grid-5-cols">
                     <!-- Row 1 -->
                     <div class="leader-card">
-                        <div class="leader-avatar bg-green"><i class="fa-solid fa-user"></i></div>
+                        <div class="leader-avatar"><img src="../assets/img/officials/official-aigrette.webp" alt="Aigrette Panganiban Lajara" loading="lazy" decoding="async"></div>
                         <h4 class="leader-name">Aigrette Panganiban Lajara</h4>
                         <span class="leader-position text-green">Barangay Captain</span>
                     </div>
                     <div class="leader-card">
-                        <div class="leader-avatar bg-blue"><i class="fa-solid fa-user"></i></div>
+                        <div class="leader-avatar"><img src="../assets/img/officials/official-teona.webp" alt="Teona Lizardo Noprada" loading="lazy" decoding="async"></div>
                         <h4 class="leader-name">Teona Lizardo Noprada</h4>
                         <span class="leader-position text-green">Barangay Secretary</span>
                     </div>
                     <div class="leader-card">
-                        <div class="leader-avatar bg-blue"><i class="fa-solid fa-user"></i></div>
+                        <div class="leader-avatar"><img src="../assets/img/officials/official-rubie.webp" alt="Rubie Alcantara Olaes" loading="lazy" decoding="async"></div>
                         <h4 class="leader-name">Rubie Alcantara Olaes</h4>
                         <span class="leader-position text-green">Barangay Treasurer</span>
                     </div>
                     <div class="leader-card">
-                        <div class="leader-avatar bg-orange"><i class="fa-solid fa-user"></i></div>
+                        <div class="leader-avatar"><img src="../assets/img/officials/official-hermano.webp" alt="Hermano Medalla De Chavez" loading="lazy" decoding="async"></div>
                         <h4 class="leader-name">Hermano Medalla De Chavez</h4>
                         <span class="leader-position text-green">Kagawad</span>
                     </div>
                     <div class="leader-card">
-                        <div class="leader-avatar bg-orange"><i class="fa-solid fa-user"></i></div>
+                        <div class="leader-avatar"><img src="../assets/img/officials/official-virgilio.webp" alt="Virgilio Torres Lopez" loading="lazy" decoding="async"></div>
                         <h4 class="leader-name">Virgilio Torres Lopez</h4>
                         <span class="leader-position text-green">Kagawad</span>
                     </div>
 
                     <div class="leader-card">
-                        <div class="leader-avatar bg-orange"><i class="fa-solid fa-user"></i></div>
+                        <div class="leader-avatar"><img src="../assets/img/officials/official-diomedes.webp" alt="Diomedes Nemes Austria" loading="lazy" decoding="async"></div>
                         <h4 class="leader-name">Diomedes Nemes Austria</h4>
                         <span class="leader-position text-green">Kagawad</span>
                     </div>
                     <div class="leader-card">
-                        <div class="leader-avatar bg-orange"><i class="fa-solid fa-user"></i></div>
+                        <div class="leader-avatar"><img src="../assets/img/officials/official-rizal.webp" alt="Rizal Mercado Pascual" loading="lazy" decoding="async"></div>
                         <h4 class="leader-name">Rizal Mercado Pascual</h4>
                         <span class="leader-position text-green">Kagawad</span>
                     </div>
                     <div class="leader-card">
-                        <div class="leader-avatar bg-orange"><i class="fa-solid fa-user"></i></div>
+                        <div class="leader-avatar"><img src="../assets/img/officials/official-freddie.webp" alt="Freddie Balansay Noprada" loading="lazy" decoding="async"></div>
                         <h4 class="leader-name">Freddie Balansay Noprada</h4>
                         <span class="leader-position text-green">Kagawad</span>
                     </div>
                     <div class="leader-card">
-                        <div class="leader-avatar bg-orange"><i class="fa-solid fa-user"></i></div>
+                        <div class="leader-avatar"><img src="../assets/img/officials/official-marcelo.webp" alt="Marcelo Atienza Molinyawe" loading="lazy" decoding="async"></div>
                         <h4 class="leader-name">Marcelo Atienza Molinyawe</h4>
                         <span class="leader-position text-green">Kagawad</span>
                     </div>
                     <div class="leader-card">
-                        <div class="leader-avatar bg-orange"><i class="fa-solid fa-user"></i></div>
+                        <div class="leader-avatar"><img src="../assets/img/officials/official-antonio.webp" alt="Antonio Hempesalla Medalla" loading="lazy" decoding="async"></div>
                         <h4 class="leader-name">Antonio Hempesalla Medalla</h4>
                         <span class="leader-position text-green">Kagawad</span>
                     </div>
@@ -248,43 +248,43 @@ $residentLogoutHref = '../resident/logout.php';
                 <div class="leaders-grid-4-cols">
                     <!-- Row 1 -->
                     <div class="leader-card">
-                        <div class="leader-avatar bg-purple"><i class="fa-solid fa-user"></i></div>
+                        <div class="leader-avatar"><img src="../assets/img/officials/official-aaron.webp" alt="Aaron Klyne Macasadia Magsino" loading="lazy" decoding="async"></div>
                         <h4 class="leader-name">Aaron Klyne Macasadia Magsino</h4>
                         <span class="leader-position text-purple">SK Chairman</span>
                     </div>
                     <div class="leader-card">
-                        <div class="leader-avatar bg-blue"><i class="fa-solid fa-user"></i></div>
+                        <div class="leader-avatar"><img src="../assets/img/officials/official-christian.webp" alt="Christian Heplan Perez" loading="lazy" decoding="async"></div>
                         <h4 class="leader-name">Christian Heplan Perez</h4>
                         <span class="leader-position text-purple">SK Kagawad</span>
                     </div>
                     <div class="leader-card">
-                        <div class="leader-avatar bg-blue"><i class="fa-solid fa-user"></i></div>
+                        <div class="leader-avatar"><img src="../assets/img/officials/official-john-paul.webp" alt="John Paul De Castro Evangelista" loading="lazy" decoding="async"></div>
                         <h4 class="leader-name">John Paul De Castro Evangelista</h4>
                         <span class="leader-position text-purple">SK Kagawad</span>
                     </div>
                     <div class="leader-card">
-                        <div class="leader-avatar bg-blue"><i class="fa-solid fa-user"></i></div>
+                        <div class="leader-avatar"><img src="../assets/img/officials/official-mark-harold.webp" alt="Mark Harold Alferez Burgos" loading="lazy" decoding="async"></div>
                         <h4 class="leader-name">Mark Harold Alferez Burgos</h4>
                         <span class="leader-position text-purple">SK Kagawad</span>
                     </div>
 
                     <div class="leader-card">
-                        <div class="leader-avatar bg-blue"><i class="fa-solid fa-user"></i></div>
+                        <div class="leader-avatar"><img src="../assets/img/officials/official-dhanna.webp" alt="Dhanna Marie Macasadia Montes" loading="lazy" decoding="async"></div>
                         <h4 class="leader-name">Dhanna Marie Macasadia Montes</h4>
                         <span class="leader-position text-purple">SK Kagawad</span>
                     </div>
                     <div class="leader-card">
-                        <div class="leader-avatar bg-blue"><i class="fa-solid fa-user"></i></div>
+                        <div class="leader-avatar"><img src="../assets/img/officials/official-jaz-elle.webp" alt="Jaz Elle Carpio Alvarez" loading="lazy" decoding="async"></div>
                         <h4 class="leader-name">Jaz Elle Carpio Alvarez</h4>
                         <span class="leader-position text-purple">SK Kagawad</span>
                     </div>
                     <div class="leader-card">
-                        <div class="leader-avatar bg-blue"><i class="fa-solid fa-user"></i></div>
+                        <div class="leader-avatar"><img src="../assets/img/officials/official-ellaine.webp" alt="Ellaine Buena Egloria" loading="lazy" decoding="async"></div>
                         <h4 class="leader-name">Ellaine Buena Egloria</h4>
                         <span class="leader-position text-purple">SK Kagawad</span>
                     </div>
                     <div class="leader-card">
-                        <div class="leader-avatar bg-blue"><i class="fa-solid fa-user"></i></div>
+                        <div class="leader-avatar"><img src="../assets/img/officials/official-jhenie-lee.webp" alt="Jhenie Lee Siman Laude" loading="lazy" decoding="async"></div>
                         <h4 class="leader-name">Jhenie Lee Siman Laude</h4>
                         <span class="leader-position text-purple">SK Kagawad</span>
                     </div>
