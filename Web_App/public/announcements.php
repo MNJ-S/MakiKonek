@@ -17,7 +17,6 @@ if ($announcement_table_check && mysqli_num_rows($announcement_table_check) > 0)
         FROM announcements
         WHERE status = 'Published'
         ORDER BY COALESCE(event_date, DATE(created_at)) DESC, created_at DESC
-        LIMIT 12
     ");
 
     if ($announcement_result) {
@@ -34,11 +33,7 @@ function publicAnnouncementEscape(?string $value): string
 
 function publicAnnouncementCategory(string $category): string
 {
-    $normalized = strtolower($category);
-    if ($normalized === 'program') return 'programa';
-    if ($normalized === 'advisory') return 'abiso';
-    if ($normalized === 'event') return 'events';
-    return 'anunsyo';
+    return strtolower(trim($category));
 }
 
 function publicAnnouncementTagClass(string $category): string
@@ -66,9 +61,9 @@ function publicAnnouncementExcerpt(string $value, int $limit = 155): string
     <link rel="stylesheet" href="../assets/css/home.css?v=20260529h">
     <link rel="stylesheet" href="../assets/css/header.css?v=20260608b">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
-    <link rel="stylesheet" href="../assets/css/announcements.css?v=20260608b">
+    <link rel="stylesheet" href="../assets/css/announcements.css?v=20260610a">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <script defer src="../assets/js/announcements.js?v=20260529a"></script>
+    <script defer src="../assets/js/announcements.js?v=20260610a"></script>
 </head>
 
 <body>
@@ -110,10 +105,10 @@ function publicAnnouncementExcerpt(string $value, int $limit = 155): string
 
             <div class="ann-filters" aria-label="Announcement categories">
                 <button class="active" type="button" data-category="all">All</button>
-                <button type="button" data-category="anunsyo">Announcements</button>
-                <button type="button" data-category="programa">Programs</button>
-                <button type="button" data-category="abiso">Advisories</button>
-                <button type="button" data-category="events">Events</button>
+                <button type="button" data-category="announcement">Announcements</button>
+                <button type="button" data-category="program">Programs</button>
+                <button type="button" data-category="advisory">Advisories</button>
+                <button type="button" data-category="event">Events</button>
             </div>
         </section>
 
@@ -151,7 +146,7 @@ function publicAnnouncementExcerpt(string $value, int $limit = 155): string
                         </article>
                     <?php endforeach; ?>
                 <?php else: ?>
-                <article class="announcement-post" data-category="programa">
+                <article class="announcement-post" data-category="program">
                     <div class="post-media cleanup-poster" role="img" aria-label="Barangay cleanup drive poster">
                         <i class="fa-solid fa-broom"></i>
                         <strong>Community Cleanup</strong>
@@ -172,7 +167,7 @@ function publicAnnouncementExcerpt(string $value, int $limit = 155): string
                     </div>
                 </article>
 
-                <article class="announcement-post" data-category="abiso">
+                <article class="announcement-post" data-category="advisory">
                     <div class="post-media power-poster" role="img" aria-label="Scheduled power interruption poster">
                         <i class="fa-solid fa-bolt"></i>
                         <strong>Power Advisory</strong>
@@ -193,7 +188,7 @@ function publicAnnouncementExcerpt(string $value, int $limit = 155): string
                     </div>
                 </article>
 
-                <article class="announcement-post" data-category="programa">
+                <article class="announcement-post" data-category="program">
                     <div class="post-media food-poster" role="img" aria-label="Food pack distribution poster">
                         <i class="fa-solid fa-box-open"></i>
                         <strong>Community Assistance</strong>
@@ -214,7 +209,7 @@ function publicAnnouncementExcerpt(string $value, int $limit = 155): string
                     </div>
                 </article>
 
-                <article class="announcement-post" data-category="events">
+                <article class="announcement-post" data-category="event">
                     <div class="post-media flag-poster" role="img" aria-label="Independence day event poster">
                         <i class="fa-solid fa-flag"></i>
                         <strong>Kalayaan Day</strong>

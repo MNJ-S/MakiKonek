@@ -94,7 +94,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     const eventNode = document.createElement("strong");
                     eventNode.className = `event ${event.type}`;
                     eventNode.textContent = event.title;
-                    eventNode.append(document.createElement("br"), document.createTextNode(event.time.replace(" to ", " - ")));
+
+                    const details = [];
+                    if (event.time) {
+                        details.push(event.time.replace(" to ", " - "));
+                    }
+                    if (event.location) {
+                        details.push(event.location);
+                    }
+
+                    details.forEach((detail) => {
+                        eventNode.append(document.createElement("br"), document.createTextNode(detail));
+                    });
                     cell.append(eventNode);
                 });
 

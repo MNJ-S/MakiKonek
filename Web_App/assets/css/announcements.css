@@ -249,28 +249,28 @@
     box-shadow: 0 12px 30px rgba(20, 46, 76, 0.08);
 }
 
-.announcement-post[data-category="programa"] {
+.announcement-post[data-category="program"] {
     --post-accent: #3f9f25;
     --post-accent-soft: #dff6e4;
     --post-background-soft: rgba(63, 159, 37, 0.14);
     --post-border: #3f9f25;
 }
 
-.announcement-post[data-category="anunsyo"] {
+.announcement-post[data-category="announcement"] {
     --post-accent: #1179d6;
     --post-accent-soft: #d7e7ff;
     --post-background-soft: rgba(17, 121, 214, 0.12);
     --post-border: #1179d6;
 }
 
-.announcement-post[data-category="abiso"] {
+.announcement-post[data-category="advisory"] {
     --post-accent: #f6b928;
     --post-accent-soft: #fff4d0;
     --post-background-soft: rgba(246, 185, 40, 0.14);
     --post-border: #f6b928;
 }
 
-.announcement-post[data-category="events"] {
+.announcement-post[data-category="event"] {
     --post-accent: #1179d6;
     --post-accent-soft: #d7e7ff;
     --post-background-soft: rgba(17, 121, 214, 0.14);

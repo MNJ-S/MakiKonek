@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let totalMatchedFilterAndSearch = 0;
 
         posts.forEach((post) => {
-            const categoryMatches = activeCategory === "all" || activeCategory === "anunsyo" || post.dataset.category === activeCategory;
+            const categoryMatches = activeCategory === "all" || post.dataset.category === activeCategory;
             
             const cardTitle = post.querySelector("h3") ? post.querySelector("h3").textContent.toLowerCase() : "";
             const cardDesc = post.querySelector("p") ? post.querySelector("p").textContent.toLowerCase() : "";

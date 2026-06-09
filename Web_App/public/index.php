@@ -30,6 +30,25 @@ while ($row = mysqli_fetch_assoc($calendar_result)) {
         'type' => 'green',
     ];
 }
+
+$announcement_calendar_stmt = mysqli_prepare($conn, "
+    SELECT title, event_date, event_time, location
+    FROM announcements
+    WHERE status = 'Published'
+      AND event_date IS NOT NULL
+    ORDER BY event_date ASC, event_time ASC, announcement_id ASC
+");
+mysqli_stmt_execute($announcement_calendar_stmt);
+$announcement_calendar_result = mysqli_stmt_get_result($announcement_calendar_stmt);
+
+while ($row = mysqli_fetch_assoc($announcement_calendar_result)) {
+    $calendar_events[$row['event_date']][] = [
+        'title' => $row['title'],
+        'time' => trim((string)$row['event_time']),
+        'location' => trim((string)$row['location']),
+        'type' => 'blue',
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -45,7 +64,7 @@ while ($row = mysqli_fetch_assoc($calendar_result)) {
     <script>
         window.publicCalendarEvents = <?php echo json_encode($calendar_events, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
     </script>
-    <script defer src="../assets/js/public.js?v=20260609a"></script>
+    <script defer src="../assets/js/public.js?v=20260609b"></script>
 </head>
 
 <body>
