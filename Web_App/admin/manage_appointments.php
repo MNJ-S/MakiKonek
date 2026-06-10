@@ -188,7 +188,7 @@ $today_reservations = array_values(array_filter($reservations, fn($row) => $row[
 $upcoming_reservations = array_values(array_filter($reservations, fn($row) => $row['reservation_date'] >= $today));
 $active_calendar_reservations = array_values(array_filter(
     $reservations,
-    fn($row) => in_array(strtolower($row['status']), ['approved', 'completed', 'cancelled'], true)
+    fn($row) => in_array(strtolower($row['status']), ['approved', 'completed'], true)
 ));
 $calendar_days = [];
 foreach ($active_calendar_reservations as $row) {
