@@ -7,10 +7,11 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'Super Admin') 
 }
 
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/prg_flash.php';
 
 date_default_timezone_set('Asia/Manila');
 
-$success_message = '';
+$success_message = prgFlashPull('admin_staff');
 $error_message = '';
 
 $archive_column_check = mysqli_query($conn, "SHOW COLUMNS FROM admin_accounts LIKE 'archived_at'");
@@ -43,7 +44,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['add_staff'])) {
         mysqli_stmt_bind_param($stmt, "ssss", $new_username, $new_email, $new_password, $new_role);
 
         if (mysqli_stmt_execute($stmt)) {
-            $success_message = "New {$new_role} account created successfully.";
+            prgRedirect(
+                'manage_staff.php',
+                'admin_staff',
+                "New {$new_role} account created successfully."
+            );
         } else {
             $error_message = "Failed to create account. Username or email might already exist.";
         }
@@ -59,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['update_role'])) {
     mysqli_stmt_bind_param($stmt, "si", $updated_role, $update_id);
 
     if (mysqli_stmt_execute($stmt)) {
-        $success_message = "Role updated successfully.";
+        prgRedirect('manage_staff.php', 'admin_staff', 'Role updated successfully.');
     } else {
         $error_message = "Failed to update role.";
     }
@@ -85,7 +90,11 @@ if (isset($_GET['archive_id'])) {
             mysqli_stmt_execute($stmt_delete);
 
             mysqli_commit($conn);
-            $success_message = "Staff account successfully moved to archives.";
+            prgRedirect(
+                'manage_staff.php',
+                'admin_staff',
+                'Staff account successfully moved to archives.'
+            );
         } catch (Exception $e) {
             mysqli_rollback($conn);
             $error_message = "Failed to archive account.";

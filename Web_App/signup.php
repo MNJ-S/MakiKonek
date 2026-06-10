@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/includes/db_connect.php';
+require_once __DIR__ . '/includes/prg_flash.php';
 
 // If they are already logged in, redirect them to the dashboard
 if (isset($_SESSION['resident_id'])) {
@@ -9,7 +10,7 @@ if (isset($_SESSION['resident_id'])) {
 }
 
 $error_message = '';
-$success_message = '';
+$success_message = prgFlashPull('signup');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $surname = mysqli_real_escape_string($conn, trim($_POST['surname']));
@@ -52,7 +53,7 @@ if ($password !== $confirm_password) {
                 mysqli_stmt_execute($stmt_profile);
 
                 mysqli_commit($conn);
-                $success_message = "Account created successfully! You can now log in.";
+                prgRedirect('signup.php', 'signup', 'Account created successfully! You can now log in.');
             } catch (Exception $e) {
                 mysqli_rollback($conn);
                 $error_message = "Registration failed due to a system error. Please try again.";

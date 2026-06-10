@@ -7,11 +7,12 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/prg_flash.php';
 require_once __DIR__ . '/includes/auto_archive_reservations.php';
 
 date_default_timezone_set('Asia/Manila');
 
-$success_message = '';
+$success_message = prgFlashPull('admin_appointments');
 $error_message = '';
 $reservation_status_transitions = [
     'Pending' => ['Approved', 'Rejected'],
@@ -97,8 +98,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_reservation_st
             mysqli_stmt_bind_param($stmt, "sis", $new_status, $reservation_id, $current_status);
 
             if (mysqli_stmt_execute($stmt) && mysqli_stmt_affected_rows($stmt) === 1) {
-                $success_message = 'Reservation status updated.';
-                
                 $notif_title = 'Reservation ' . $new_status;
                 $notif_msg = '';
                 $notif_icon = 'fa-regular fa-bell';
@@ -125,6 +124,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_reservation_st
                         mysqli_stmt_close($notif_stmt);
                     }
                 }
+
+                prgRedirect(
+                    'manage_appointments.php',
+                    'admin_appointments',
+                    'Reservation status updated.'
+                );
             } else {
                 $error_message = 'Could not update reservation status.';
             }

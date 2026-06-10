@@ -7,10 +7,11 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'Super Admin') 
 }
 
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/prg_flash.php';
 
 date_default_timezone_set('Asia/Manila');
 
-$success_message = '';
+$success_message = prgFlashPull('admin_officials');
 $error_message = '';
 
 function adminOfficialEscape(?string $value): string
@@ -149,7 +150,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['archive_official'])) 
     mysqli_stmt_bind_param($stmt, "i", $user_id);
 
     if (mysqli_stmt_execute($stmt)) {
-        $success_message = "Official account archived successfully.";
+        prgRedirect(
+            'manage_officials.php',
+            'admin_officials',
+            'Official account archived successfully.'
+        );
     } else {
         $error_message = "Failed to archive official.";
     }
@@ -190,7 +195,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['create_official'])) {
             mysqli_stmt_execute($stmt_official);
 
             mysqli_commit($conn);
-            $success_message = "Successfully created {$official_role} account for {$first_name}.";
+            prgRedirect(
+                'manage_officials.php',
+                'admin_officials',
+                "Successfully created {$official_role} account for {$first_name}."
+            );
         } catch (Exception $e) {
             mysqli_rollback($conn);
             $error_message = "System error: Could not create official account.";

@@ -7,10 +7,11 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/prg_flash.php';
 
 date_default_timezone_set('Asia/Manila');
 
-$success_message = '';
+$success_message = prgFlashPull('admin_residents');
 $error_message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['approve_user'])) {
@@ -34,7 +35,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['approve_user'])) {
         mysqli_stmt_execute($notif_stmt);
 
         mysqli_commit($conn);
-        $success_message = "Resident account has been approved and verified.";
+        prgRedirect(
+            'manage_residents.php',
+            'admin_residents',
+            'Resident account has been approved and verified.'
+        );
     } catch (Exception $e) {
         mysqli_rollback($conn);
         $error_message = "System error: Could not approve the resident account.";
@@ -77,7 +82,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['archive_user'])) {
         mysqli_stmt_execute($stmt_delete);
 
         mysqli_commit($conn);
-        $success_message = "Resident account moved to suspended archives.";
+        prgRedirect(
+            'manage_residents.php',
+            'admin_residents',
+            'Resident account moved to suspended archives.'
+        );
     } catch (Exception $e) {
         mysqli_rollback($conn);
         $error_message = "System error: Could not suspend the resident account.";

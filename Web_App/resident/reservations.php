@@ -11,11 +11,12 @@ if (!isset($_SESSION['resident_id'])) {
 }
 
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/prg_flash.php';
 
 $resident_id = (int) $_SESSION['resident_id'];
 $pageTitle = 'Facility Reservations';
 $activePage = 'reservations';
-$success_message = '';
+$success_message = prgFlashPull('resident_reservations');
 $error_message = '';
 
 $facilityOptions = [
@@ -129,7 +130,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         if (mysqli_stmt_execute($insert_stmt)) {
-            $success_message = 'Your reservation has been submitted under Reference Number: ' . $reference_no;
+            prgRedirect(
+                'reservations.php',
+                'resident_reservations',
+                'Your reservation has been submitted under Reference Number: ' . $reference_no
+            );
         } else {
             $error_message = 'Your reservation could not be submitted. Please try again.';
         }

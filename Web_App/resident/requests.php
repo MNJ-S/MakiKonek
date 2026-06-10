@@ -7,6 +7,7 @@ if (!isset($_SESSION['resident_id'])) {
 }
 
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/prg_flash.php';
 
 $payment_status_column_check = mysqli_query($conn, "SHOW COLUMNS FROM service_requests LIKE 'payment_status'");
 if ($payment_status_column_check && mysqli_num_rows($payment_status_column_check) === 0) {
@@ -15,7 +16,7 @@ if ($payment_status_column_check && mysqli_num_rows($payment_status_column_check
 
 $pageTitle = 'My Requests';
 $activePage = 'requests';
-$success_message = '';
+$success_message = prgFlashPull('resident_requests');
 $error_message = '';
 
 $resident_id = (int) $_SESSION['resident_id'];
@@ -278,7 +279,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             mysqli_commit($conn);
-            $success_message = 'Your request has been submitted under Reference Number: ' . $reference_no;
+            prgRedirect(
+                'requests.php',
+                'resident_requests',
+                'Your request has been submitted under Reference Number: ' . $reference_no
+            );
         } catch (Exception $e) {
             mysqli_rollback($conn);
             $error_message = 'Database error. Failed to submit request.';

@@ -7,10 +7,11 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/prg_flash.php';
 
 date_default_timezone_set('Asia/Manila');
 
-$success_message = '';
+$success_message = prgFlashPull('admin_announcements');
 $error_message = '';
 $upload_dir = __DIR__ . '/../assets/uploads/announcements';
 $upload_public_path = '../assets/uploads/announcements/';
@@ -92,7 +93,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_announcement']
         mysqli_stmt_bind_param($stmt, "sssssssssi", $title, $category, $summary, $body, $event_date_value, $event_time, $location, $cover_image, $status, $admin_id);
 
         if (mysqli_stmt_execute($stmt)) {
-            $success_message = 'Announcement created successfully.';
+            prgRedirect(
+                'manage_announcements.php',
+                'admin_announcements',
+                'Announcement created successfully.'
+            );
         } else {
             $error_message = 'Could not create announcement.';
         }
@@ -105,7 +110,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement_s
     if ($announcement_id > 0 && in_array($status, ['Published', 'Draft', 'Archived'], true)) {
         $stmt = mysqli_prepare($conn, "UPDATE announcements SET status = ? WHERE announcement_id = ?");
         mysqli_stmt_bind_param($stmt, "si", $status, $announcement_id);
-        $success_message = mysqli_stmt_execute($stmt) ? 'Announcement status updated.' : 'Could not update announcement.';
+        if (mysqli_stmt_execute($stmt)) {
+            prgRedirect(
+                'manage_announcements.php',
+                'admin_announcements',
+                'Announcement status updated.'
+            );
+        } else {
+            $error_message = 'Could not update announcement.';
+        }
     }
 }
 

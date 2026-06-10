@@ -7,8 +7,9 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/prg_flash.php';
 
-$success_message = '';
+$success_message = prgFlashPull('admin_requests');
 $error_message = '';
 $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 $request_statuses = ['Pending', 'Under Review', 'Processing', 'Ready for Pickup', 'Completed', 'Rejected'];
@@ -351,7 +352,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['complete_request'])) {
     try {
         if (markCompletedRequest($conn, $req_id)) {
             mysqli_commit($conn);
-            $success_message = "Request marked as Completed.";
+            prgRedirect(
+                'manage_requests.php',
+                'admin_requests',
+                'Request marked as Completed.'
+            );
         } else {
             mysqli_rollback($conn);
             $error_message = "Request could not be completed. Check the payment status first.";
@@ -399,7 +404,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
                 mysqli_stmt_bind_param($stmt, "sssi", $new_status, $legacy_process, $new_payment_status, $req_id);
 
                 if (mysqli_stmt_execute($stmt)) {
-                    $success_message = "Request status updated to " . $new_status . ".";
                     if ($new_status === 'Completed') {
                         recordCompletedRequest($conn, $req_id);
                     }
@@ -429,6 +433,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
                         mysqli_stmt_close($notif_stmt);
                     }
 
+                    prgRedirect(
+                        'manage_requests.php',
+                        'admin_requests',
+                        'Request status updated to ' . $new_status . '.'
+                    );
                 } else {
                     $error_message = "Failed to update request status.";
                 }
@@ -450,7 +459,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['confirm_payment'])) {
         mysqli_stmt_bind_param($stmt, "si", $new_payment_status, $req_id);
 
         if (mysqli_stmt_execute($stmt)) {
-            $success_message = "Payment marked as " . $new_payment_status . ".";
+            prgRedirect(
+                'manage_requests.php',
+                'admin_requests',
+                'Payment marked as ' . $new_payment_status . '.'
+            );
         } else {
             $error_message = "Failed to update payment status.";
         }
@@ -470,7 +483,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_remark'])) {
         mysqli_stmt_bind_param($stmt_remark, "iiss", $req_id, $admin_id, $admin_username, $remark);
 
         if (mysqli_stmt_execute($stmt_remark)) {
-            $success_message = "Remark saved to the request log.";
+            prgRedirect(
+                'manage_requests.php',
+                'admin_requests',
+                'Remark saved to the request log.'
+            );
         } else {
             $error_message = "Failed to save remark.";
         }

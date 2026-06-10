@@ -7,9 +7,10 @@ if (!isset($_SESSION['resident_id'])) {
 }
 
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/prg_flash.php';
 
 $resident_id = $_SESSION['resident_id'];
-$success_message = '';
+$success_message = prgFlashPull('resident_profile');
 $error_message = '';
 
 // --- PROCESSING FORM FORM SUBMISSION ---
@@ -156,7 +157,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             mysqli_commit($conn);
-            $success_message = "SAVED SUCCESSFULLY!";
+            prgRedirect('profile.php', 'resident_profile', 'SAVED SUCCESSFULLY!');
         } catch (Exception $e) {
             mysqli_rollback($conn);
             $error_message = "FAILED TO UPDATE PROFILE.";
