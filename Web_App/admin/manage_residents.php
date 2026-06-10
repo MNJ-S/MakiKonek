@@ -13,6 +13,34 @@ date_default_timezone_set('Asia/Manila');
 $success_message = '';
 $error_message = '';
 
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['approve_user'])) {
+    $target_user_id = (int)$_POST['user_id'];
+    
+    mysqli_begin_transaction($conn);
+    try {
+        $update_query = "UPDATE users SET account_status = 'Verified' WHERE user_id = ?";
+        $stmt_update = mysqli_prepare($conn, $update_query);
+        mysqli_stmt_bind_param($stmt_update, "i", $target_user_id);
+        mysqli_stmt_execute($stmt_update);
+
+        $notif_title = "Account Verified";
+        $notif_message = "Your resident account has been verified and approved by the admin. You can now access full features.";
+        $notif_type = "System Alert";
+        $notif_icon = "fa-solid fa-circle-check";
+        
+        $notif_query = "INSERT INTO user_notifications (user_id, title, message, type, icon) VALUES (?, ?, ?, ?, ?)";
+        $notif_stmt = mysqli_prepare($conn, $notif_query);
+        mysqli_stmt_bind_param($notif_stmt, "issss", $target_user_id, $notif_title, $notif_message, $notif_type, $notif_icon);
+        mysqli_stmt_execute($notif_stmt);
+
+        mysqli_commit($conn);
+        $success_message = "Resident account has been approved and verified.";
+    } catch (Exception $e) {
+        mysqli_rollback($conn);
+        $error_message = "System error: Could not approve the resident account.";
+    }
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['archive_user'])) {
     $target_user_id = (int)$_POST['user_id'];
     $reason = mysqli_real_escape_string($conn, $_POST['archive_reason'] ?? 'Suspended Account');
@@ -109,7 +137,7 @@ function residentIsVerified(array $row): bool
 
 function residentStatus(array $row): string
 {
-    return residentIsVerified($row) ? 'Verified' : 'Pending Verification';
+    return $row['account_status'] ?? 'Pending Verification';
 }
 
 function residentStatusClass(string $status): string
@@ -137,7 +165,7 @@ function residentTableExists(mysqli $conn, string $table): bool
 }
 
 $query = "
-    SELECT u.user_id, u.username, u.email, u.created_at, p.*
+    SELECT u.user_id, u.username, u.email, u.created_at, u.account_status, p.*
     FROM users u
     INNER JOIN user_profiles p ON u.user_id = p.user_id
     WHERE u.role = 'Residente'
@@ -441,7 +469,10 @@ $verified_percent = $total_residents > 0 ? round(($verified_residents / $total_r
                                                         <button class="dropdown-item resident-open-trigger" type="button" data-name="<?php echo h($full_name); ?>" data-initials="<?php echo h($initials); ?>" data-avatar="<?php echo h($avatar); ?>" data-status="<?php echo h($status); ?>" data-email="<?php echo h($row['email']); ?>" data-mobile="<?php echo h($row['mobile_number'] ?? 'N/A'); ?>" data-birthdate="<?php echo h(formatResidentDate($row['birth_date'] ?? '', 'F d, Y')); ?>" data-gender="<?php echo h(ucwords(strtolower((string)($row['sex'] ?? 'N/A')))); ?>" data-civil="<?php echo h(ucwords(strtolower((string)($row['civil_status'] ?? 'N/A')))); ?>" data-address="<?php echo h($address); ?>" data-purok="<?php echo h($purok); ?>" data-registered="<?php echo h(formatResidentDate($row['created_at'], 'M d, Y \a\t h:i A')); ?>" data-residentid="RES-<?php echo str_pad((string)$user_id, 6, '0', STR_PAD_LEFT); ?>" data-emergency="<?php echo h(trim(($emergency['name'] ?? 'N/A') . ' (' . ($emergency['relationship'] ?? 'N/A') . ')')); ?>" data-emergencyphone="<?php echo h($emergency['contact_number'] ?? 'N/A'); ?>" data-documents="<?php echo h(json_encode($documents)); ?>" data-activities="<?php echo h(json_encode(array_slice($activities, 0, 8))); ?>"><i class="bi bi-person"></i> Open Profile</button>
                                                         <button class="dropdown-item resident-doc-tab-trigger" type="button"><i class="bi bi-file-earmark"></i> View Documents</button>
                                                         <?php if ($status !== 'Verified'): ?>
-                                                            <span class="dropdown-item-text text-muted"><i class="bi bi-check-circle"></i> Approve Resident</span>
+                                                            <form action="manage_residents.php" method="POST" onsubmit="return confirm('Approve verification for <?php echo h($full_name); ?>?');" style="margin:0;">
+                                                                <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
+                                                                <button type="submit" name="approve_user" class="dropdown-item"><i class="bi bi-check-circle"></i> Approve Resident</button>
+                                                            </form>
                                                             <span class="dropdown-item-text text-muted"><i class="bi bi-x-circle"></i> Reject Verification</span>
                                                         <?php endif; ?>
                                                         <form action="manage_residents.php" method="POST" onsubmit="return confirm('Archive <?php echo h($full_name); ?> and move this account to archives?');">
