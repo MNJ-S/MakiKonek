@@ -66,7 +66,8 @@ $documentGroups = [
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $document_type = trim($_POST['document_type'] ?? '');
-    $document_fee = trim($_POST['document_fee'] ?? '');
+    $document_fee_raw = trim($_POST['document_fee'] ?? '');
+    $document_fee = (float) preg_replace('/[^0-9.]/', '', $document_fee_raw);
     $payment_method = trim($_POST['payment_method'] ?? 'cash');
     $first_name = trim($_POST['first_name'] ?? '');
     $middle_name = trim($_POST['middle_name'] ?? '');

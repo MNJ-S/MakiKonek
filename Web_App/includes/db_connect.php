@@ -18,6 +18,8 @@ try {
         MYSQLI_CLIENT_SSL
     );
 
+    mysqli_query($conn, "SET time_zone = '+08:00';");
+
     mysqli_set_charset($conn, "utf8mb4");
 } catch (mysqli_sql_exception $e) {
     die("<h3 style='color:red;'>Database Connection Failed:</h3> <p>" . $e->getMessage() . "</p>");
