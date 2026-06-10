@@ -98,7 +98,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt = mysqli_prepare($conn, $update_query);
             mysqli_stmt_bind_param(
                 $stmt,
-                "ssssssssssssssissi",
+                "sssssssssssssssissi",
                 $given_name,
                 $surname,
                 $middle_name,
