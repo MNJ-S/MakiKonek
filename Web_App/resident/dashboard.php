@@ -97,13 +97,14 @@ mysqli_stmt_close($stats_stmt);
 
 // Fetch Announcements
 $announcements = [];
-$ann_query = "SELECT title, created_at AS date FROM announcements WHERE status = 'Published' ORDER BY created_at DESC LIMIT 4";
+$ann_query = "SELECT title, event_date FROM announcements WHERE status = 'Published' ORDER BY event_date DESC LIMIT 4";
 $ann_result = mysqli_query($conn, $ann_query);
 if ($ann_result) {
     while ($row = mysqli_fetch_assoc($ann_result)) {
         $announcements[] = [
             'title' => $row['title'],
-            'date' => date('M d, Y', strtotime($row['date']))
+            'date' => !empty($row['event_date']) ? date('M d, Y', strtotime($row['event_date'])) : 'Date not specified',
+            'date_value' => $row['event_date'] ?? ''
         ];
     }
 }
@@ -203,7 +204,7 @@ if ($ann_result) {
                         <?php foreach ($announcements as $announcement): ?>
                             <article>
                                 <h3><?php echo htmlspecialchars($announcement['title']); ?></h3>
-                                <time datetime="<?php echo date('Y-m-d', strtotime($announcement['date'])); ?>"><?php echo htmlspecialchars($announcement['date']); ?></time>
+                                <time<?php echo $announcement['date_value'] !== '' ? ' datetime="' . htmlspecialchars($announcement['date_value']) . '"' : ''; ?>><?php echo htmlspecialchars($announcement['date']); ?></time>
                             </article>
                         <?php endforeach; ?>
                     </div>
