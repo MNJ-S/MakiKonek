@@ -139,7 +139,15 @@ $reservations_query = "
     JOIN facilities f ON fr.facility_id = f.facility_id
     JOIN users u ON fr.user_id = u.user_id
     LEFT JOIN user_profiles p ON u.user_id = p.user_id
-    ORDER BY fr.reservation_date ASC, fr.start_time ASC
+    ORDER BY
+        CASE
+            WHEN UPPER(fr.status) = 'PENDING' THEN 0
+            WHEN UPPER(fr.status) = 'APPROVED' THEN 1
+            ELSE 2
+        END,
+        fr.reservation_date ASC,
+        fr.start_time ASC,
+        fr.created_at DESC
 ";
 $reservations_stmt = mysqli_prepare($conn, $reservations_query);
 mysqli_stmt_execute($reservations_stmt);
@@ -159,16 +167,19 @@ $pending_count = 0;
 $completed_count = 0;
 
 foreach ($reservations as $row) {
-    if ($row['reservation_date'] >= $today && $row['reservation_date'] <= $week_end) {
+    $normalized_status = strtolower($row['status']);
+    $is_active_reservation = !in_array($normalized_status, ['cancelled', 'rejected'], true);
+
+    if ($is_active_reservation && $row['reservation_date'] >= $today && $row['reservation_date'] <= $week_end) {
         $upcoming_count++;
     }
-    if ($row['reservation_date'] === $today) {
+    if ($is_active_reservation && $row['reservation_date'] === $today) {
         $today_count++;
     }
-    if (strtolower($row['status']) === 'pending') {
+    if ($normalized_status === 'pending') {
         $pending_count++;
     }
-    if (strtolower($row['status']) === 'completed') {
+    if ($normalized_status === 'completed') {
         $completed_count++;
     }
 }
@@ -339,7 +350,7 @@ foreach ($active_calendar_reservations as $row) {
                     <h2>Upcoming Reservations</h2>
                 </div>
                 <div class="appointment-upcoming-list">
-                    <?php foreach (array_slice($upcoming_reservations, 0, 6) as $row):
+                    <?php foreach ($upcoming_reservations as $row):
                         $resident_name = appointmentResidentName($row);
                         $type = reservationTypeLabel($row['facility_name']);
                     ?>
