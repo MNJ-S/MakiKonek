@@ -175,7 +175,6 @@ CREATE TABLE IF NOT EXISTS `barangay_officials` (
 --
 
 INSERT INTO `barangay_officials` (`official_id`, `user_id`, `position`, `committee`, `term_start`, `term_end`, `is_active`) VALUES
-(1, 2, 'Barangay Captain', NULL, '2023-12-01', NULL, 1),
 (2, 5, 'Barangay Captain', 'Barangay Council', '2023-06-30', '2026-06-30', 1),
 (3, 6, 'Barangay Secretary', 'Barangay Council', '2023-06-30', '2026-06-30', 1),
 (4, 7, 'Barangay Treasurer', 'Barangay Council', '2023-06-30', '2026-06-30', 1),
