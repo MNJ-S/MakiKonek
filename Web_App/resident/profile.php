@@ -86,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($error_message)) {
         mysqli_begin_transaction($conn);
         try {
-            // 1. UPDATE user_profiles (Removed the IDs and emergency columns!)
+            // 1. user_profiles
             $update_query = "
                 UPDATE user_profiles SET 
                     first_name = ?, last_name = ?, middle_name = ?, suffix = ?, sex = ?, civil_status = ?, 
@@ -98,7 +98,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt = mysqli_prepare($conn, $update_query);
             mysqli_stmt_bind_param(
                 $stmt,
-                "ssssssssssssssissi",
+                "sssssssssssssssissi",
                 $given_name,
                 $surname,
                 $middle_name,

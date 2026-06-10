@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 10, 2026 at 05:32 AM
+-- Generation Time: Jun 10, 2026 at 10:10 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -235,6 +235,14 @@ CREATE TABLE `completed_reservations` (
   `completed_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `completed_reservations`
+--
+
+INSERT INTO `completed_reservations` (`completed_id`, `original_reservations_id`, `user_id`, `facility_name`, `reference_no`, `reservation_date`, `start_time`, `end_time`, `purpose`, `reservation_fee`, `reserved_at`, `status`, `completed_at`) VALUES
+(1, 1, 1, 'Basketball Court', 'APP-COURT-DEMO', '2026-06-08', '09:00:00', '10:30:00', 'Basketball practice', 150.00, '2026-06-08 10:58:30', 'Completed', '2026-06-10 04:08:51'),
+(2, 2, 4, 'Events Hall', 'APP-HALL-DEMO', '2026-06-09', '14:00:00', '17:00:00', 'Community assembly', 500.00, '2026-06-08 10:58:30', 'Completed', '2026-06-10 04:08:51');
+
 -- --------------------------------------------------------
 
 --
@@ -318,10 +326,10 @@ CREATE TABLE `facility_reservations` (
 --
 
 INSERT INTO `facility_reservations` (`reservation_id`, `user_id`, `facility_id`, `reference_no`, `reservation_date`, `start_time`, `end_time`, `expected_guests`, `purpose`, `additional_notes`, `reservation_fee`, `status`, `created_at`) VALUES
-(1, 1, 1, 'APP-COURT-DEMO', '2026-06-08', '09:00:00', '10:30:00', 18, 'Basketball practice', 'Seed reservation for admin schedule preview.', 150.00, 'Approved', '2026-06-08 10:58:30'),
-(2, 4, 2, 'APP-HALL-DEMO', '2026-06-09', '14:00:00', '17:00:00', 80, 'Community assembly', 'Seed reservation for events hall preview.', 500.00, 'Approved', '2026-06-08 10:58:30'),
+(1, 1, 1, 'APP-COURT-DEMO', '2026-06-08', '09:00:00', '10:30:00', 18, 'Basketball practice', 'Seed reservation for admin schedule preview.', 150.00, 'Completed', '2026-06-08 10:58:30'),
+(2, 4, 2, 'APP-HALL-DEMO', '2026-06-09', '14:00:00', '17:00:00', 80, 'Community assembly', 'Seed reservation for events hall preview.', 500.00, 'Completed', '2026-06-08 10:58:30'),
 (3, 1, 1, 'FR-20260610-749242', '2026-06-20', '11:00:00', '13:00:00', 30, 'SANGGUNIANG KATABATAAN ASSEMBLY', '30 monoblocks, 2 mics, 2 speakers', 150.00, 'Approved', '2026-06-10 03:07:35'),
-(4, 1, 1, 'FR-20260610-76FF05', '2026-06-20', '11:00:00', '13:00:00', 30, 'SANGGUNIANG KATABATAAN ASSEMBLY', '30 monoblocks, 2 mics, 2 speakers', 150.00, 'Pending', '2026-06-10 03:09:37'),
+(4, 1, 1, 'FR-20260610-76FF05', '2026-06-20', '11:00:00', '13:00:00', 30, 'SANGGUNIANG KATABATAAN ASSEMBLY', '30 monoblocks, 2 mics, 2 speakers', 150.00, 'Approved', '2026-06-10 03:09:37'),
 (5, 1, 1, 'FR-20260610-972ED5', '2026-06-20', '11:00:00', '13:00:00', 30, 'SANGGUNIANG KATABATAAN ASSEMBLY', '30 monoblocks, 2 mics, 2 speakers', 150.00, 'Pending', '2026-06-10 03:20:48'),
 (6, 1, 1, 'FR-20260610-B00F7E', '2026-06-20', '11:00:00', '13:00:00', 30, 'SANGGUNIANG KATABATAAN ASSEMBLY', '30 monoblocks, 2 mics, 2 speakers', 150.00, 'Pending', '2026-06-10 03:20:56'),
 (7, 1, 1, 'FR-20260610-CAADC3', '2026-06-20', '11:00:00', '13:00:00', 30, 'SANGGUNIANG KATABATAAN ASSEMBLY', '30 monoblocks, 2 mics, 2 speakers', 150.00, 'Pending', '2026-06-10 03:21:01');
@@ -441,6 +449,13 @@ CREATE TABLE `request_remarks` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `request_remarks`
+--
+
+INSERT INTO `request_remarks` (`remark_id`, `request_id`, `admin_id`, `admin_name`, `remark`, `created_at`) VALUES
+(1, 6, 1, 'jhody_admin', 'This is approved', '2026-06-10 04:09:54');
+
 -- --------------------------------------------------------
 
 --
@@ -471,10 +486,10 @@ CREATE TABLE `service_requests` (
 INSERT INTO `service_requests` (`request_id`, `user_id`, `document_type_id`, `reference_no`, `purpose`, `document_fee`, `payment_method`, `payment_receipt_path`, `payment_status`, `id_path`, `status`, `process_status`, `created_at`) VALUES
 (1, 1, 1, 'MK-89BE60', 'COMPANY APPLICATION', 50.00, 'cash', NULL, 'Unpaid', 'assets/uploads/requirements/id_1_1780634408.jpg', 'Rejected', 'Pending', '2026-06-04 20:40:08'),
 (2, 1, 1, 'MK-258F5B', 'COMPANY APPLICATION', 50.00, 'cash', NULL, 'Paid at Pickup', 'assets/uploads/requirements/id_1_1780634690.jpg', 'Completed', 'COMPLETED', '2026-06-04 20:44:50'),
-(3, 1, 2, 'MK-A069EB', 'SCHOLARSHIP PURPOSES', 0.00, 'cash', NULL, 'Unpaid', 'assets/uploads/requirements/id_1_1780634762.jpg', 'Under Review', 'Pending', '2026-06-04 20:46:02'),
+(3, 1, 2, 'MK-A069EB', 'SCHOLARSHIP PURPOSES', 0.00, 'cash', NULL, 'Unpaid', 'assets/uploads/requirements/id_1_1780634762.jpg', 'Processing', 'PROCESSING', '2026-06-04 20:46:02'),
 (4, 1, 3, 'MK-204186', 'ssss', 20.00, 'cash', NULL, 'Unpaid', 'assets/uploads/requirements/id_1_1780634818.jpg', 'Processing', 'PROCESSING', '2026-06-04 20:46:58'),
-(5, 1, 9, 'MK-B09B9D', 'BLOTTER', 50.00, 'online', NULL, 'Unpaid', 'assets/uploads/requirements/id_1_1780634955.jpg', 'Pending', 'Pending', '2026-06-04 20:49:15'),
-(6, 1, 7, 'MK-38A83D', 'CREDIT CARD APPLICATION', 0.00, 'online', 'assets/uploads/receipts/receipt_1_1780636179.png', 'Unpaid', 'assets/uploads/requirements/id_1_1780636179.png', 'Pending', 'Pending', '2026-06-04 21:09:39');
+(5, 1, 9, 'MK-B09B9D', 'BLOTTER', 50.00, 'online', NULL, 'Unpaid', 'assets/uploads/requirements/id_1_1780634955.jpg', 'Under Review', 'Pending', '2026-06-04 20:49:15'),
+(6, 1, 7, 'MK-38A83D', 'CREDIT CARD APPLICATION', 0.00, 'online', 'assets/uploads/receipts/receipt_1_1780636179.png', 'Unpaid', 'assets/uploads/requirements/id_1_1780636179.png', 'Ready for Pickup', 'READY FOR PICKUP', '2026-06-04 21:09:39');
 
 -- --------------------------------------------------------
 
@@ -489,35 +504,36 @@ CREATE TABLE `users` (
   `email` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
   `role` varchar(20) DEFAULT 'Residente',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `account_status` varchar(30) DEFAULT 'Pending Verification'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `username`, `email`, `password`, `role`, `created_at`) VALUES
-(1, 'Juday', 'atinon.jhody@gmail.com', '110505', 'Residente', '2026-05-30 07:39:59'),
-(2, 'BC_Kapitana', 'barangaycapt@gmail.com', 'admin123', 'Opisyal', '2026-05-30 07:46:33'),
-(4, 'maryjm', 'maryjo@gmail.com', '$2y$10$fIrd2oT0EBAD9L9mUjAW3OEqYX1962hu9HunlqgKLzzDY7mY38rVC', 'Residente', '2026-06-06 20:52:40'),
-(5, 'official_01', 'aigrette.panganiban.lajara@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
-(6, 'official_02', 'teona.lizardo.noprada@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
-(7, 'official_03', 'rubie.alcantara.olaes@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
-(8, 'official_04', 'hermano.medalla.de.chavez@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
-(9, 'official_05', 'virgilio.torres.lopez@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
-(10, 'official_06', 'diomedes.nemes.austria@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
-(11, 'official_07', 'rizal.mercado.pascual@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
-(12, 'official_08', 'freddie.balansay.noprada@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
-(13, 'official_09', 'marcelo.atienza.molinyawe@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
-(14, 'official_10', 'antonio.hempesalla.medalla@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
-(15, 'official_11', 'aaron.klyne.macasadia.magsino@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18'),
-(16, 'official_12', 'christian.heplan.perez@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18'),
-(17, 'official_13', 'john.paul.de.castro.evangelista@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18'),
-(18, 'official_14', 'mark.harold.alferez.burgos@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18'),
-(19, 'official_15', 'dhanna.marie.macasadia.montes@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18'),
-(20, 'official_16', 'jaz.elle.carpio.alvarez@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18'),
-(21, 'official_17', 'ellaine.buena.egloria@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18'),
-(22, 'official_18', 'jhenie.lee.siman.laude@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18');
+INSERT INTO `users` (`user_id`, `username`, `email`, `password`, `role`, `created_at`, `account_status`) VALUES
+(1, 'Juday', 'atinon.jhody@gmail.com', '110505', 'Residente', '2026-05-30 07:39:59', 'Verified'),
+(2, 'BC_Kapitana', 'barangaycapt@gmail.com', 'admin123', 'Opisyal', '2026-05-30 07:46:33', 'Pending Verification'),
+(4, 'maryjm', 'maryjo@gmail.com', '$2y$10$fIrd2oT0EBAD9L9mUjAW3OEqYX1962hu9HunlqgKLzzDY7mY38rVC', 'Residente', '2026-06-06 20:52:40', 'Pending Verification'),
+(5, 'official_01', 'aigrette.panganiban.lajara@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18', 'Pending Verification'),
+(6, 'official_02', 'teona.lizardo.noprada@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18', 'Pending Verification'),
+(7, 'official_03', 'rubie.alcantara.olaes@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18', 'Pending Verification'),
+(8, 'official_04', 'hermano.medalla.de.chavez@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18', 'Pending Verification'),
+(9, 'official_05', 'virgilio.torres.lopez@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18', 'Pending Verification'),
+(10, 'official_06', 'diomedes.nemes.austria@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18', 'Pending Verification'),
+(11, 'official_07', 'rizal.mercado.pascual@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18', 'Pending Verification'),
+(12, 'official_08', 'freddie.balansay.noprada@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18', 'Pending Verification'),
+(13, 'official_09', 'marcelo.atienza.molinyawe@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18', 'Pending Verification'),
+(14, 'official_10', 'antonio.hempesalla.medalla@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18', 'Pending Verification'),
+(15, 'official_11', 'aaron.klyne.macasadia.magsino@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18', 'Pending Verification'),
+(16, 'official_12', 'christian.heplan.perez@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18', 'Pending Verification'),
+(17, 'official_13', 'john.paul.de.castro.evangelista@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18', 'Pending Verification'),
+(18, 'official_14', 'mark.harold.alferez.burgos@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18', 'Pending Verification'),
+(19, 'official_15', 'dhanna.marie.macasadia.montes@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18', 'Pending Verification'),
+(20, 'official_16', 'jaz.elle.carpio.alvarez@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18', 'Pending Verification'),
+(21, 'official_17', 'ellaine.buena.egloria@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18', 'Pending Verification'),
+(22, 'official_18', 'jhenie.lee.siman.laude@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18', 'Pending Verification');
 
 -- --------------------------------------------------------
 
@@ -540,7 +556,7 @@ CREATE TABLE `user_emergency_contacts` (
 --
 
 INSERT INTO `user_emergency_contacts` (`contact_id`, `user_id`, `name`, `relationship`, `contact_number`, `address`) VALUES
-(1, 1, 'IRENE M. ATINON', 'MOTHER', '0936 5498 878', '0616 PUROK 2, MAKILING, CALAMBA CITY, LAGUNA');
+(3, 1, 'IRENE M. ATINON', 'MOTHER', '0936 5498 878', '0616 PUROK 2, MAKILING, CALAMBA CITY, LAGUNA');
 
 -- --------------------------------------------------------
 
@@ -561,12 +577,46 @@ CREATE TABLE `user_government_ids` (
 --
 
 INSERT INTO `user_government_ids` (`id_record_id`, `user_id`, `id_type`, `id_number`) VALUES
-(1, 1, 'National ID', '5949848945'),
-(2, 1, 'PhilHealth', '51657897897'),
-(3, 1, 'Voters ID', '65462261654'),
-(4, 1, 'SSS', '564654988979'),
-(5, 1, 'TIN', '65498798789'),
-(6, 1, 'Pag-IBIG', '06546548678');
+(12, 1, 'National ID', '5949848945'),
+(13, 1, 'PhilHealth', '51657897897'),
+(14, 1, 'Voters', '65462261654'),
+(15, 1, 'SSS', '564654988979'),
+(16, 1, 'TIN', '65498798789'),
+(17, 1, 'Pag-IBIG', '06546548678');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_notifications`
+--
+
+DROP TABLE IF EXISTS `user_notifications`;
+CREATE TABLE `user_notifications` (
+  `notification_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `type` varchar(50) DEFAULT 'info',
+  `icon` varchar(100) DEFAULT 'bell',
+  `is_read` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_notifications`
+--
+
+INSERT INTO `user_notifications` (`notification_id`, `user_id`, `title`, `message`, `type`, `icon`, `is_read`, `created_at`) VALUES
+(1, 1, 'Reservation Completed', 'Your reservation (APP-COURT-DEMO) is marked as completed.', 'Reservation Update', 'fa-solid fa-check-double', 1, '2026-06-10 04:08:51'),
+(2, 4, 'Reservation Completed', 'Your reservation (APP-HALL-DEMO) is marked as completed.', 'Reservation Update', 'fa-solid fa-check-double', 0, '2026-06-10 04:08:51'),
+(3, 1, 'Request Under Review', 'Your request (MK-38A83D) has been updated to Under Review.', 'Request Update', 'fa-regular fa-bell', 1, '2026-06-10 04:10:19'),
+(4, 1, 'Reservation Approved', 'Your reservation request (FR-20260610-76FF05) has been approved.', 'Reservation Update', 'fa-regular fa-circle-check', 1, '2026-06-10 04:11:17'),
+(5, 1, 'Request Processing', 'Your request (MK-38A83D) has been updated to Processing.', 'Request Update', 'fa-regular fa-bell', 1, '2026-06-10 04:11:34'),
+(6, 1, 'Request Ready for Pickup', 'Your document request (MK-38A83D) is ready for pickup.', 'Request Update', 'fa-regular fa-circle-check', 1, '2026-06-10 04:11:51'),
+(7, 1, 'Request Ready for Pickup', 'Your document request (MK-38A83D) is ready for pickup.', 'Request Update', 'fa-regular fa-circle-check', 1, '2026-06-10 04:13:14'),
+(8, 1, 'Request Under Review', 'Your request (MK-B09B9D) has been updated to Under Review.', 'Request Update', 'fa-regular fa-bell', 1, '2026-06-10 04:18:27'),
+(9, 1, 'Request Processing', 'Your request (MK-A069EB) has been updated to Processing.', 'Request Update', 'fa-regular fa-bell', 1, '2026-06-10 04:22:35'),
+(10, 1, 'Request Processing', 'Your request (MK-A069EB) has been updated to Processing.', 'Request Update', 'fa-regular fa-bell', 1, '2026-06-10 04:25:31');
 
 -- --------------------------------------------------------
 
@@ -605,7 +655,7 @@ CREATE TABLE `user_profiles` (
 --
 
 INSERT INTO `user_profiles` (`profile_id`, `user_id`, `first_name`, `last_name`, `middle_name`, `suffix`, `avatar_path`, `sex`, `civil_status`, `birth_date`, `birth_place`, `religion`, `nationality`, `mobile_number`, `house_no`, `street`, `purok_no`, `subdivision`, `years_residency`, `employed_status`, `date_registration`, `updated_at`) VALUES
-(1, 1, 'JHODY', 'ATINON', 'M', '', 'assets/uploads/avatars/avatar_1_1780306281.png', 'FEMALE', 'SINGLE', '2005-11-05', 'CALAMBA CITY', 'ROMAN CATHOLIC', 'FILIPINO', '09625389809', '0616', NULL, '2', NULL, 20, 'STUDENT', NULL, '2026-06-01 01:58:41'),
+(1, 1, 'JHODY', 'ATINON', 'M', '', 'assets/uploads/avatars/avatar_1_1780306281.png', 'FEMALE', 'SINGLE', '2005-11-05', 'CALAMBA CITY', 'ROMAN CATHOLIC', 'FILIPINO', '09625389809', '0616', '', '2', '', 20, 'STUDENT', NULL, '2026-06-10 08:09:59'),
 (2, 2, 'Barangay', 'Captain', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-05-30 07:46:33'),
 (4, 4, 'Mary Josephine', 'Magboo', 'Almonte', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-06 20:52:40'),
 (5, 5, 'Aigrette Panganiban', 'Lajara', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0917 000 0001', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-09', '2026-06-09 14:49:18'),
@@ -775,6 +825,13 @@ ALTER TABLE `user_government_ids`
   ADD KEY `fk_gov_ids_users` (`user_id`);
 
 --
+-- Indexes for table `user_notifications`
+--
+ALTER TABLE `user_notifications`
+  ADD PRIMARY KEY (`notification_id`),
+  ADD KEY `fk_notifications_users` (`user_id`);
+
+--
 -- Indexes for table `user_profiles`
 --
 ALTER TABLE `user_profiles`
@@ -831,7 +888,7 @@ ALTER TABLE `completed_requests`
 -- AUTO_INCREMENT for table `completed_reservations`
 --
 ALTER TABLE `completed_reservations`
-  MODIFY `completed_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `completed_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `document_types`
@@ -855,7 +912,7 @@ ALTER TABLE `facility_reservations`
 -- AUTO_INCREMENT for table `request_remarks`
 --
 ALTER TABLE `request_remarks`
-  MODIFY `remark_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `remark_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `service_requests`
@@ -873,13 +930,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `user_emergency_contacts`
 --
 ALTER TABLE `user_emergency_contacts`
-  MODIFY `contact_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `contact_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `user_government_ids`
 --
 ALTER TABLE `user_government_ids`
-  MODIFY `id_record_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_record_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+
+--
+-- AUTO_INCREMENT for table `user_notifications`
+--
+ALTER TABLE `user_notifications`
+  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `user_profiles`
@@ -961,28 +1024,16 @@ ALTER TABLE `user_government_ids`
   ADD CONSTRAINT `fk_gov_ids_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `user_notifications`
+--
+ALTER TABLE `user_notifications`
+  ADD CONSTRAINT `fk_notifications_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `user_profiles`
 --
 ALTER TABLE `user_profiles`
   ADD CONSTRAINT `fk_profiles_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
-
---
--- Table structure for table `user_notifications`
---
-DROP TABLE IF EXISTS `user_notifications`;
-CREATE TABLE `user_notifications` (
-  `notification_id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `title` varchar(255) NOT NULL,
-  `message` text NOT NULL,
-  `type` varchar(50) DEFAULT 'info',
-  `icon` varchar(100) DEFAULT 'bell',
-  `is_read` tinyint(1) DEFAULT 0,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`notification_id`),
-  CONSTRAINT `fk_notifications_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
