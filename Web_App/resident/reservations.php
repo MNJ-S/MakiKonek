@@ -315,6 +315,12 @@ $minDate = date('Y-m-d');
                             <?php if (!empty($reservation['additional_notes'])): ?>
                             <small><?php echo htmlspecialchars($reservation['additional_notes']); ?></small>
                             <?php endif; ?>
+                            <?php if (strtolower($reservation['status']) === 'rejected'): ?>
+                            <div class="reservation-note-box" style="margin-top: 1rem; background-color: #fce8e8; border: 1px solid #f8b4b4; padding: 0.75rem; border-radius: 0.5rem;">
+                                <i class="fa-solid fa-circle-info" style="color: #d9534f; margin-right: 0.5rem;"></i>
+                                <span style="color: #b52b27; font-size: 0.9rem;">Your reservation request has been rejected due to full scheduling or overlapping appointments.</span>
+                            </div>
+                            <?php endif; ?>
                         </div>
                     </article>
                     <?php endforeach; ?>

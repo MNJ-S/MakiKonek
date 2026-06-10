@@ -369,7 +369,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     if (!in_array($new_status, $request_statuses, true)) {
         $error_message = "Invalid request status selected.";
     } else {
-        $current_query = "SELECT status, process_status, document_fee, payment_method, payment_status, payment_receipt_path FROM service_requests WHERE request_id = ? LIMIT 1";
+        $current_query = "SELECT user_id, reference_no, status, process_status, document_fee, payment_method, payment_status, payment_receipt_path FROM service_requests WHERE request_id = ? LIMIT 1";
         $stmt_current = mysqli_prepare($conn, $current_query);
         mysqli_stmt_bind_param($stmt_current, "i", $req_id);
         mysqli_stmt_execute($stmt_current);
@@ -403,6 +403,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
                     if ($new_status === 'Completed') {
                         recordCompletedRequest($conn, $req_id);
                     }
+                    
+                    $user_id = (int)$current_row['user_id'];
+                    $reference_no = $current_row['reference_no'];
+                    
+                    $notif_title = 'Request ' . $new_status;
+                    $notif_msg = "Your request ($reference_no) has been updated to $new_status.";
+                    $notif_icon = 'fa-regular fa-bell';
+                    
+                    if ($new_status === 'Approved' || $new_status === 'Ready for Pickup') {
+                        $notif_msg = "Your document request ($reference_no) is ready for pickup.";
+                        $notif_icon = 'fa-regular fa-circle-check';
+                    } elseif ($new_status === 'Rejected') {
+                        $notif_msg = "Your document request ($reference_no) has been rejected.";
+                        $notif_icon = 'fa-regular fa-circle-xmark';
+                    } elseif ($new_status === 'Completed') {
+                        $notif_msg = "Your document request ($reference_no) has been completed.";
+                        $notif_icon = 'fa-solid fa-check-double';
+                    }
+                    
+                    $notif_stmt = mysqli_prepare($conn, "INSERT INTO user_notifications (user_id, title, message, type, icon) VALUES (?, ?, ?, 'Request Update', ?)");
+                    if ($notif_stmt) {
+                        mysqli_stmt_bind_param($notif_stmt, "isss", $user_id, $notif_title, $notif_msg, $notif_icon);
+                        mysqli_stmt_execute($notif_stmt);
+                        mysqli_stmt_close($notif_stmt);
+                    }
+
                 } else {
                     $error_message = "Failed to update request status.";
                 }

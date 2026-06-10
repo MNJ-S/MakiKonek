@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 08, 2026 at 01:15 PM
+-- Generation Time: Jun 10, 2026 at 05:32 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -49,6 +49,28 @@ INSERT INTO `admin_accounts` (`admin_id`, `username`, `email`, `password`, `role
 (2, 'mary_admin', 'mary@makikonek.ph', 'admin123', 'Super Admin', '2026-05-23 09:41:48', NULL),
 (3, 'shem_admin', 'shem@makikonek.ph', 'admin123', 'Super Admin', '2026-05-23 09:41:49', NULL),
 (4, 'nat_admin', 'nat@makikonek.ph', 'admin123', 'Super Admin', '2026-05-23 09:41:49', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `announcements`
+--
+
+DROP TABLE IF EXISTS `announcements`;
+CREATE TABLE `announcements` (
+  `announcement_id` int(11) NOT NULL,
+  `title` varchar(180) NOT NULL,
+  `category` varchar(40) NOT NULL DEFAULT 'Announcement',
+  `summary` varchar(255) DEFAULT NULL,
+  `body` text NOT NULL,
+  `event_date` date DEFAULT NULL,
+  `event_time` varchar(80) DEFAULT NULL,
+  `location` varchar(160) DEFAULT NULL,
+  `cover_image` varchar(255) DEFAULT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'Published',
+  `created_by` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -144,7 +166,25 @@ CREATE TABLE `barangay_officials` (
 --
 
 INSERT INTO `barangay_officials` (`official_id`, `user_id`, `position`, `committee`, `term_start`, `term_end`, `is_active`) VALUES
-(1, 2, 'Barangay Captain', NULL, '2023-12-01', NULL, 1);
+(1, 2, 'Barangay Captain', NULL, '2023-12-01', NULL, 1),
+(2, 5, 'Barangay Captain', 'Barangay Council', '2023-06-30', '2026-06-30', 1),
+(3, 6, 'Barangay Secretary', 'Barangay Council', '2023-06-30', '2026-06-30', 1),
+(4, 7, 'Barangay Treasurer', 'Barangay Council', '2023-06-30', '2026-06-30', 1),
+(5, 8, 'Kagawad', 'Barangay Council', '2023-06-30', '2026-06-30', 1),
+(6, 9, 'Kagawad', 'Barangay Council', '2023-06-30', '2026-06-30', 1),
+(7, 10, 'Kagawad', 'Barangay Council', '2023-06-30', '2026-06-30', 1),
+(8, 11, 'Kagawad', 'Barangay Council', '2023-06-30', '2026-06-30', 1),
+(9, 12, 'Kagawad', 'Barangay Council', '2023-06-30', '2026-06-30', 1),
+(10, 13, 'Kagawad', 'Barangay Council', '2023-06-30', '2026-06-30', 1),
+(11, 14, 'Kagawad', 'Barangay Council', '2023-06-30', '2026-06-30', 1),
+(12, 15, 'SK Chairman', 'Sangguniang Kabataan Council', '2023-06-30', '2026-06-30', 1),
+(13, 16, 'SK Kagawad', 'Sangguniang Kabataan Council', '2023-06-30', '2026-06-30', 1),
+(14, 17, 'SK Kagawad', 'Sangguniang Kabataan Council', '2023-06-30', '2026-06-30', 1),
+(15, 18, 'SK Kagawad', 'Sangguniang Kabataan Council', '2023-06-30', '2026-06-30', 1),
+(16, 19, 'SK Kagawad', 'Sangguniang Kabataan Council', '2023-06-30', '2026-06-30', 1),
+(17, 20, 'SK Kagawad', 'Sangguniang Kabataan Council', '2023-06-30', '2026-06-30', 1),
+(18, 21, 'SK Kagawad', 'Sangguniang Kabataan Council', '2023-06-30', '2026-06-30', 1),
+(19, 22, 'SK Kagawad', 'Sangguniang Kabataan Council', '2023-06-30', '2026-06-30', 1);
 
 -- --------------------------------------------------------
 
@@ -191,6 +231,7 @@ CREATE TABLE `completed_reservations` (
   `purpose` text NOT NULL,
   `reservation_fee` decimal(10,2) DEFAULT NULL,
   `reserved_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `status` varchar(50) DEFAULT NULL,
   `completed_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -278,7 +319,12 @@ CREATE TABLE `facility_reservations` (
 
 INSERT INTO `facility_reservations` (`reservation_id`, `user_id`, `facility_id`, `reference_no`, `reservation_date`, `start_time`, `end_time`, `expected_guests`, `purpose`, `additional_notes`, `reservation_fee`, `status`, `created_at`) VALUES
 (1, 1, 1, 'APP-COURT-DEMO', '2026-06-08', '09:00:00', '10:30:00', 18, 'Basketball practice', 'Seed reservation for admin schedule preview.', 150.00, 'Approved', '2026-06-08 10:58:30'),
-(2, 4, 2, 'APP-HALL-DEMO', '2026-06-09', '14:00:00', '17:00:00', 80, 'Community assembly', 'Seed reservation for events hall preview.', 500.00, 'Pending', '2026-06-08 10:58:30');
+(2, 4, 2, 'APP-HALL-DEMO', '2026-06-09', '14:00:00', '17:00:00', 80, 'Community assembly', 'Seed reservation for events hall preview.', 500.00, 'Approved', '2026-06-08 10:58:30'),
+(3, 1, 1, 'FR-20260610-749242', '2026-06-20', '11:00:00', '13:00:00', 30, 'SANGGUNIANG KATABATAAN ASSEMBLY', '30 monoblocks, 2 mics, 2 speakers', 150.00, 'Approved', '2026-06-10 03:07:35'),
+(4, 1, 1, 'FR-20260610-76FF05', '2026-06-20', '11:00:00', '13:00:00', 30, 'SANGGUNIANG KATABATAAN ASSEMBLY', '30 monoblocks, 2 mics, 2 speakers', 150.00, 'Pending', '2026-06-10 03:09:37'),
+(5, 1, 1, 'FR-20260610-972ED5', '2026-06-20', '11:00:00', '13:00:00', 30, 'SANGGUNIANG KATABATAAN ASSEMBLY', '30 monoblocks, 2 mics, 2 speakers', 150.00, 'Pending', '2026-06-10 03:20:48'),
+(6, 1, 1, 'FR-20260610-B00F7E', '2026-06-20', '11:00:00', '13:00:00', 30, 'SANGGUNIANG KATABATAAN ASSEMBLY', '30 monoblocks, 2 mics, 2 speakers', 150.00, 'Pending', '2026-06-10 03:20:56'),
+(7, 1, 1, 'FR-20260610-CAADC3', '2026-06-20', '11:00:00', '13:00:00', 30, 'SANGGUNIANG KATABATAAN ASSEMBLY', '30 monoblocks, 2 mics, 2 speakers', 150.00, 'Pending', '2026-06-10 03:21:01');
 
 -- --------------------------------------------------------
 
@@ -453,7 +499,25 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`user_id`, `username`, `email`, `password`, `role`, `created_at`) VALUES
 (1, 'Juday', 'atinon.jhody@gmail.com', '110505', 'Residente', '2026-05-30 07:39:59'),
 (2, 'BC_Kapitana', 'barangaycapt@gmail.com', 'admin123', 'Opisyal', '2026-05-30 07:46:33'),
-(4, 'maryjm', 'maryjo@gmail.com', '$2y$10$fIrd2oT0EBAD9L9mUjAW3OEqYX1962hu9HunlqgKLzzDY7mY38rVC', 'Residente', '2026-06-06 20:52:40');
+(4, 'maryjm', 'maryjo@gmail.com', '$2y$10$fIrd2oT0EBAD9L9mUjAW3OEqYX1962hu9HunlqgKLzzDY7mY38rVC', 'Residente', '2026-06-06 20:52:40'),
+(5, 'official_01', 'aigrette.panganiban.lajara@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
+(6, 'official_02', 'teona.lizardo.noprada@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
+(7, 'official_03', 'rubie.alcantara.olaes@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
+(8, 'official_04', 'hermano.medalla.de.chavez@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
+(9, 'official_05', 'virgilio.torres.lopez@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
+(10, 'official_06', 'diomedes.nemes.austria@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
+(11, 'official_07', 'rizal.mercado.pascual@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
+(12, 'official_08', 'freddie.balansay.noprada@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
+(13, 'official_09', 'marcelo.atienza.molinyawe@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
+(14, 'official_10', 'antonio.hempesalla.medalla@makiling.gov.ph', 'makikonek2026', 'Opisyal', '2026-06-09 14:49:18'),
+(15, 'official_11', 'aaron.klyne.macasadia.magsino@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18'),
+(16, 'official_12', 'christian.heplan.perez@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18'),
+(17, 'official_13', 'john.paul.de.castro.evangelista@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18'),
+(18, 'official_14', 'mark.harold.alferez.burgos@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18'),
+(19, 'official_15', 'dhanna.marie.macasadia.montes@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18'),
+(20, 'official_16', 'jaz.elle.carpio.alvarez@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18'),
+(21, 'official_17', 'ellaine.buena.egloria@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18'),
+(22, 'official_18', 'jhenie.lee.siman.laude@makiling.gov.ph', 'makikonek2026', 'SK', '2026-06-09 14:49:18');
 
 -- --------------------------------------------------------
 
@@ -543,7 +607,25 @@ CREATE TABLE `user_profiles` (
 INSERT INTO `user_profiles` (`profile_id`, `user_id`, `first_name`, `last_name`, `middle_name`, `suffix`, `avatar_path`, `sex`, `civil_status`, `birth_date`, `birth_place`, `religion`, `nationality`, `mobile_number`, `house_no`, `street`, `purok_no`, `subdivision`, `years_residency`, `employed_status`, `date_registration`, `updated_at`) VALUES
 (1, 1, 'JHODY', 'ATINON', 'M', '', 'assets/uploads/avatars/avatar_1_1780306281.png', 'FEMALE', 'SINGLE', '2005-11-05', 'CALAMBA CITY', 'ROMAN CATHOLIC', 'FILIPINO', '09625389809', '0616', NULL, '2', NULL, 20, 'STUDENT', NULL, '2026-06-01 01:58:41'),
 (2, 2, 'Barangay', 'Captain', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-05-30 07:46:33'),
-(4, 4, 'Mary Josephine', 'Magboo', 'Almonte', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-06 20:52:40');
+(4, 4, 'Mary Josephine', 'Magboo', 'Almonte', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-06 20:52:40'),
+(5, 5, 'Aigrette Panganiban', 'Lajara', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0917 000 0001', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-09', '2026-06-09 14:49:18'),
+(6, 6, 'Teona Lizardo', 'Noprada', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0917 000 0002', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-09', '2026-06-09 14:49:18'),
+(7, 7, 'Rubie Alcantara', 'Olaes', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0917 000 0003', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-09', '2026-06-09 14:49:18'),
+(8, 8, 'Hermano Medalla De', 'Chavez', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0917 000 0004', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-09', '2026-06-09 14:49:18'),
+(9, 9, 'Virgilio Torres', 'Lopez', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0917 000 0005', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-09', '2026-06-09 14:49:18'),
+(10, 10, 'Diomedes Nemes', 'Austria', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0917 000 0006', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-09', '2026-06-09 14:49:18'),
+(11, 11, 'Rizal Mercado', 'Pascual', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0917 000 0007', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-09', '2026-06-09 14:49:18'),
+(12, 12, 'Freddie Balansay', 'Noprada', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0917 000 0008', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-09', '2026-06-09 14:49:18'),
+(13, 13, 'Marcelo Atienza', 'Molinyawe', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0917 000 0009', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-09', '2026-06-09 14:49:18'),
+(14, 14, 'Antonio Hempesalla', 'Medalla', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0917 000 0010', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-09', '2026-06-09 14:49:18'),
+(15, 15, 'Aaron Klyne Macasadia', 'Magsino', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0917 000 0011', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-09', '2026-06-09 14:49:18'),
+(16, 16, 'Christian Heplan', 'Perez', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0917 000 0012', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-09', '2026-06-09 14:49:18'),
+(17, 17, 'John Paul De Castro', 'Evangelista', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0917 000 0013', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-09', '2026-06-09 14:49:18'),
+(18, 18, 'Mark Harold Alferez', 'Burgos', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0917 000 0014', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-09', '2026-06-09 14:49:18'),
+(19, 19, 'Dhanna Marie Macasadia', 'Montes', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0917 000 0015', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-09', '2026-06-09 14:49:18'),
+(20, 20, 'Jaz Elle Carpio', 'Alvarez', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0917 000 0016', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-09', '2026-06-09 14:49:18'),
+(21, 21, 'Ellaine Buena', 'Egloria', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0917 000 0017', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-09', '2026-06-09 14:49:18'),
+(22, 22, 'Jhenie Lee Siman', 'Laude', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0917 000 0018', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-09', '2026-06-09 14:49:18');
 
 --
 -- Indexes for dumped tables
@@ -556,6 +638,12 @@ ALTER TABLE `admin_accounts`
   ADD PRIMARY KEY (`admin_id`),
   ADD UNIQUE KEY `ucs_admin_username` (`username`),
   ADD UNIQUE KEY `ucs_admin_email` (`email`);
+
+--
+-- Indexes for table `announcements`
+--
+ALTER TABLE `announcements`
+  ADD PRIMARY KEY (`announcement_id`);
 
 --
 -- Indexes for table `archived_admin_accounts`
@@ -704,6 +792,12 @@ ALTER TABLE `admin_accounts`
   MODIFY `admin_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+-- AUTO_INCREMENT for table `announcements`
+--
+ALTER TABLE `announcements`
+  MODIFY `announcement_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `archived_admin_accounts`
 --
 ALTER TABLE `archived_admin_accounts`
@@ -725,7 +819,7 @@ ALTER TABLE `archived_user_profiles`
 -- AUTO_INCREMENT for table `barangay_officials`
 --
 ALTER TABLE `barangay_officials`
-  MODIFY `official_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `official_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `completed_requests`
@@ -755,7 +849,7 @@ ALTER TABLE `facilities`
 -- AUTO_INCREMENT for table `facility_reservations`
 --
 ALTER TABLE `facility_reservations`
-  MODIFY `reservation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `reservation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `request_remarks`
@@ -773,7 +867,7 @@ ALTER TABLE `service_requests`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `user_emergency_contacts`
@@ -791,7 +885,7 @@ ALTER TABLE `user_government_ids`
 -- AUTO_INCREMENT for table `user_profiles`
 --
 ALTER TABLE `user_profiles`
-  MODIFY `profile_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `profile_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- Constraints for dumped tables
@@ -871,6 +965,24 @@ ALTER TABLE `user_government_ids`
 --
 ALTER TABLE `user_profiles`
   ADD CONSTRAINT `fk_profiles_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+
+--
+-- Table structure for table `user_notifications`
+--
+DROP TABLE IF EXISTS `user_notifications`;
+CREATE TABLE `user_notifications` (
+  `notification_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `type` varchar(50) DEFAULT 'info',
+  `icon` varchar(100) DEFAULT 'bell',
+  `is_read` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`notification_id`),
+  CONSTRAINT `fk_notifications_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

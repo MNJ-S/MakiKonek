@@ -7,6 +7,7 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/includes/auto_archive_reservations.php';
 
 date_default_timezone_set('Asia/Manila');
 

@@ -7,6 +7,7 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/includes/auto_archive_reservations.php';
 
 date_default_timezone_set('Asia/Manila');
 
@@ -75,12 +76,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_reservation_st
     if ($reservation_id <= 0) {
         $error_message = 'Invalid reservation status update.';
     } else {
-        $status_stmt = mysqli_prepare($conn, "SELECT status FROM facility_reservations WHERE reservation_id = ? LIMIT 1");
+        $status_stmt = mysqli_prepare($conn, "SELECT user_id, reference_no, status FROM facility_reservations WHERE reservation_id = ? LIMIT 1");
         mysqli_stmt_bind_param($status_stmt, "i", $reservation_id);
         mysqli_stmt_execute($status_stmt);
         $status_result = mysqli_stmt_get_result($status_stmt);
         $reservation = mysqli_fetch_assoc($status_result);
         $current_status = $reservation['status'] ?? '';
+        $user_id = (int)($reservation['user_id'] ?? 0);
+        $reference_no = $reservation['reference_no'] ?? '';
         $allowed_next_statuses = $reservation_status_transitions[$current_status] ?? [];
 
         if (!in_array($new_status, $allowed_next_statuses, true)) {
@@ -95,6 +98,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_reservation_st
 
             if (mysqli_stmt_execute($stmt) && mysqli_stmt_affected_rows($stmt) === 1) {
                 $success_message = 'Reservation status updated.';
+                
+                $notif_title = 'Reservation ' . $new_status;
+                $notif_msg = '';
+                $notif_icon = 'fa-regular fa-bell';
+                
+                if ($new_status === 'Approved') {
+                    $notif_msg = "Your reservation request ($reference_no) has been approved.";
+                    $notif_icon = 'fa-regular fa-circle-check';
+                } elseif ($new_status === 'Rejected') {
+                    $notif_msg = "Your reservation request ($reference_no) has been rejected.";
+                    $notif_icon = 'fa-regular fa-circle-xmark';
+                } elseif ($new_status === 'Completed') {
+                    $notif_msg = "Your reservation ($reference_no) is marked as completed.";
+                    $notif_icon = 'fa-solid fa-check-double';
+                } elseif ($new_status === 'Cancelled') {
+                    $notif_msg = "Your reservation ($reference_no) has been cancelled.";
+                    $notif_icon = 'fa-solid fa-ban';
+                }
+
+                if ($notif_msg !== '' && $user_id > 0) {
+                    $notif_stmt = mysqli_prepare($conn, "INSERT INTO user_notifications (user_id, title, message, type, icon) VALUES (?, ?, ?, 'Reservation Update', ?)");
+                    if ($notif_stmt) {
+                        mysqli_stmt_bind_param($notif_stmt, "isss", $user_id, $notif_title, $notif_msg, $notif_icon);
+                        mysqli_stmt_execute($notif_stmt);
+                        mysqli_stmt_close($notif_stmt);
+                    }
+                }
             } else {
                 $error_message = 'Could not update reservation status.';
             }

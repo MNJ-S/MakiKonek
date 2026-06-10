@@ -10,35 +10,60 @@ $residentLogoutHref = $residentLogoutHref ?? 'logout.php';
 
 // username default as Resident
 $header_username = isset($_SESSION['resident_username']) ? $_SESSION['resident_username'] : 'Resident';
-$residentNotifications = $residentNotifications ?? [
-    [
-        'title' => 'Community Assembly Meeting',
-        'message' => 'Quarterly barangay assembly is scheduled this Saturday at 2:00 PM.',
-        'time' => '2 hours ago',
-        'type' => 'Announcement',
-        'icon' => 'fa-regular fa-bell',
-        'unread' => true,
-    ],
-    [
-        'title' => 'Document Request Approved',
-        'message' => 'Your Barangay Clearance request is ready for pickup.',
-        'time' => '1 day ago',
-        'type' => 'Request update',
-        'icon' => 'fa-regular fa-circle-check',
-        'unread' => true,
-    ],
-    [
-        'title' => 'Health and Wellness Program',
-        'message' => 'Free health check-up is available at the barangay health center.',
-        'time' => '3 days ago',
-        'type' => 'Advisory',
-        'icon' => 'fa-solid fa-kit-medical',
-        'unread' => false,
-    ],
-];
-$residentUnreadCount = count(array_filter($residentNotifications, function ($notification) {
-    return !empty($notification['unread']);
-}));
+
+$residentNotifications = [];
+$residentUnreadCount = 0;
+
+if ($isResidentHeader && isset($conn) && isset($_SESSION['resident_id'])) {
+    // Fetch top 10 notifications for the dropdown
+    $notif_query = "SELECT notification_id, title, message, type, icon, is_read, created_at FROM user_notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 10";
+    $notif_stmt = mysqli_prepare($conn, $notif_query);
+    if ($notif_stmt) {
+        $res_id = (int)$_SESSION['resident_id'];
+        mysqli_stmt_bind_param($notif_stmt, "i", $res_id);
+        mysqli_stmt_execute($notif_stmt);
+        $notif_result = mysqli_stmt_get_result($notif_stmt);
+        while ($row = mysqli_fetch_assoc($notif_result)) {
+            $time_diff = max(0, time() - strtotime($row['created_at']));
+            if ($time_diff < 60) {
+                $time_str = "Just now";
+            } elseif ($time_diff < 3600) {
+                $mins = floor($time_diff / 60);
+                $time_str = $mins . " min" . ($mins > 1 ? "s" : "") . " ago";
+            } elseif ($time_diff < 86400) {
+                $hours = floor($time_diff / 3600);
+                $time_str = $hours . " hour" . ($hours > 1 ? "s" : "") . " ago";
+            } else {
+                $days = floor($time_diff / 86400);
+                $time_str = $days . " day" . ($days > 1 ? "s" : "") . " ago";
+            }
+            
+            $residentNotifications[] = [
+                'id' => $row['notification_id'],
+                'title' => $row['title'],
+                'message' => $row['message'],
+                'time' => $time_str,
+                'type' => $row['type'],
+                'icon' => $row['icon'],
+                'unread' => !$row['is_read'],
+            ];
+        }
+        mysqli_stmt_close($notif_stmt);
+    }
+    
+    // Fetch total unread count for badges
+    $unread_query = "SELECT COUNT(*) as unread_count FROM user_notifications WHERE user_id = ? AND is_read = 0";
+    $unread_stmt = mysqli_prepare($conn, $unread_query);
+    if ($unread_stmt) {
+        mysqli_stmt_bind_param($unread_stmt, "i", $res_id);
+        mysqli_stmt_execute($unread_stmt);
+        $unread_result = mysqli_stmt_get_result($unread_stmt);
+        if ($row = mysqli_fetch_assoc($unread_result)) {
+            $residentUnreadCount = (int)$row['unread_count'];
+        }
+        mysqli_stmt_close($unread_stmt);
+    }
+}
 ?>
 <header class="site-header">
     <nav class="nav-shell" aria-label="Primary navigation">
@@ -148,26 +173,34 @@ $residentUnreadCount = count(array_filter($residentNotifications, function ($not
                     return;
                 }
 
-                var updateUnread = function() {
-                    var unreadCount = root.querySelectorAll('[data-notification-item][data-read="false"]').length;
+                var updateUnread = function(decrement = 0, setZero = false) {
                     var countBadges = document.querySelectorAll('[data-notification-sidebar-count]');
+                    var currentCount = parseInt(badge ? badge.textContent : '0') || 0;
+                    
+                    if (setZero) {
+                        currentCount = 0;
+                    } else if (decrement > 0) {
+                        currentCount = Math.max(0, currentCount - decrement);
+                    }
+                    // If no decrement and not setZero, we just use the current badge text
+                    // which is initialized accurately from PHP
 
                     if (badge) {
-                        badge.textContent = unreadCount;
-                        badge.hidden = unreadCount === 0;
+                        badge.textContent = currentCount;
+                        badge.hidden = currentCount === 0;
                     }
 
                     countBadges.forEach(function(countBadge) {
-                        countBadge.textContent = unreadCount;
-                        countBadge.hidden = unreadCount === 0;
+                        countBadge.textContent = currentCount;
+                        countBadge.hidden = currentCount === 0;
                     });
 
                     if (unreadText) {
-                        unreadText.textContent = unreadCount;
+                        unreadText.textContent = currentCount;
                     }
 
                     if (markAllRead) {
-                        markAllRead.disabled = unreadCount === 0;
+                        markAllRead.disabled = currentCount === 0;
                     }
                 };
 
@@ -190,10 +223,12 @@ $residentUnreadCount = count(array_filter($residentNotifications, function ($not
 
                 items.forEach(function(item) {
                     item.addEventListener('click', function() {
-                        item.dataset.read = 'true';
-                        item.classList.remove('is-unread');
-                        item.classList.add('is-read');
-                        updateUnread();
+                        if (item.dataset.read === 'false') {
+                            item.dataset.read = 'true';
+                            item.classList.remove('is-unread');
+                            item.classList.add('is-read');
+                            updateUnread(1, false);
+                        }
                     });
                 });
 
@@ -204,7 +239,23 @@ $residentUnreadCount = count(array_filter($residentNotifications, function ($not
                             item.classList.remove('is-unread');
                             item.classList.add('is-read');
                         });
-                        updateUnread();
+                        updateUnread(0, true);
+                        
+                        // Sync UI on the main notifications page if present
+                        var pageCards = document.querySelectorAll('.page-notification-card');
+                        pageCards.forEach(function(card) {
+                            card.style.fontWeight = 'normal';
+                            card.style.opacity = '0.8';
+                        });
+                        var pageMarkAllBtn = document.querySelector('.mark-read-btn');
+                        if (pageMarkAllBtn) {
+                            pageMarkAllBtn.style.display = 'none';
+                        }
+                        
+                        // Send request to backend
+                        fetch('../resident/mark_notifications_read.php', {
+                            method: 'POST'
+                        }).catch(err => console.error(err));
                     });
                 }
 

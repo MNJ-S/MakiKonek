@@ -7,6 +7,8 @@ $username = "root";
 $password = "";
 $database = "makikonek_db";
 
+date_default_timezone_set('Asia/Manila');
+
 try {
     $conn = mysqli_connect($servername, $username, $password, $database);
     mysqli_set_charset($conn, "utf8mb4");
