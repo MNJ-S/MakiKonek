@@ -138,6 +138,7 @@ $pending_requests = dashboardScalar($conn, "SELECT COUNT(request_id) AS total FR
 $under_review_count = dashboardScalar($conn, "SELECT COUNT(request_id) AS total FROM service_requests WHERE status = 'Under Review' OR UPPER(status) = 'APPROVED'");
 $processing_count = dashboardScalar($conn, "SELECT COUNT(request_id) AS total FROM service_requests WHERE status = 'Processing' OR (UPPER(status) = 'APPROVED' AND process_status = 'PROCESSING')");
 $ready_count = dashboardScalar($conn, "SELECT COUNT(request_id) AS total FROM service_requests WHERE status = 'Ready for Pickup' OR process_status = 'READY FOR PICKUP'");
+$completed_count = dashboardScalar($conn, "SELECT COUNT(request_id) AS total FROM service_requests WHERE UPPER(status) = 'COMPLETED'");
 $appointments_today = dashboardScalar($conn, "SELECT COUNT(reservation_id) AS total FROM facility_reservations WHERE reservation_date = CURRENT_DATE() AND UPPER(status) NOT IN ('CANCELLED', 'REJECTED')");
 $residents_for_verification = 0;
 $notification_count = min(9, $pending_requests + $ready_count);
@@ -276,37 +277,49 @@ while (count($activities) < 5) {
                 </div>
             </article>
 
-            <article class="bento-card kpi-card">
-                <div>
+            <article class="bento-card kpi-card-centered">
+                <span class="kpi-icon-top"><i class="bi bi-file-earmark-text"></i></span>
+                <div class="kpi-content-wrap">
                     <h3>Pending Requests</h3>
                     <strong><?php echo $pending_requests; ?></strong>
                     <p>Needs review</p>
                 </div>
-                <span class="kpi-icon"><i class="bi bi-file-earmark-text"></i></span>
             </article>
-            <article class="bento-card kpi-card">
-                <div>
+
+            <article class="bento-card kpi-card-centered">
+                <span class="kpi-icon-top"><i class="bi bi-list-check"></i></span>
+                <div class="kpi-content-wrap">
                     <h3>Processing</h3>
                     <strong><?php echo $processing_count; ?></strong>
                     <p>Being prepared</p>
                 </div>
-                <span class="kpi-icon"><i class="bi bi-list-check"></i></span>
             </article>
-            <article class="bento-card kpi-card">
-                <div>
+
+            <article class="bento-card kpi-card-centered">
+                <span class="kpi-icon-top"><i class="bi bi-inbox"></i></span>
+                <div class="kpi-content-wrap">
                     <h3>Ready for Pickup</h3>
                     <strong><?php echo $ready_count; ?></strong>
                     <p>Awaiting claim</p>
                 </div>
-                <span class="kpi-icon"><i class="bi bi-inbox"></i></span>
             </article>
-            <article class="bento-card kpi-card">
-                <div>
+
+            <article class="bento-card kpi-card-centered">
+                <span class="kpi-icon-top"><i class="bi bi-check2-circle"></i></span>
+                <div class="kpi-content-wrap">
+                    <h3>Completed</h3>
+                    <strong><?php echo $completed_count; ?></strong>
+                    <p>Fully processed</p>
+                </div>
+            </article>
+
+            <article class="bento-card kpi-card-centered">
+                <span class="kpi-icon-top"><i class="bi bi-people"></i></span>
+                <div class="kpi-content-wrap">
                     <h3>Verified Residents</h3>
                     <strong><?php echo $total_residents; ?></strong>
                     <p>Total accounts</p>
                 </div>
-                <span class="kpi-icon"><i class="bi bi-people"></i></span>
             </article>
         </section>
 
