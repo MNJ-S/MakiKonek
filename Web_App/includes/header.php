@@ -199,6 +199,17 @@ if ($isResidentHeader && isset($conn) && isset($_SESSION['resident_id'])) {
     </nav>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            var siteHeader = document.querySelector('.site-header');
+            var setHeaderOffset = function() {
+                if (siteHeader) {
+                    document.documentElement.style.setProperty('--site-header-offset', siteHeader.offsetHeight + 'px');
+                }
+            };
+
+            setHeaderOffset();
+            window.addEventListener('resize', setHeaderOffset);
+            window.addEventListener('orientationchange', setHeaderOffset);
+
             var navToggle = document.querySelector('.nav-toggle');
             var navMenu = document.querySelector('[data-nav-menu]');
 
@@ -338,3 +349,4 @@ if ($isResidentHeader && isset($conn) && isset($_SESSION['resident_id'])) {
         });
     </script>
 </header>
+<div class="site-header-spacer" aria-hidden="true"></div>

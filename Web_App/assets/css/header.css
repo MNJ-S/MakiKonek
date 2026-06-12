@@ -3,13 +3,19 @@
 .site-header {
     --site-header-height: 120px;
     --site-header-mobile-height: 64px;
-    position: -webkit-sticky !important;
-    position: sticky !important;
+    position: fixed !important;
     top: 0 !important;
+    right: 0;
+    left: 0;
     z-index: 1000;
+    width: 100%;
     background: rgba(255, 255, 255, 0.94);
     border-bottom: 1px solid rgba(217, 226, 235, 0.8);
     backdrop-filter: blur(10px);
+}
+
+.site-header-spacer {
+    height: var(--site-header-offset, var(--site-header-height));
 }
 
 .site-header .nav-shell {
