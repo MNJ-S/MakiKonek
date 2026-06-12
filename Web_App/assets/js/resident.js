@@ -232,3 +232,20 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 5000);
     });
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    const requestForm = document.querySelector('form');
+    const agreementCheckbox = document.getElementById('legal_agreement_declaration');
+
+    if (requestForm && agreementCheckbox) {
+        requestForm.addEventListener('submit', function (event) {
+            if (!agreementCheckbox.checked) {
+                event.preventDefault();
+                
+                alert("Please check this box if you want to proceed."); 
+                
+                agreementCheckbox.focus();
+            }
+        });
+    }
+});

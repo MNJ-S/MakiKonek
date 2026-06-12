@@ -705,6 +705,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <strong data-selected-fee>P50.00</strong>
                         </div>
 
+                        <div class="legal-agreement-wrapper">
+                            <label class="legal-checkbox-container">
+                                <input type="checkbox" id="legal_agreement_declaration" name="legal_agreement_declaration" required>
+                                <span class="custom-ui-checkbox"></span>
+                                <span class="legal-text-content">
+                                    <span class="required-asterisk">*</span> I've read and accept the 
+                                    <a href="../public/terms_conditions.php" target="_blank" class="legal-hyperlink">Terms & Conditions</a> 
+                                    and 
+                                    <a href="../public/privacy_policy.php" target="_blank" class="legal-hyperlink">Privacy Policy</a>.
+                                </span>
+                            </label>
+                        </div>
+          
                         <div class="form-actions">
                             <button class="cancel-btn" type="button" data-clear-request>Cancel</button>
                             <button class="submit-btn" type="submit">Submit Request</button>
