@@ -8,6 +8,10 @@ $isResidentHeader = $isResidentHeader ?? isset($_SESSION['resident_id']);
 $residentProfileHref = $residentProfileHref ?? 'profile.php';
 $residentLogoutHref = $residentLogoutHref ?? 'logout.php';
 
+if ($isResidentHeader && (!isset($conn) || !($conn instanceof mysqli))) {
+    require_once __DIR__ . '/db_connect.php';
+}
+
 if (!function_exists('formatResidentHeaderName')) {
     function formatResidentHeaderName($name) {
         $name = trim((string)$name);

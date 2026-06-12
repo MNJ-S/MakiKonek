@@ -150,6 +150,11 @@
     line-height: 1;
 }
 
+.resident-notification-badge[hidden],
+[data-notification-sidebar-count][hidden] {
+    display: none !important;
+}
+
 .resident-notification-panel {
     position: absolute;
     top: calc(100% + 14px);
