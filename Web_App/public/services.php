@@ -327,7 +327,7 @@ $serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login
             </div>
         </div>
         <div class="copyright">
-            &copy; 2024 Barangay Makiling. All rights reserved.
+            &copy; 2026 Barangay Makiling. All rights reserved.
         </div>
     </footer>
 
