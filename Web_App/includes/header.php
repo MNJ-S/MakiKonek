@@ -8,8 +8,39 @@ $isResidentHeader = $isResidentHeader ?? isset($_SESSION['resident_id']);
 $residentProfileHref = $residentProfileHref ?? 'profile.php';
 $residentLogoutHref = $residentLogoutHref ?? 'logout.php';
 
-// Prefer the resident's given name in the header, then fall back to the username.
-$header_username = isset($_SESSION['resident_username']) ? $_SESSION['resident_username'] : 'Resident';
+if (!function_exists('formatResidentHeaderName')) {
+    function formatResidentHeaderName($name) {
+        $name = trim((string)$name);
+        if ($name === '') {
+            return '';
+        }
+
+        if (strpos($name, '@') !== false) {
+            $name = substr($name, 0, strpos($name, '@'));
+        }
+
+        $name = trim(str_replace(['.', '_', '-'], ' ', $name));
+        if ($name === '') {
+            return '';
+        }
+
+        $parts = preg_split('/\s+/', $name);
+        $firstName = $parts[0] ?? '';
+
+        return function_exists('mb_convert_case')
+            ? mb_convert_case($firstName, MB_CASE_TITLE, 'UTF-8')
+            : ucwords(strtolower($firstName));
+    }
+}
+
+// Prefer the resident's given name in the header, then fall back without showing emails.
+$header_username = formatResidentHeaderName($_SESSION['resident_first_name'] ?? '');
+if ($header_username === '') {
+    $header_username = formatResidentHeaderName($_SESSION['resident_username'] ?? '');
+}
+if ($header_username === '') {
+    $header_username = 'Resident';
+}
 
 $residentNotifications = [];
 $residentUnreadCount = 0;
@@ -24,11 +55,10 @@ if ($isResidentHeader && isset($conn) && isset($_SESSION['resident_id'])) {
         mysqli_stmt_execute($name_stmt);
         $name_result = mysqli_stmt_get_result($name_stmt);
         if ($row = mysqli_fetch_assoc($name_result)) {
-            $first_name = trim((string)($row['first_name'] ?? ''));
+            $first_name = formatResidentHeaderName($row['first_name'] ?? '');
             if ($first_name !== '') {
-                $header_username = function_exists('mb_convert_case')
-                    ? mb_convert_case($first_name, MB_CASE_TITLE, 'UTF-8')
-                    : ucwords(strtolower($first_name));
+                $header_username = $first_name;
+                $_SESSION['resident_first_name'] = $first_name;
             }
         }
         mysqli_stmt_close($name_stmt);

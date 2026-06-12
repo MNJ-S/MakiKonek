@@ -9,22 +9,7 @@ $footerAssetBase = $footerAssetBase ?? '../assets';
             <img class="footer-logo" src="<?php echo $footerAssetBase; ?>/img/logo-makikonek.png" alt="MakiKonek Logo">
             <p>MakiKonek is your digital gateway to faster, easier, and more transparent barangay service.</p>
             
-            <div class="social-row" style="display: flex; gap: 10px; align-items: center;">
-                <style>
-                    .social-row a {
-                        display: inline-flex !important;
-                        align-items: center !important;
-                        justify-content: center !important;
-                        width: 40px !important;
-                        height: 40px !important;
-                        background-color: #ffffff !important;
-                        color: #043927 !important;
-                        border-radius: 50% !important;
-                        text-decoration: none !important;
-                        font-weight: bold !important;
-                        font-size: 18px !important;
-                    }
-                </style>
+            <div class="social-row">
                 <a href="#">f</a>
                 <a href="#">●</a>
                 <a href="#">☏</a>

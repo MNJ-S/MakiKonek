@@ -41,7 +41,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $error_message = "No Admin account found with those credentials.";
         }
     } else {
-        $query = "SELECT * FROM users WHERE (email = ? OR username = ?) AND role = ? LIMIT 1";
+        $query = "SELECT u.*, p.first_name
+                  FROM users u
+                  LEFT JOIN user_profiles p ON p.user_id = u.user_id
+                  WHERE (u.email = ? OR u.username = ?) AND u.role = ?
+                  LIMIT 1";
         $stmt = mysqli_prepare($conn, $query);
         mysqli_stmt_bind_param($stmt, "sss", $login_input, $login_input, $selected_role);
         mysqli_stmt_execute($stmt);
@@ -52,6 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($password === $row['password']) {
                 $_SESSION['resident_id'] = $row['user_id'];
                 $_SESSION['resident_username'] = $row['username'];
+                $_SESSION['resident_first_name'] = trim((string)($row['first_name'] ?? ''));
                 $_SESSION['resident_role'] = $row['role'];
                 header("Location: resident/dashboard.php");
                 exit();
@@ -67,7 +72,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 // --- ROUTE 2: RESIDENTE, OPISYAL, & SK LOGIN ---
 else {
     // Check the users table and specifically match the role they selected
-    $query = "SELECT * FROM users WHERE (email = ? OR username = ?) AND role = ? LIMIT 1";
+    $query = "SELECT u.*, p.first_name
+              FROM users u
+              LEFT JOIN user_profiles p ON p.user_id = u.user_id
+              WHERE (u.email = ? OR u.username = ?) AND u.role = ?
+              LIMIT 1";
     $stmt = mysqli_prepare($conn, $query);
     mysqli_stmt_bind_param($stmt, "sss", $login_input, $login_input, $selected_role);
     mysqli_stmt_execute($stmt);
@@ -79,6 +88,7 @@ else {
             // Set the session variables
             $_SESSION['resident_id'] = $row['user_id'];
             $_SESSION['resident_username'] = $row['username'];
+            $_SESSION['resident_first_name'] = trim((string)($row['first_name'] ?? ''));
             $_SESSION['resident_role'] = $row['role'];
 
             if ($row['role'] === 'SK' || $row['role'] === 'Opisyal') {

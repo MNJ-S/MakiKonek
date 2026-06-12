@@ -852,8 +852,7 @@
     }
 
     .ann-layout,
-    .ann-sidebar,
-    .announcement-post {
+    .ann-sidebar {
         grid-template-columns: 1fr;
     }
 
@@ -862,41 +861,64 @@
     }
 
     .announcement-post {
+        grid-template-columns: 92px minmax(0, 1fr);
         border-left-width: 5px;
     }
 
     .post-media {
-        min-height: 132px;
-        padding: 16px;
+        min-height: 0;
+        justify-content: flex-start;
+        gap: 6px;
+        padding: 14px 10px;
     }
 
     .post-media i {
-        width: 42px;
-        height: 42px;
+        width: 36px;
+        height: 36px;
         border-radius: 10px;
-        font-size: 19px;
+        font-size: 17px;
     }
 
     .post-media strong {
-        font-size: 20px;
+        font-size: 13px;
+        line-height: 1.15;
+    }
+
+    .post-media span {
+        font-size: 11px;
     }
 
     .post-body {
-        padding: 18px;
+        padding: 14px 12px;
+    }
+
+    .post-top {
+        margin-bottom: 8px;
+    }
+
+    .tag {
+        min-height: 22px;
+        padding: 0 10px;
+        font-size: 11px;
+    }
+
+    .post-top button {
+        font-size: 17px;
     }
 
     .post-body h3 {
-        font-size: 19px;
+        font-size: 17px;
         line-height: 1.2;
     }
 
     .post-body p,
     .post-meta {
-        font-size: 13px;
+        font-size: 12px;
     }
 
     .post-meta {
-        gap: 10px;
+        gap: 7px 10px;
+        margin-top: 12px;
     }
 
     .fb-card,

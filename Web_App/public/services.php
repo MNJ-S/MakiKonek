@@ -19,9 +19,10 @@ $serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- Gagamit ng home.css para sa global styles, at services.css para sa cards -->
-    <link rel="stylesheet" href="../assets/css/home.css?v=20260612v">
-    <link rel="stylesheet" href="../assets/css/header.css?v=20260612v">
-    <link rel="stylesheet" href="../assets/css/services.css?v=20260612v">
+    <link rel="stylesheet" href="../assets/css/home.css?v=20260613a">
+    <link rel="stylesheet" href="../assets/css/header.css?v=20260613a">
+    <link rel="stylesheet" href="../assets/css/services.css?v=20260613a">
+    <link rel="stylesheet" href="../assets/css/footer.css?v=20260613b">
 </head>
 
 <body>

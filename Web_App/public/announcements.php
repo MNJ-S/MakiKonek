@@ -58,10 +58,10 @@ function publicAnnouncementExcerpt(string $value, int $limit = 155): string
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Announcements | MakiKonek Digital Service Portal</title>
-    <link rel="stylesheet" href="../assets/css/home.css?v=20260612v">
-    <link rel="stylesheet" href="../assets/css/header.css?v=20260612v">
-    <link rel="stylesheet" href="../assets/css/footer.css?v=20260529e">
-    <link rel="stylesheet" href="../assets/css/announcements.css?v=20260612v">
+    <link rel="stylesheet" href="../assets/css/home.css?v=20260613a">
+    <link rel="stylesheet" href="../assets/css/header.css?v=20260613a">
+    <link rel="stylesheet" href="../assets/css/footer.css?v=20260613b">
+    <link rel="stylesheet" href="../assets/css/announcements.css?v=20260613a">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <script defer src="../assets/js/announcements.js?v=20260610a"></script>
 </head>
