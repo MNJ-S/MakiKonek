@@ -18,7 +18,6 @@ $serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- Gagamit ng home.css para sa global styles, at services.css para sa cards -->
     <link rel="stylesheet" href="../assets/css/home.css?v=20260613a">
     <link rel="stylesheet" href="../assets/css/header.css?v=20260613e">
     <link rel="stylesheet" href="../assets/css/services.css?v=20260613a">
@@ -39,8 +38,7 @@ $serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login
                     <p>Request clearances, certificates, permits, and other barangay documents without visiting the hall. Submit requirements, upload files, and track your application progress anytime.</p>
                 </div>
 
-                <!-- Minimal hero: metrics removed per design request -->
-            </div>
+                </div>
         </header>
 
         <section class="services-grid-layout">
@@ -60,6 +58,9 @@ $serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login
                             <li>Proof of Residency</li>
                             <li>Recent 2×2 Photo</li>
                         </ul>
+                    </div>
+                    <div class="srv-validity">
+                        <i class="fa-regular fa-calendar-check"></i> Document Validity: <span>6 Months</span>
                     </div>
                     <div class="srv-meta">
                         <div class="srv-meta-row"><span>Processing Time:</span><strong>3-5 working days</strong></div>
@@ -84,6 +85,9 @@ $serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login
                             <li>Proof of Address</li>
                             <li>Barangay ID (if available)</li>
                         </ul>
+                    </div>
+                    <div class="srv-validity">
+                        <i class="fa-regular fa-calendar-check"></i> Document Validity: <span>3 Months</span>
                     </div>
                     <div class="srv-meta">
                         <div class="srv-meta-row"><span>Processing Time:</span><strong>2-3 working days</strong></div>
@@ -110,6 +114,9 @@ $serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login
                             <li>Valid ID of Owner</li>
                         </ul>
                     </div>
+                    <div class="srv-validity">
+                        <i class="fa-regular fa-calendar-check"></i> Document Validity: <span>1 Year</span>
+                    </div>
                     <div class="srv-meta">
                         <div class="srv-meta-row"><span>Processing Time:</span><strong>5-7 working days</strong></div>
                         <div class="srv-meta-row"><span>Fee:</span><strong>₱500.00</strong></div>
@@ -133,6 +140,9 @@ $serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login
                             <li>Barangay Residency Certificate</li>
                             <li>Supporting Documents (if applicable)</li>
                         </ul>
+                    </div>
+                    <div class="srv-validity">
+                        <i class="fa-regular fa-calendar-check"></i> Document Validity: <span>3 Months</span>
                     </div>
                     <div class="srv-meta">
                         <div class="srv-meta-row"><span>Processing Time:</span><strong>2-3 working days</strong></div>
@@ -158,6 +168,9 @@ $serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login
                             <li>Supporting Evidence</li>
                         </ul>
                     </div>
+                    <div class="srv-validity">
+                        <i class="fa-regular fa-calendar-check"></i> Document Validity: <span>Permanent Record</span>
+                    </div>
                     <div class="srv-meta">
                         <div class="srv-meta-row"><span>Processing Time:</span><strong>1-2 working days</strong></div>
                         <div class="srv-meta-row"><span>Fee:</span><strong>₱50.00</strong></div>
@@ -181,6 +194,9 @@ $serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login
                             <li>Proof of Residency</li>
                             <li>2×2 Photo (2 copies)</li>
                         </ul>
+                    </div>
+                    <div class="srv-validity">
+                        <i class="fa-regular fa-calendar-check"></i> Document Validity: <span>1 Year</span>
                     </div>
                     <div class="srv-meta">
                         <div class="srv-meta-row"><span>Processing Time:</span><strong>7-10 working days</strong></div>
@@ -206,6 +222,9 @@ $serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login
                             <li>Previous Cedula (if renewing)</li>
                         </ul>
                     </div>
+                    <div class="srv-validity">
+                        <i class="fa-regular fa-calendar-check"></i> Document Validity: <span>1 Year</span>
+                    </div>
                     <div class="srv-meta">
                         <div class="srv-meta-row"><span>Processing Time:</span><strong>Same day</strong></div>
                         <div class="srv-meta-row"><span>Fee:</span><strong class="fee-varies">Varies by income</strong></div>
@@ -229,6 +248,9 @@ $serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login
                             <li>Barangay Clearance</li>
                             <li>Letter of Request</li>
                         </ul>
+                    </div>
+                    <div class="srv-validity">
+                        <i class="fa-regular fa-calendar-check"></i> Document Validity: <span>6 Months</span>
                     </div>
                     <div class="srv-meta">
                         <div class="srv-meta-row"><span>Processing Time:</span><strong>3-5 working days</strong></div>
@@ -254,6 +276,9 @@ $serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login
                             <li>Owner's Valid ID</li>
                             <li>Occupancy Permit (if applicable)</li>
                         </ul>
+                    </div>
+                    <div class="srv-validity">
+                        <i class="fa-regular fa-calendar-check"></i> Document Validity: <span>1 Year</span>
                     </div>
                     <div class="srv-meta">
                         <div class="srv-meta-row"><span>Processing Time:</span><strong>7-14 working days</strong></div>
@@ -290,7 +315,7 @@ $serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login
             <div>
                 <h3>Other Links</h3>
                 <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Use</a>
+                <a href="#">Terms and Conditions</a>
                 <a href="#">FAQ</a>
                 <a href="#">Sitemap</a>
             </div>

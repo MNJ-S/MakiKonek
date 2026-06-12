@@ -525,3 +525,25 @@ p.srv-desc {
         grid-column: 1 / -1;
     }
 }
+
+.srv-validity {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed #e2e8f0;
+    font-size: 0.88rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.srv-validity i {
+    color: #475569;
+    font-size: 0.95rem;
+}
+
+.srv-validity span {
+    font-weight: 600;
+    color: #1e293b;
+}
