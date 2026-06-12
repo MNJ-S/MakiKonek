@@ -20,7 +20,7 @@ $serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login
 
     <!-- Gagamit ng home.css para sa global styles, at services.css para sa cards -->
     <link rel="stylesheet" href="../assets/css/home.css?v=20260613a">
-    <link rel="stylesheet" href="../assets/css/header.css?v=20260613b">
+    <link rel="stylesheet" href="../assets/css/header.css?v=20260613d">
     <link rel="stylesheet" href="../assets/css/services.css?v=20260613a">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260613b">
 </head>

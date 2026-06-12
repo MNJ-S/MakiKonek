@@ -135,6 +135,9 @@ if ($isResidentHeader && isset($conn) && isset($_SESSION['resident_id'])) {
             <a href="<?php echo $navBase; ?>services.php" class="<?php echo $currentPage === 'services.php' ? 'active' : ''; ?>">Services</a>
             <a href="<?php echo $navBase; ?>announcements.php" class="<?php echo $currentPage === 'announcements.php' ? 'active' : ''; ?>">Announcements</a>
             <a href="<?php echo $navBase; ?>index.php#contact">Contact</a>
+            <?php if ($isResidentHeader): ?>
+                <a class="mobile-logout-link" href="<?php echo htmlspecialchars($residentLogoutHref); ?>">Logout</a>
+            <?php endif; ?>
         </div>
 
     
