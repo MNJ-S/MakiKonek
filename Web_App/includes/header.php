@@ -8,18 +8,36 @@ $isResidentHeader = $isResidentHeader ?? isset($_SESSION['resident_id']);
 $residentProfileHref = $residentProfileHref ?? 'profile.php';
 $residentLogoutHref = $residentLogoutHref ?? 'logout.php';
 
-// username default as Resident
+// Prefer the resident's given name in the header, then fall back to the username.
 $header_username = isset($_SESSION['resident_username']) ? $_SESSION['resident_username'] : 'Resident';
 
 $residentNotifications = [];
 $residentUnreadCount = 0;
 
 if ($isResidentHeader && isset($conn) && isset($_SESSION['resident_id'])) {
+    $res_id = (int)$_SESSION['resident_id'];
+
+    $name_query = "SELECT first_name FROM user_profiles WHERE user_id = ? LIMIT 1";
+    $name_stmt = mysqli_prepare($conn, $name_query);
+    if ($name_stmt) {
+        mysqli_stmt_bind_param($name_stmt, "i", $res_id);
+        mysqli_stmt_execute($name_stmt);
+        $name_result = mysqli_stmt_get_result($name_stmt);
+        if ($row = mysqli_fetch_assoc($name_result)) {
+            $first_name = trim((string)($row['first_name'] ?? ''));
+            if ($first_name !== '') {
+                $header_username = function_exists('mb_convert_case')
+                    ? mb_convert_case($first_name, MB_CASE_TITLE, 'UTF-8')
+                    : ucwords(strtolower($first_name));
+            }
+        }
+        mysqli_stmt_close($name_stmt);
+    }
+
     // Fetch top 10 notifications for the dropdown
     $notif_query = "SELECT notification_id, title, message, type, icon, is_read, created_at FROM user_notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 10";
     $notif_stmt = mysqli_prepare($conn, $notif_query);
     if ($notif_stmt) {
-        $res_id = (int)$_SESSION['resident_id'];
         mysqli_stmt_bind_param($notif_stmt, "i", $res_id);
         mysqli_stmt_execute($notif_stmt);
         $notif_result = mysqli_stmt_get_result($notif_stmt);
@@ -68,7 +86,7 @@ if ($isResidentHeader && isset($conn) && isset($_SESSION['resident_id'])) {
 <header class="site-header">
     <nav class="nav-shell" aria-label="Primary navigation">
         <a class="brand-link" href="<?php echo $navBase; ?>index.php">
-            <img src="<?php echo $assetBase; ?>/img/logo-makikonek.png" alt="MakiKonek logo">
+            <img src="<?php echo $assetBase; ?>/img/logo2-makikonek.png" alt="MakiKonek logo">
         </a>
 
         <div class="nav-menu" data-nav-menu>

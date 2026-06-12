@@ -9,16 +9,18 @@
     backdrop-filter: blur(10px);
 }
 
-.nav-shell {
+.site-header .nav-shell {
     display: flex;
     width: min(1180px, calc(100% - 40px));
-    min-height: 90px;
+    min-height: 120px;
     align-items: center;
     gap: 28px;
     margin: 0 auto;
+    padding: 0;
 }
 
 .brand-link img {
+    display: block;
     width: 230px;
 }
 
@@ -385,7 +387,7 @@
 
     .nav-menu {
         position: absolute;
-        top: 90px;
+        top: 58px;
         right: 20px;
         left: 20px;
         display: none;
@@ -441,7 +443,7 @@
         align-items: flex-start;
         flex-direction: column;
         gap: 12px;
-        padding: 16px 0;
+        padding: 10px 0;
     }
 
     .brand-link img {
