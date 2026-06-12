@@ -28,9 +28,9 @@ $footerAssetBase = $footerAssetBase ?? '../assets';
 
         <div>
             <h3>Other Links</h3>
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Use</a>
-            <a href="#">FAQ</a>
+            <a href="http://localhost/MakiKonek/MakiKonek/Web_App/public/privacy_policy.php" target="_blank" class="text-white text-decoration-none opacity-75">Privacy Policy</a></li>
+            <a href="http://localhost/MakiKonek/MakiKonek/Web_App/public/terms_conditions.php" target="_blank" class="text-white text-decoration-none opacity-75">Terms and Conditions</a></li>
+            <a href="#" class="text-white text-decoration-none opacity-75">FAQ</a>
         </div>
 
         <div>
