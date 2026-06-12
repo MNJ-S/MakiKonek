@@ -4476,3 +4476,135 @@ body {
     color: #9ca3af;
     margin: 0;
 }
+
+/* Responsive hardening */
+body,
+.dashboard-main,
+.main-content,
+.admin-shell-sidebar,
+.admin-card,
+.bento-card,
+.service-table-card,
+.resident-profile-drawer,
+.appointment-drawer,
+.admin-side-drawer {
+    min-width: 0;
+}
+
+.dashboard-main,
+.main-content {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.table-responsive,
+.dashboard-table-wrap,
+.service-table-wrap,
+.resident-directory-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.dashboard-table,
+.service-request-table,
+.resident-directory-table {
+    min-width: 760px;
+}
+
+@media (max-width: 1180px) {
+    .dashboard-mid-grid,
+    .dashboard-bottom-grid,
+    .service-detail-grid,
+    .appointments-grid,
+    .appointment-secondary-grid,
+    .officials-layout,
+    .announcement-admin-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 980px) {
+    .admin-shell-sidebar {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        overflow-x: auto;
+        border-right: 0;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+        padding: 14px;
+    }
+
+    .admin-nav-stack {
+        display: flex;
+        gap: 10px;
+        min-width: max-content;
+    }
+
+    .admin-nav-group {
+        display: contents;
+    }
+
+    .admin-nav-group p,
+    .admin-sidebar-bottom {
+        display: none;
+    }
+
+    .admin-shell-sidebar .nav-link {
+        white-space: nowrap;
+    }
+
+    .dashboard-main,
+    .main-content {
+        padding: 20px;
+    }
+
+    .dashboard-header,
+    .service-page-header,
+    .residents-page-header,
+    .appointments-header,
+    .admin-modern-header {
+        align-items: stretch;
+    }
+}
+
+@media (max-width: 680px) {
+    .dashboard-main,
+    .main-content {
+        padding: 16px;
+    }
+
+    .dashboard-header h1,
+    .service-page-header h1,
+    .residents-page-header h1,
+    .appointments-header h1,
+    .admin-modern-header h1 {
+        font-size: 26px;
+        line-height: 1.15;
+    }
+
+    .dashboard-header-tools,
+    .appointments-header-actions,
+    .admin-modern-actions,
+    .service-table-footer,
+    .drawer-actions,
+    .appointment-drawer-actions {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+    }
+
+    .dashboard-header-tools > *,
+    .appointments-header-actions > *,
+    .admin-modern-actions > *,
+    .drawer-actions button,
+    .appointment-drawer-actions button {
+        width: 100%;
+    }
+
+    .resident-profile-drawer,
+    .appointment-drawer,
+    .admin-side-drawer {
+        width: 100vw;
+        max-width: 100vw;
+    }
+}

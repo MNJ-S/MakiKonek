@@ -677,3 +677,260 @@
         padding-bottom: 4px;
     }
 }
+
+/* Responsive hardening */
+.ann-page,
+.ann-hero,
+.ann-layout,
+.ann-main,
+.ann-sidebar,
+.announcement-post,
+.ann-tools {
+    min-width: 0;
+}
+
+.announcement-post,
+.sidebar-block,
+.ann-hero {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 1024px) {
+    .ann-page {
+        width: min(100% - 32px, 1180px);
+    }
+
+    .ann-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .ann-sidebar {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+}
+
+@media (max-width: 680px) {
+    .ann-page {
+        width: min(100% - 28px, 1180px);
+    }
+
+    .ann-tools {
+        grid-template-columns: 1fr;
+    }
+
+    .ann-sidebar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .ann-search {
+        max-width: none;
+    }
+
+    .announcement-post {
+        grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+        gap: 0;
+    }
+
+    .post-media {
+        min-height: auto;
+    }
+
+    .post-body {
+        padding: 16px 14px;
+    }
+
+    .post-body h2 {
+        font-size: 17px;
+        line-height: 1.25;
+    }
+
+    .post-body p,
+    .post-meta {
+        font-size: 12px;
+        line-height: 1.35;
+    }
+}
+
+/* Mobile announcement page fix: prioritize readability over forced columns */
+@media (max-width: 680px) {
+    .ann-page {
+        width: min(100% - 28px, 1180px);
+        padding-top: 28px;
+        padding-bottom: 44px;
+    }
+
+    .ann-hero {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 18px;
+        min-height: 0;
+        overflow: visible;
+        border-radius: 0 0 24px 24px;
+    }
+
+    .ann-hero h1 {
+        max-width: 100%;
+        font-size: clamp(38px, 13vw, 54px);
+        line-height: 1.02;
+    }
+
+    .ann-hero p {
+        max-width: 100%;
+        margin-top: 14px;
+        font-size: 16px;
+        line-height: 1.45;
+    }
+
+    .ann-hero-art {
+        display: grid;
+        min-height: 0;
+    }
+
+    .ann-mountain {
+        position: relative;
+        inset: auto;
+        min-height: 240px;
+        border-radius: 18px;
+    }
+
+    .featured-announcement {
+        position: relative;
+        right: auto;
+        bottom: auto;
+        width: min(100% - 28px, 460px);
+        margin: -58px auto 0;
+        gap: 10px;
+        border-radius: 12px;
+        padding: 18px;
+    }
+
+    .featured-announcement h2 {
+        font-size: 24px;
+        line-height: 1.15;
+    }
+
+    .featured-announcement p,
+    .featured-announcement small {
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    .featured-announcement a {
+        min-height: 38px;
+        padding: 0 18px;
+        font-size: 14px;
+    }
+
+    .ann-tools {
+        gap: 14px;
+        margin: 28px 0 34px;
+    }
+
+    .ann-search input {
+        min-height: 48px;
+        font-size: 15px;
+    }
+
+    .ann-filters {
+        margin-right: -14px;
+        margin-left: -14px;
+        padding: 0 14px 8px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        scroll-snap-type: x proximity;
+    }
+
+    .ann-filters button {
+        flex: 0 0 auto;
+        min-height: 42px;
+        padding: 0 18px;
+        font-size: 14px;
+        scroll-snap-align: start;
+    }
+
+    .ann-layout,
+    .ann-sidebar,
+    .announcement-post {
+        grid-template-columns: 1fr;
+    }
+
+    .ann-layout {
+        gap: 34px;
+    }
+
+    .announcement-post {
+        border-left-width: 5px;
+    }
+
+    .post-media {
+        min-height: 132px;
+        padding: 16px;
+    }
+
+    .post-media i {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        font-size: 19px;
+    }
+
+    .post-media strong {
+        font-size: 20px;
+    }
+
+    .post-body {
+        padding: 18px;
+    }
+
+    .post-body h3 {
+        font-size: 19px;
+        line-height: 1.2;
+    }
+
+    .post-body p,
+    .post-meta {
+        font-size: 13px;
+    }
+
+    .post-meta {
+        gap: 10px;
+    }
+
+    .fb-card,
+    .subscribe-card {
+        padding: 16px;
+    }
+
+    .fb-heading {
+        grid-template-columns: 48px minmax(0, 1fr) 24px;
+        gap: 10px;
+    }
+
+    .fb-heading img {
+        width: 48px;
+        height: 48px;
+    }
+
+    .fb-heading strong {
+        font-size: 14px;
+        line-height: 1.2;
+    }
+
+    .fb-cover {
+        margin: 14px 0;
+    }
+
+    .subscribe-card button {
+        grid-template-columns: 40px minmax(0, 1fr) 14px;
+        gap: 12px;
+        padding: 14px;
+    }
+
+    .subscribe-card button span {
+        width: 40px;
+        height: 40px;
+    }
+}

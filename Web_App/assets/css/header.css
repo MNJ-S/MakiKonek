@@ -1,6 +1,8 @@
 /* Header styles matching the services page navigation */
 
 .site-header {
+    --site-header-height: 120px;
+    --site-header-mobile-height: 64px;
     position: sticky;
     top: 0;
     z-index: 20;
@@ -12,7 +14,7 @@
 .site-header .nav-shell {
     display: flex;
     width: min(1180px, calc(100% - 40px));
-    min-height: 120px;
+    min-height: var(--site-header-height);
     align-items: center;
     gap: 28px;
     margin: 0 auto;
@@ -22,6 +24,10 @@
 .brand-link img {
     display: block;
     width: 230px;
+}
+
+.nav-toggle {
+    display: none;
 }
 
 .nav-menu {
@@ -359,8 +365,10 @@
 }
 
 @media (max-width: 980px) {
-    .nav-shell {
+    .site-header .nav-shell {
         justify-content: space-between;
+        gap: 16px;
+        min-height: var(--site-header-mobile-height);
     }
 
     .nav-toggle {
@@ -387,7 +395,7 @@
 
     .nav-menu {
         position: absolute;
-        top: 58px;
+        top: var(--site-header-mobile-height);
         right: 20px;
         left: 20px;
         display: none;
@@ -425,6 +433,18 @@
     .resident-header-actions {
         flex-wrap: wrap;
         justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .resident-header-user {
+        min-width: 0;
+        max-width: 150px;
+    }
+
+    .resident-header-user strong {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .resident-notification-panel {
@@ -437,20 +457,22 @@
 }
 
 @media (max-width: 680px) {
-    .nav-shell {
+    .site-header .nav-shell {
         width: min(100% - 28px, 1120px);
         min-height: auto;
-        align-items: flex-start;
-        flex-direction: column;
+        align-items: center;
+        flex-direction: row;
+        flex-wrap: wrap;
         gap: 12px;
         padding: 10px 0;
     }
 
     .brand-link img {
-        width: 162px;
+        width: 176px;
     }
 
     .nav-menu {
+        order: 4;
         width: 100%;
         justify-content: flex-start;
         gap: 8px 18px;
@@ -458,12 +480,48 @@
     }
 
     .resident-header-actions {
+        order: 3;
         width: 100%;
-        justify-content: flex-start;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        align-items: center;
+        justify-content: stretch;
+        gap: 10px;
+    }
+
+    .resident-profile-link {
+        min-width: 0;
+        order: 1;
+        gap: 8px;
+    }
+
+    .resident-header-avatar {
+        width: 38px;
+        height: 38px;
+    }
+
+    .resident-header-user strong {
+        font-size: 13px;
+    }
+
+    .resident-header-user small {
+        font-size: 11px;
+    }
+
+    .resident-logout {
+        order: 2;
+        min-height: 38px;
+        padding: 0 16px;
+        font-size: 14px;
     }
 
     .resident-notification-wrap {
-        order: 1;
+        order: 3;
+    }
+
+    .resident-notification {
+        width: 38px;
+        height: 38px;
     }
 
     .resident-notification-panel {

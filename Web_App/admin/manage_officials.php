@@ -256,7 +256,7 @@ $featured = $officials[0] ?? null;
     <title>Officials | MakiKonek</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/admin.css?v=20260608n">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=20260612v">
 </head>
 
 <body class="dashboard-body">

@@ -89,6 +89,12 @@ if ($isResidentHeader && isset($conn) && isset($_SESSION['resident_id'])) {
             <img src="<?php echo $assetBase; ?>/img/logo2-makikonek.png" alt="MakiKonek logo">
         </a>
 
+        <button class="nav-toggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
         <div class="nav-menu" data-nav-menu>
             <a href="<?php echo $navBase; ?>index.php" class="<?php echo $currentPage === 'index.php' ? 'active' : ''; ?>">Home</a>
             <a href="<?php echo $navBase; ?>about.php" class="<?php echo $currentPage === 'about.php' ? 'active' : ''; ?>">About</a>

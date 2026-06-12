@@ -1239,3 +1239,265 @@ input {
         padding: 0 17px;
     }
 }
+
+/* Responsive hardening shared by public-facing pages */
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.section,
+.hero-content,
+.footer-grid,
+.copyright {
+    max-width: calc(100vw - 28px);
+}
+
+.service-grid,
+.process-grid,
+.announcement-grid,
+.hotline-grid,
+.footer-grid,
+.reminder-box ul,
+.calendar-panel,
+.concern-cta,
+.service-toolbar {
+    min-width: 0;
+}
+
+.service-card,
+.process-grid article,
+.announcement-card,
+.hotline-card,
+.calendar-panel,
+.concern-cta,
+.reminder-box {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 1024px) {
+    .hero-section {
+        min-height: auto;
+    }
+
+    .hero-content {
+        padding-top: 56px;
+        padding-bottom: 84px;
+    }
+
+    .hero-copy h1 {
+        font-size: clamp(42px, 7vw, 74px);
+    }
+
+    .service-grid,
+    .process-grid,
+    .announcement-grid,
+    .hotline-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 680px) {
+    .hero-content {
+        width: min(100% - 28px, 1120px);
+        padding-top: 42px;
+        padding-bottom: 70px;
+    }
+
+    .hero-copy h1 {
+        font-size: clamp(34px, 12vw, 50px);
+        line-height: 1.02;
+    }
+
+    .hero-copy > p {
+        font-size: 15px;
+    }
+
+    .hero-actions,
+    .calendar-controls {
+        width: 100%;
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .hero-actions .btn,
+    .calendar-controls button,
+    .service-search,
+    .service-search input,
+    .service-search button {
+        width: 100%;
+    }
+
+    .service-grid,
+    .process-grid,
+    .announcement-grid,
+    .hotline-grid,
+    .footer-grid,
+    .reminder-box ul {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Requested phone refinements */
+@media (max-width: 680px) {
+    .service-grid,
+    .hotline-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .service-card {
+        display: grid;
+        align-content: start;
+        text-align: left;
+        min-height: 190px;
+        padding: 18px 12px;
+    }
+
+    .service-icon {
+        width: 52px;
+        height: 52px;
+        font-size: 22px;
+    }
+
+    .service-card h3 {
+        margin: 0 0 8px;
+        font-size: 15px;
+    }
+
+    .service-card p {
+        font-size: 12px;
+        line-height: 1.35;
+    }
+
+    .service-card a {
+        margin-top: 12px;
+        font-size: 12px;
+    }
+
+    .service-card .service-icon,
+    .service-card h3 {
+        align-self: center;
+    }
+
+    .service-card .service-icon {
+        grid-column: 1;
+        grid-row: 1;
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+    }
+
+    .service-card h3 {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .service-card {
+        grid-template-columns: 36px minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .service-card p,
+    .service-card a {
+        grid-column: 1 / -1;
+    }
+
+    .hotline-card {
+        border-left-width: 4px;
+        border-radius: 10px;
+        padding: 14px 12px;
+    }
+
+    .hotline-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        font-size: 15px;
+        margin-bottom: 6px;
+    }
+
+    .hotline-card h3 {
+        margin: 4px 0;
+        font-size: 15px;
+    }
+
+    .hotline-card p,
+    .hotline-card strong {
+        font-size: 12px;
+        line-height: 1.3;
+    }
+
+    .hotline-card strong {
+        margin-top: 8px;
+    }
+
+    .service-search {
+        position: relative;
+    }
+
+    .service-search button {
+        width: 42px;
+        height: 42px;
+        min-height: 42px;
+        padding: 0;
+    }
+}
+
+/* Dense phone grids: prefer two columns for compact card groups */
+@media (max-width: 680px) {
+    .hero-status,
+    .service-grid,
+    .process-grid,
+    .announcement-grid,
+    .hotline-grid,
+    .reminder-box ul {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .hero-status {
+        width: 100%;
+    }
+
+    .hero-status article {
+        padding: 14px 12px;
+    }
+
+    .hero-status article:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+    }
+
+    .process-grid::before {
+        content: none;
+    }
+
+    .process-grid article {
+        min-height: 0;
+        padding: 18px 12px;
+    }
+
+    .process-grid span {
+        position: static;
+        margin-bottom: 10px;
+    }
+
+    .announcement-card {
+        min-height: 0;
+        padding: 20px 14px;
+    }
+
+    .announcement-card h3 {
+        margin-top: 18px;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+
+    .announcement-card p,
+    .announcement-card time {
+        font-size: 12px;
+        line-height: 1.35;
+    }
+}

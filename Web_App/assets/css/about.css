@@ -1026,7 +1026,7 @@
 
     .nav-menu {
         position: absolute;
-        top: 86px;
+        top: var(--site-header-mobile-height, 64px);
         right: 20px;
         left: 20px;
         display: none;
@@ -1120,4 +1120,89 @@
     padding: 18px 0;
     text-align: center;
     display: block !important;
+}
+
+/* Responsive hardening */
+#about-custom-scope,
+#about-custom-scope * {
+    min-width: 0;
+}
+
+#about-custom-scope img,
+#about-custom-scope svg {
+    max-width: 100%;
+}
+
+@media (max-width: 1024px) {
+    #about-custom-scope .education-split-grid,
+    #about-custom-scope .mission-specs-split,
+    #about-custom-scope .growing-community-card {
+        grid-template-columns: 1fr;
+    }
+
+    #about-custom-scope .leaders-grid-5-cols {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 680px) {
+    #about-custom-scope .hero-section,
+    #about-custom-scope .mission-big-card,
+    #about-custom-scope .vision-center-card,
+    #about-custom-scope .education-center-card,
+    #about-custom-scope .growing-community-card {
+        padding-right: 18px;
+        padding-left: 18px;
+    }
+
+    #about-custom-scope .timeline-cards-grid,
+    #about-custom-scope .leaders-grid-5-cols,
+    #about-custom-scope .leaders-grid-4-cols,
+    #about-custom-scope .vision-8-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Requested phone refinement: officials remain in two columns */
+@media (max-width: 680px) {
+    #about-custom-scope .leaders-section {
+        width: min(100% - 28px, 1200px);
+    }
+
+    #about-custom-scope .leaders-grid-5-cols,
+    #about-custom-scope .leaders-grid-4-cols {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    #about-custom-scope .leader-card {
+        border-radius: 12px;
+        padding: 16px 10px;
+    }
+
+    #about-custom-scope .leader-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 16px;
+        margin-bottom: 12px;
+    }
+
+    #about-custom-scope .leader-name {
+        min-height: 0;
+        font-size: 12px;
+        line-height: 1.25;
+    }
+
+    #about-custom-scope .leader-position {
+        font-size: 11px;
+        line-height: 1.2;
+    }
+
+    #about-custom-scope .timeline-cards-grid,
+    #about-custom-scope .vision-8-grid,
+    #about-custom-scope .metrics-container-row,
+    #about-custom-scope .gc-data-display-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
 }
