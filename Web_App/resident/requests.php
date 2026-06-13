@@ -652,6 +652,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                         </div>
 
+                        <div class="field full remarks-field-block">
+                            <label for="request_remarks">Note / Remarks</label>
+                            <textarea id="request_remarks" name="request_remarks" rows="3" placeholder="Any additional note or special instructions for your request..." data-optional="true"></textarea>
+                        </div>
+
                         <div class="payment-main-wrapper-5050">
 
                             <div class="payment-left-column">
