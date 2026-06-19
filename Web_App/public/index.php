@@ -260,28 +260,34 @@ while ($row = mysqli_fetch_assoc($announcement_calendar_result)) {
 
             <div class="hotline-grid">
                 <article class="hotline-card police">
-                    <span class="hotline-icon">P</span>
                     <h3>Police</h3>
                     <p>Calamba Police Station</p>
-                    <strong>(049) 545 1694</strong>
+                    <strong>
+                        <a class="hotline-number" href="tel:+63495451694" aria-label="Call Calamba Police Station at 049 545 1694">(049) 545 1694</a>
+                    </strong>
                 </article>
                 <article class="hotline-card fire">
-                    <span class="hotline-icon">F</span>
                     <h3>Fire Station</h3>
                     <p>Calamba Fire Station</p>
-                    <strong>(049) 545 1695<br>0945 490 4131</strong>
+                    <strong>
+                        <a class="hotline-number" href="tel:+63495451695" aria-label="Call Calamba Fire Station at 049 545 1695">(049) 545 1695</a>
+                        <a class="hotline-number" href="tel:+639454904131" aria-label="Call Calamba Fire Station mobile number 0945 490 4131">0945 490 4131</a>
+                    </strong>
                 </article>
                 <article class="hotline-card health">
-                    <span class="hotline-icon">H</span>
                     <h3>Health Center</h3>
                     <p>Makiling Health Center</p>
-                    <strong>+63 963 786 6650</strong>
+                    <strong>
+                        <a class="hotline-number" href="tel:+639637866650" aria-label="Call Makiling Health Center at 0963 786 6650">+63 963 786 6650</a>
+                    </strong>
                 </article>
                 <article class="hotline-card disaster">
-                    <span class="hotline-icon">D</span>
                     <h3>Disaster Response</h3>
                     <p>Calamba City CDRRMD</p>
-                    <strong>(049) 545 4119<br>+63 917 148 9813</strong>
+                    <strong>
+                        <a class="hotline-number" href="tel:+63495454119" aria-label="Call Calamba City CDRRMD at 049 545 4119">(049) 545 4119</a>
+                        <a class="hotline-number" href="tel:+639171489813" aria-label="Call Calamba City CDRRMD mobile number 0917 148 9813">+63 917 148 9813</a>
+                    </strong>
                 </article>
             </div>
 
