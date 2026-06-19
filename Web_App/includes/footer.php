@@ -10,10 +10,12 @@ $footerAssetBase = $footerAssetBase ?? '../assets';
             <p>MakiKonek is your digital gateway to faster, easier, and more transparent barangay service.</p>
             
             <div class="social-row">
-                <a href="#">f</a>
-                <a href="#">●</a>
-                <a href="#">☏</a>
-                <a href="#">✉</a>
+                <a href="https://web.facebook.com/profile.php?id=100008385673390&_rdc=1&_rdr#" target="_blank" rel="noopener noreferrer" class="text-white text-decoration-none opacity-75" aria-label="Barangay Makiling Facebook page">
+                    <img class="social-logo" src="<?php echo $footerAssetBase; ?>/img/Barangay_Makiling_Seal.png" alt="Barangay Makiling Seal">
+                </a>
+                <a href="https://web.facebook.com/profile.php?id=100008385673390&_rdc=1&_rdr#" target="_blank" rel="noopener noreferrer" class="text-white text-decoration-none opacity-75" aria-label="SK Makiling Facebook page">
+                    <img class="social-logo" src="<?php echo $footerAssetBase; ?>/img/Barangay_Makiling_SK.jpg" alt="Barangay Makiling SK Logo">
+                </a>
             </div>
         </div>
 
