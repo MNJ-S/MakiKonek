@@ -32,12 +32,22 @@ function sendPasswordResetOtpEmail(
     $port = (int)makikonekMailSetting('MAIL_PORT', 'MAKIKONEK_MAIL_PORT', 587);
     $encryption = strtolower((string)makikonekMailSetting('MAIL_ENCRYPTION', 'MAKIKONEK_MAIL_ENCRYPTION', 'tls'));
     $username = (string)makikonekMailSetting('MAIL_USERNAME', 'MAKIKONEK_MAIL_USERNAME', '');
-    $password = (string)makikonekMailSetting('MAIL_PASSWORD', 'MAKIKONEK_MAIL_PASSWORD', '');
+    $password = preg_replace(
+        '/\s+/',
+        '',
+        (string)makikonekMailSetting('MAIL_PASSWORD', 'MAKIKONEK_MAIL_PASSWORD', '')
+    );
     $fromAddress = (string)makikonekMailSetting('MAIL_FROM_ADDRESS', 'MAKIKONEK_MAIL_FROM_ADDRESS', $username);
     $fromName = (string)makikonekMailSetting('MAIL_FROM_NAME', 'MAKIKONEK_MAIL_FROM_NAME', 'MakiKonek Support');
 
-    if ($username === '' || $password === '' || $fromAddress === '') {
-        throw new RuntimeException('Mail credentials are not configured.');
+    if ($username === '' || $fromAddress === '') {
+        throw new RuntimeException('The Gmail sender address is not configured.');
+    }
+
+    if ($password === '') {
+        throw new RuntimeException(
+            'The Google App Password is missing from Web_App/includes/mail_config.local.php.'
+        );
     }
 
     $logoCid = 'makikonek-logo';
@@ -73,4 +83,3 @@ function sendPasswordResetOtpEmail(
         throw new RuntimeException('Password reset email could not be sent: ' . $mail->ErrorInfo, 0, $e);
     }
 }
-

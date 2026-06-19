@@ -170,6 +170,13 @@ try {
             mysqli_stmt_execute($deleteStmt);
             mysqli_stmt_close($deleteStmt);
             error_log($e->getMessage());
+
+            if (str_contains($e->getMessage(), 'App Password is missing')) {
+                resetJson(false, [
+                    'message' => 'Gmail is not configured yet. Add the Google App Password to mail_config.local.php.',
+                ], 503);
+            }
+
             resetJson(false, [
                 'message' => 'The verification email could not be sent. Please contact MakiKonek support.',
             ], 503);
