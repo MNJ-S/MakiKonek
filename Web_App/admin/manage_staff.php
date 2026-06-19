@@ -9,6 +9,7 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'Super Admin') 
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/prg_flash.php';
 require_once __DIR__ . '/../includes/input_validation.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 date_default_timezone_set('Asia/Manila');
 
@@ -48,9 +49,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['add_staff'])) {
     } elseif (!in_array($new_role, ['Barangay Staff', 'Super Admin'], true)) {
         $error_message = 'Please choose a valid staff role.';
     } else {
+        $stored_password = makikonekStorePassword($new_password);
         $insert_query = "INSERT INTO admin_accounts (username, email, password, role) VALUES (?, ?, ?, ?)";
         $stmt = mysqli_prepare($conn, $insert_query);
-        mysqli_stmt_bind_param($stmt, "ssss", $new_username, $new_email, $new_password, $new_role);
+        mysqli_stmt_bind_param($stmt, "ssss", $new_username, $new_email, $stored_password, $new_role);
 
         if (mysqli_stmt_execute($stmt)) {
             prgRedirect(

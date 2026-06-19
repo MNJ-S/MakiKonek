@@ -79,6 +79,31 @@ CREATE TABLE IF NOT EXISTS `admin_notifications` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `password_reset_otps`
+--
+
+DROP TABLE IF EXISTS `password_reset_otps`;
+CREATE TABLE IF NOT EXISTS `password_reset_otps` (
+  `reset_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `reset_token_hash` char(64) NOT NULL,
+  `otp_hash` varchar(255) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `verified_at` datetime DEFAULT NULL,
+  `consumed_at` datetime DEFAULT NULL,
+  `attempts` tinyint(3) unsigned NOT NULL DEFAULT 0,
+  `requested_ip` varchar(45) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`reset_id`),
+  UNIQUE KEY `uq_password_reset_token` (`reset_token_hash`),
+  KEY `idx_password_reset_user` (`user_id`),
+  KEY `idx_password_reset_expiry` (`expires_at`),
+  KEY `idx_password_reset_status` (`user_id`,`consumed_at`,`expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `announcements`
 --
 
@@ -821,6 +846,12 @@ ALTER TABLE `user_government_ids`
 --
 ALTER TABLE `user_notifications`
   ADD CONSTRAINT `fk_notifications_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `password_reset_otps`
+--
+ALTER TABLE `password_reset_otps`
+  ADD CONSTRAINT `fk_password_reset_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `user_profiles`

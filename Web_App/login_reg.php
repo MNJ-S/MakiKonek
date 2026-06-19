@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/includes/db_connect.php';
+require_once __DIR__ . '/includes/auth.php';
 
 // If they are already logged in, push them to their respective dashboards
 if (isset($_SESSION['resident_id'])) {
@@ -13,13 +14,19 @@ if (isset($_SESSION['admin_id'])) {
 }
 
 $error_message = '';
+$selected_role = 'Residente';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $login_input = mysqli_real_escape_string($conn, $_POST['email']);
-    $password = $_POST['password'];
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $login_input = trim($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
     $selected_role = $_POST['role'] ?? 'Residente';
+    $allowed_roles = ['Residente', 'Opisyal', 'SK', 'Admin'];
 
-    if ($selected_role === 'Admin') {
+    if ($login_input === '' || $password === '') {
+        $error_message = 'Please enter your username or email and password.';
+    } elseif (!in_array($selected_role, $allowed_roles, true)) {
+        $error_message = 'Please choose a valid account role.';
+    } elseif ($selected_role === 'Admin') {
         $query = "SELECT * FROM admin_accounts WHERE email = ? OR username = ? LIMIT 1";
         $stmt = mysqli_prepare($conn, $query);
         mysqli_stmt_bind_param($stmt, "ss", $login_input, $login_input);
@@ -27,8 +34,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $result = mysqli_stmt_get_result($stmt);
 
         if ($row = mysqli_fetch_assoc($result)) {
-            // PLAIN TEXT CHECK
-            if ($password === $row['password']) {
+            if (makikonekVerifyAccountPassword(
+                $conn,
+                'admin_accounts',
+                'admin_id',
+                (int)$row['admin_id'],
+                $password,
+                (string)$row['password']
+            )) {
+                session_regenerate_id(true);
                 $_SESSION['admin_id'] = $row['admin_id'];
                 $_SESSION['admin_username'] = $row['username'];
                 $_SESSION['admin_role'] = $row['role'];
@@ -52,8 +66,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $result = mysqli_stmt_get_result($stmt);
 
         if ($row = mysqli_fetch_assoc($result)) {
-            // PLAIN TEXT CHECK
-            if ($password === $row['password']) {
+            if (makikonekVerifyAccountPassword(
+                $conn,
+                'users',
+                'user_id',
+                (int)$row['user_id'],
+                $password,
+                (string)$row['password']
+            )) {
+                session_regenerate_id(true);
                 $_SESSION['resident_id'] = $row['user_id'];
                 $_SESSION['resident_username'] = $row['username'];
                 $_SESSION['resident_first_name'] = trim((string)($row['first_name'] ?? ''));
@@ -69,42 +90,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// --- ROUTE 2: RESIDENTE, OPISYAL, & SK LOGIN ---
-else {
-    // Check the users table and specifically match the role they selected
-    $query = "SELECT u.*, p.first_name
-              FROM users u
-              LEFT JOIN user_profiles p ON p.user_id = u.user_id
-              WHERE (u.email = ? OR u.username = ?) AND u.role = ?
-              LIMIT 1";
-    $stmt = mysqli_prepare($conn, $query);
-    mysqli_stmt_bind_param($stmt, "sss", $login_input, $login_input, $selected_role);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-
-    if ($row = mysqli_fetch_assoc($result)) {
-        if (password_verify($password, $row['password'])) {
-
-            // Set the session variables
-            $_SESSION['resident_id'] = $row['user_id'];
-            $_SESSION['resident_username'] = $row['username'];
-            $_SESSION['resident_first_name'] = trim((string)($row['first_name'] ?? ''));
-            $_SESSION['resident_role'] = $row['role'];
-
-            if ($row['role'] === 'SK' || $row['role'] === 'Opisyal') {
-                header("Location: resident/dashboard.php");
-            } else {
-                header("Location: resident/dashboard.php");
-            }
-            exit();
-        } else {
-            $error_message = "Incorrect password for {$selected_role} account.";
-        }
-    } else {
-        $error_message = "No {$selected_role} account found with those credentials. Please check your role selection.";
-    }
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -114,10 +99,9 @@ else {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | MakiKonek</title>
-    <link rel="stylesheet" href="assets/css/login.css?v=20260529m">
+    <link rel="stylesheet" href="assets/css/login.css?v=20260620n">
+    <link rel="icon" href="assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <script defer src="assets/js/public.js?v=20260529c"></script>
-    <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
-
 </head>
 
 <body class="auth-page">
@@ -156,14 +140,14 @@ else {
                 <!-- ERROR MESS -->
                 <?php if ($error_message): ?>
                     <div style="background-color: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; text-align: center;">
-                        <?php echo $error_message; ?>
+                        <?php echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8'); ?>
                     </div>
                 <?php endif; ?>
 
                 <fieldset class="role-selector">
                     <legend>Account role</legend>
                     <label>
-                        <input type="radio" name="role" value="Residente" checked>
+                        <input type="radio" name="role" value="Residente" <?php echo $selected_role === 'Residente' ? 'checked' : ''; ?>>
                         <span><svg class="role-icon" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="9.5" cy="7" r="4"></circle>
@@ -172,7 +156,7 @@ else {
                             </svg>Residente</span>
                     </label>
                     <label>
-                        <input type="radio" name="role" value="Opisyal">
+                        <input type="radio" name="role" value="Opisyal" <?php echo $selected_role === 'Opisyal' ? 'checked' : ''; ?>>
                         <span><svg class="role-icon" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M3 21h18"></path>
                                 <path d="M5 21V9l7-4 7 4v12"></path>
@@ -183,7 +167,7 @@ else {
                             </svg>Opisyal</span>
                     </label>
                     <label>
-                        <input type="radio" name="role" value="SK">
+                        <input type="radio" name="role" value="SK" <?php echo $selected_role === 'SK' ? 'checked' : ''; ?>>
                         <span><svg class="role-icon" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="9" cy="7" r="4"></circle>
@@ -192,7 +176,7 @@ else {
                             </svg>SK</span>
                     </label>
                     <label>
-                        <input type="radio" name="role" value="Admin">
+                        <input type="radio" name="role" value="Admin" <?php echo $selected_role === 'Admin' ? 'checked' : ''; ?>>
                         <span><svg class="role-icon" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path>
                                 <path d="m9 12 2 2 4-4"></path>
@@ -200,15 +184,15 @@ else {
                     </label>
                 </fieldset>
 
-                <label class="field-label" for="email">Email Address</label>
-                <input id="email" name="email" type="email" placeholder="Ilagay ang iyong email" autocomplete="email" required>
+                <label class="field-label" for="email">Username or Email Address</label>
+                <input id="email" name="email" type="text" placeholder="Ilagay ang username o email" autocomplete="username" value="<?php echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
 
                 <label class="field-label" for="password">Password</label>
                 <input id="password" name="password" type="password" placeholder="Ilagay ang iyong password" autocomplete="current-password" required>
 
                 <div class="form-row">
                     <label class="check-label"><input type="checkbox" name="remember"> Tandaan ako</label>
-                    <a href="#">Nakalimutan ang password?</a>
+                    <a href="forgot_password.php" data-auth-transition>Nakalimutan ang password?</a>
                 </div>
 
                 <button class="btn btn-primary auth-submit" type="submit">Mag-login</button>

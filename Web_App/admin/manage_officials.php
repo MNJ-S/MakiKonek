@@ -9,6 +9,7 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'Super Admin') 
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/prg_flash.php';
 require_once __DIR__ . '/../includes/input_validation.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 date_default_timezone_set('Asia/Manila');
 
@@ -122,7 +123,7 @@ function seedAboutPageOfficials(mysqli $conn): void
         $slug = trim($slug, '.');
         $username = 'official_' . str_pad((string)($index + 1), 2, '0', STR_PAD_LEFT);
         $email = $slug . '@makiling.gov.ph';
-        $password = 'makikonek2026';
+        $password = makikonekStorePassword('makikonek2026');
         $mobile = '0917 000 ' . str_pad((string)($index + 1), 4, '0', STR_PAD_LEFT);
 
         mysqli_stmt_bind_param($email_stmt, "s", $email);
@@ -190,9 +191,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['create_official'])) {
     } else {
         mysqli_begin_transaction($conn);
         try {
+            $stored_password = makikonekStorePassword($password);
             $insert_user = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
             $stmt_user = mysqli_prepare($conn, $insert_user);
-            mysqli_stmt_bind_param($stmt_user, "ssss", $username, $email, $password, $official_role);
+            mysqli_stmt_bind_param($stmt_user, "ssss", $username, $email, $stored_password, $official_role);
             mysqli_stmt_execute($stmt_user);
             $new_user_id = mysqli_insert_id($conn);
 

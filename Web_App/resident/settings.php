@@ -9,6 +9,7 @@ if (!isset($_SESSION['resident_id'])) {
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/prg_flash.php';
 require_once __DIR__ . '/../includes/input_validation.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 $pageTitle = 'Settings';
 $activePage = 'settings';
@@ -66,11 +67,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mysqli_stmt_bind_param($password_stmt, 'i', $resident_id);
             mysqli_stmt_execute($password_stmt);
             $account = mysqli_fetch_assoc(mysqli_stmt_get_result($password_stmt));
-            if (!$account || !hash_equals((string)$account['password'], $current_password)) {
+            if (!$account || !makikonekVerifyAccountPassword(
+                $conn,
+                'users',
+                'user_id',
+                $resident_id,
+                $current_password,
+                (string)$account['password']
+            )) {
                 $error_message = 'Current password is incorrect.';
             } else {
+                $stored_password = makikonekStorePassword($new_password);
                 $update_stmt = mysqli_prepare($conn, 'UPDATE users SET password = ? WHERE user_id = ?');
-                mysqli_stmt_bind_param($update_stmt, 'si', $new_password, $resident_id);
+                mysqli_stmt_bind_param($update_stmt, 'si', $stored_password, $resident_id);
                 if (mysqli_stmt_execute($update_stmt)) {
                     prgRedirect('settings.php', 'resident_settings', 'Password updated successfully.');
                 }

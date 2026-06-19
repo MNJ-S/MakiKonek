@@ -266,15 +266,22 @@ input {
     font-weight: 700;
 }
 
+.auth-form input[type="text"],
 .auth-form input[type="email"],
 .auth-form input[type="password"] {
     width: 100%;
+    max-width: 100%;
     min-height: 48px;
     border: 1px solid #ccd8e3;
     border-radius: 7px;
     padding: 0 20px;
     color: var(--ink);
     background: rgba(255, 255, 255, 0.86);
+}
+
+.auth-form input::placeholder {
+    color: #7b8795;
+    opacity: 1;
 }
 
 .auth-form input:focus-visible {

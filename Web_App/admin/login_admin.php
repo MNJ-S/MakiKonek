@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 if (isset($_SESSION['admin_id'])) {
     header("Location: dashboard.php");
@@ -21,9 +22,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = mysqli_stmt_get_result($stmt);
 
     if ($row = mysqli_fetch_assoc($result)) {
-        // PLAIN TEXT PASSWORD CHECK
-        if ($password === $row['password']) {
+        if (makikonekVerifyAccountPassword(
+            $conn,
+            'admin_accounts',
+            'admin_id',
+            (int)$row['admin_id'],
+            $password,
+            (string)$row['password']
+        )) {
 
+            session_regenerate_id(true);
             $_SESSION['admin_id'] = $row['admin_id'];
             $_SESSION['admin_username'] = $row['username'];
             $_SESSION['admin_role'] = $row['role'];
