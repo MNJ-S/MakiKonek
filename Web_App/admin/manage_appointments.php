@@ -56,7 +56,7 @@ function appointmentStatusClass(string $status): string
     $normalized = strtolower($status);
     if ($normalized === 'approved') return 'appointment-status-approved';
     if ($normalized === 'completed') return 'appointment-status-completed';
-    if ($normalized === 'cancelled' || $normalized === 'rejected') return 'appointment-status-cancelled';
+    if ($normalized === 'cancelled' || $normalized === 'rejected' || $normalized === 'archived') return 'appointment-status-cancelled';
     return 'appointment-status-pending';
 }
 
@@ -144,6 +144,121 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_reservation_st
     }
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['archive_reservation'])) {
+    $reservation_id = (int)($_POST['reservation_id'] ?? 0);
+
+    if ($reservation_id <= 0) {
+        $error_message = 'Invalid reservation archive request.';
+    } else {
+        mysqli_begin_transaction($conn);
+        try {
+            $source_stmt = mysqli_prepare($conn, "
+                SELECT fr.*, f.name AS facility_name
+                FROM facility_reservations fr
+                JOIN facilities f ON f.facility_id = fr.facility_id
+                WHERE fr.reservation_id = ?
+                LIMIT 1
+                FOR UPDATE
+            ");
+            mysqli_stmt_bind_param($source_stmt, 'i', $reservation_id);
+            mysqli_stmt_execute($source_stmt);
+            $source = mysqli_fetch_assoc(mysqli_stmt_get_result($source_stmt));
+
+            if (!$source || !in_array($source['status'], ['Completed', 'Cancelled', 'Rejected'], true)) {
+                throw new RuntimeException('Only completed, cancelled, or rejected reservations can be archived.');
+            }
+
+            $history_stmt = mysqli_prepare($conn, "
+                SELECT completed_id
+                FROM completed_reservations
+                WHERE original_reservations_id = ?
+                ORDER BY completed_id ASC
+                LIMIT 1
+                FOR UPDATE
+            ");
+            mysqli_stmt_bind_param($history_stmt, 'i', $reservation_id);
+            mysqli_stmt_execute($history_stmt);
+            $history = mysqli_fetch_assoc(mysqli_stmt_get_result($history_stmt));
+
+            $user_id = (int)$source['user_id'];
+            $facility_name = $source['facility_name'];
+            $reference_no = $source['reference_no'];
+            $reservation_date = $source['reservation_date'];
+            $start_time = $source['start_time'];
+            $end_time = $source['end_time'];
+            $purpose = $source['purpose'];
+            $reservation_fee = (float)$source['reservation_fee'];
+            $reserved_at = $source['created_at'];
+            $status = $source['status'];
+
+            if ($history) {
+                $completed_id = (int)$history['completed_id'];
+                $copy_stmt = mysqli_prepare($conn, "
+                    UPDATE completed_reservations
+                    SET user_id = ?, facility_name = ?, reference_no = ?, reservation_date = ?,
+                        start_time = ?, end_time = ?, purpose = ?, reservation_fee = ?,
+                        reserved_at = ?, status = ?, archived_at = NOW()
+                    WHERE completed_id = ?
+                ");
+                mysqli_stmt_bind_param(
+                    $copy_stmt,
+                    'issssssdssi',
+                    $user_id,
+                    $facility_name,
+                    $reference_no,
+                    $reservation_date,
+                    $start_time,
+                    $end_time,
+                    $purpose,
+                    $reservation_fee,
+                    $reserved_at,
+                    $status,
+                    $completed_id
+                );
+            } else {
+                $copy_stmt = mysqli_prepare($conn, "
+                    INSERT INTO completed_reservations
+                        (original_reservations_id, user_id, facility_name, reference_no,
+                         reservation_date, start_time, end_time, purpose, reservation_fee,
+                         reserved_at, status, archived_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                ");
+                mysqli_stmt_bind_param(
+                    $copy_stmt,
+                    'iissssssdss',
+                    $reservation_id,
+                    $user_id,
+                    $facility_name,
+                    $reference_no,
+                    $reservation_date,
+                    $start_time,
+                    $end_time,
+                    $purpose,
+                    $reservation_fee,
+                    $reserved_at,
+                    $status
+                );
+            }
+            mysqli_stmt_execute($copy_stmt);
+
+            $delete_stmt = mysqli_prepare($conn, 'DELETE FROM facility_reservations WHERE reservation_id = ?');
+            mysqli_stmt_bind_param($delete_stmt, 'i', $reservation_id);
+            mysqli_stmt_execute($delete_stmt);
+            if (mysqli_stmt_affected_rows($delete_stmt) !== 1) {
+                throw new RuntimeException('The source reservation could not be removed.');
+            }
+
+            mysqli_commit($conn);
+            prgRedirect('manage_appointments.php', 'admin_appointments', 'Reservation archived successfully.');
+        } catch (Throwable $e) {
+            mysqli_rollback($conn);
+            $error_message = $e instanceof RuntimeException
+                ? $e->getMessage()
+                : 'Could not archive the reservation. No changes were saved.';
+        }
+    }
+}
+
 $reservations_query = "
     SELECT fr.*, f.name AS facility_name, f.base_fee, f.max_guests,
            u.username, u.email, p.first_name, p.middle_name, p.last_name, p.mobile_number
@@ -168,6 +283,29 @@ $reservations = [];
 if ($reservations_result) {
     while ($row = mysqli_fetch_assoc($reservations_result)) {
         $reservations[] = $row;
+    }
+}
+
+$archived_query = "
+    SELECT cr.original_reservations_id AS reservation_id, cr.user_id, cr.facility_name,
+           cr.reference_no, cr.reservation_date, cr.start_time, cr.end_time, cr.purpose,
+           cr.reservation_fee, cr.reserved_at AS created_at, cr.status AS original_status,
+           cr.archived_at, 'Archived' AS status, NULL AS expected_guests,
+           NULL AS additional_notes, u.username, u.email,
+           p.first_name, p.middle_name, p.last_name, p.mobile_number
+    FROM completed_reservations cr
+    JOIN users u ON u.user_id = cr.user_id
+    LEFT JOIN user_profiles p ON p.user_id = cr.user_id
+    WHERE cr.archived_at IS NOT NULL
+    ORDER BY cr.archived_at DESC, cr.completed_id DESC
+";
+$archived_stmt = mysqli_prepare($conn, $archived_query);
+mysqli_stmt_execute($archived_stmt);
+$archived_result = mysqli_stmt_get_result($archived_stmt);
+$archived_reservations = [];
+if ($archived_result) {
+    while ($row = mysqli_fetch_assoc($archived_result)) {
+        $archived_reservations[] = $row;
     }
 }
 
@@ -197,15 +335,18 @@ foreach ($reservations as $row) {
 }
 
 $today_reservations = array_values(array_filter($reservations, fn($row) => $row['reservation_date'] === $today));
-$upcoming_reservations = array_values(array_filter($reservations, fn($row) => $row['reservation_date'] >= $today));
+$filter_active_reservations = $reservations;
+$filter_reservations = array_merge($filter_active_reservations, $archived_reservations);
 $upcoming_status_counts = [
-    'all' => count($upcoming_reservations),
+    'all' => count($filter_reservations),
     'pending' => 0,
     'approved' => 0,
+    'completed' => 0,
     'cancelled' => 0,
     'rejected' => 0,
+    'archived' => count($archived_reservations),
 ];
-foreach ($upcoming_reservations as $row) {
+foreach ($filter_active_reservations as $row) {
     $status_key = strtolower((string)$row['status']);
     if (array_key_exists($status_key, $upcoming_status_counts)) {
         $upcoming_status_counts[$status_key]++;
@@ -407,6 +548,10 @@ foreach ($active_calendar_reservations as $row) {
                         <span>Approved</span>
                         <strong><?php echo $upcoming_status_counts['approved']; ?></strong>
                     </button>
+                    <button type="button" class="status-approved" data-status-filter="completed">
+                        <span>Completed</span>
+                        <strong><?php echo $upcoming_status_counts['completed']; ?></strong>
+                    </button>
                     <button type="button" class="status-cancelled" data-status-filter="cancelled">
                         <span>Cancelled</span>
                         <strong><?php echo $upcoming_status_counts['cancelled']; ?></strong>
@@ -415,9 +560,13 @@ foreach ($active_calendar_reservations as $row) {
                         <span>Rejected</span>
                         <strong><?php echo $upcoming_status_counts['rejected']; ?></strong>
                     </button>
+                    <button type="button" class="status-rejected" data-status-filter="archived">
+                        <span>Archived</span>
+                        <strong><?php echo $upcoming_status_counts['archived']; ?></strong>
+                    </button>
                 </nav>
                 <div class="appointment-upcoming-list">
-                    <?php foreach ($upcoming_reservations as $row):
+                    <?php foreach ($filter_reservations as $row):
                         $resident_name = appointmentResidentName($row);
                         $type = reservationTypeLabel($row['facility_name']);
                         $status_key = strtolower((string)$row['status']);
@@ -443,7 +592,7 @@ foreach ($active_calendar_reservations as $row) {
                             <em class="<?php echo appointmentStatusClass($row['status']); ?>"><?php echo h($row['status']); ?></em>
                         </button>
                     <?php endforeach; ?>
-                    <div class="appointment-filter-empty" data-status-filter-empty <?php echo empty($upcoming_reservations) ? '' : 'hidden'; ?>>
+                    <div class="appointment-filter-empty" data-status-filter-empty <?php echo empty($filter_reservations) ? '' : 'hidden'; ?>>
                         <i class="bi bi-funnel"></i>
                         <strong>No reservations found.</strong>
                         <span>Try another status filter.</span>
@@ -532,7 +681,10 @@ foreach ($active_calendar_reservations as $row) {
             </form>
         </div>
         <div class="appointment-drawer-actions appointment-archive-action" data-reservation-actions="archive" hidden>
-            <button type="button" class="reject">Archive Reservation</button>
+            <form action="manage_appointments.php" method="POST">
+                <input type="hidden" name="reservation_id" id="archiveReservationId">
+                <button type="submit" name="archive_reservation" class="reject">Archive Reservation</button>
+            </form>
         </div>
     </aside>
 
@@ -542,9 +694,30 @@ foreach ($active_calendar_reservations as $row) {
         document.addEventListener('DOMContentLoaded', function() {
             const drawer = document.getElementById('appointmentDrawer');
             const openButtons = Array.from(document.querySelectorAll('.appointment-open-trigger'));
+            const upcomingItems = Array.from(document.querySelectorAll('.appointment-upcoming-item'));
+            const finalStatuses = ['completed', 'cancelled', 'rejected'];
             const calendarReservations = <?php echo json_encode($calendar_days, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 
+            function applyStatusFilter(filter) {
+                const emptyState = document.querySelector('[data-status-filter-empty]');
+                let visibleCount = 0;
+
+                document.querySelectorAll('[data-status-filter]').forEach(item => {
+                    item.classList.toggle('is-active', item.dataset.statusFilter === filter);
+                });
+
+                upcomingItems.forEach(item => {
+                    const isVisible = filter === 'all' || item.dataset.filterStatus === filter;
+                    item.hidden = !isVisible;
+                    if (isVisible) visibleCount++;
+                });
+
+                if (emptyState) emptyState.hidden = visibleCount > 0;
+            }
+
             function openDrawer(button) {
+                const status = (button.dataset.status || '').toLowerCase();
+                const isArchived = status === 'archived';
                 document.getElementById('drawerType').textContent = button.dataset.type || 'Reservation';
                 document.getElementById('drawerName').textContent = button.dataset.name || 'N/A';
                 document.getElementById('drawerPhone').textContent = button.dataset.phone || 'N/A';
@@ -553,19 +726,19 @@ foreach ($active_calendar_reservations as $row) {
                 document.getElementById('drawerDate').textContent = button.dataset.date || 'N/A';
                 document.getElementById('drawerTime').textContent = button.dataset.time || 'N/A';
                 document.getElementById('drawerGuests').textContent = button.dataset.guests || 'N/A';
-                document.getElementById('drawerStatus').textContent = button.dataset.status || 'N/A';
+                document.getElementById('drawerStatus').textContent = isArchived ? 'Archived' : (button.dataset.status || 'N/A');
                 document.getElementById('drawerPurpose').textContent = button.dataset.purpose || 'N/A';
                 document.getElementById('drawerNotes').textContent = button.dataset.notes || '';
                 document.getElementById('approveReservationId').value = button.dataset.id || '';
                 document.getElementById('rejectReservationId').value = button.dataset.id || '';
                 document.getElementById('completeReservationId').value = button.dataset.id || '';
                 document.getElementById('cancelReservationId').value = button.dataset.id || '';
+                document.getElementById('archiveReservationId').value = button.dataset.id || '';
 
-                const status = (button.dataset.status || '').toLowerCase();
                 document.querySelectorAll('[data-reservation-actions]').forEach(actions => {
                     const actionType = actions.dataset.reservationActions;
-                    const showArchive = actionType === 'archive' && ['completed', 'cancelled', 'rejected'].includes(status);
-                    actions.hidden = actionType !== status && !showArchive;
+                    const showArchive = actionType === 'archive' && finalStatuses.includes(status) && !isArchived;
+                    actions.hidden = isArchived || (actionType !== status && !showArchive);
                 });
                 drawer.classList.add('is-open');
             }
@@ -582,25 +755,7 @@ foreach ($active_calendar_reservations as $row) {
 
             document.querySelectorAll('[data-status-filter]').forEach(button => {
                 button.addEventListener('click', function() {
-                    const filter = this.dataset.statusFilter;
-                    const upcomingItems = Array.from(document.querySelectorAll('.appointment-upcoming-item'));
-                    const emptyState = document.querySelector('[data-status-filter-empty]');
-                    let visibleCount = 0;
-
-                    document.querySelectorAll('[data-status-filter]').forEach(item => item.classList.remove('is-active'));
-                    this.classList.add('is-active');
-
-                    upcomingItems.forEach(item => {
-                        const isVisible = filter === 'all' || item.dataset.filterStatus === filter;
-                        item.hidden = !isVisible;
-                        if (isVisible) {
-                            visibleCount++;
-                        }
-                    });
-
-                    if (emptyState) {
-                        emptyState.hidden = visibleCount > 0;
-                    }
+                    applyStatusFilter(this.dataset.statusFilter);
                 });
             });
 
