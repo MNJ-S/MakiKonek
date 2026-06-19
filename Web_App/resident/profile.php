@@ -8,6 +8,7 @@ if (!isset($_SESSION['resident_id'])) {
 
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/prg_flash.php';
+require_once __DIR__ . '/../includes/input_validation.php';
 
 $resident_id = $_SESSION['resident_id'];
 $success_message = prgFlashPull('resident_profile');
@@ -41,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $sss_no = mysqli_real_escape_string($conn, trim($_POST['sss_no']));
     $tin_no = mysqli_real_escape_string($conn, trim($_POST['tin_no']));
     $years_residency_input = trim($_POST['years_residency']);
-    $years_residency = ($years_residency_input === '') ? 0 : (int)$_POST['years_residency'];
+    $years_residency = ($years_residency_input === '') ? 0 : (int)$years_residency_input;
     $employed_status = mysqli_real_escape_string($conn, trim($_POST['employed_status']));
     $pagibig_no = mysqli_real_escape_string($conn, trim($_POST['pagibig_no']));
 
@@ -50,6 +51,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $emergency_relationship = mysqli_real_escape_string($conn, trim($_POST['emergency_relationship']));
     $emergency_contact = mysqli_real_escape_string($conn, trim($_POST['emergency_contact']));
     $emergency_address = mysqli_real_escape_string($conn, trim($_POST['emergency_address']));
+
+    $name_fields_valid = inputIsName($surname) && inputIsName($given_name)
+        && inputIsName($middle_name, true) && inputIsName($suffix, true);
+
+    if ($surname === '' || $given_name === '') {
+        $error_message = 'Surname and given name are required.';
+    } elseif (!$name_fields_valid) {
+        $error_message = 'Names may contain letters, spaces, hyphens, and periods only.';
+    } elseif (!in_array($sex, ['', 'MALE', 'FEMALE', 'PREFER NOT TO SAY'], true)
+        || !in_array($civil_status, ['', 'SINGLE', 'MARRIED', 'WIDOWED', 'SEPARATED'], true)
+        || !in_array($employed_status, ['', 'YES', 'NO', 'STUDENT'], true)) {
+        $error_message = 'Please choose a valid option from each list.';
+    } elseif ($birth_date !== '' && (!inputIsDate($birth_date) || $birth_date > date('Y-m-d'))) {
+        $error_message = 'Please enter a valid birth date that is not in the future.';
+    } elseif (!inputIsPhone($mobile_number, true)) {
+        $error_message = 'Mobile number must use a valid Philippine mobile format (for example, 09123456789).';
+    } elseif (!inputIsInteger($house_no, 0, 999999, true) || !inputIsInteger($purok_no, 1, 99, true)) {
+        $error_message = 'House and purok numbers must contain non-negative whole numbers only.';
+    } elseif (!inputIsInteger($years_residency_input, 0, 150, true)) {
+        $error_message = 'Years of residency must be a whole number from 0 to 150.';
+    } elseif (!inputIsNumericId($national_id, true, 12) || !inputIsNumericId($philhealth_no, true, 12)
+        || !inputIsVoterId($voters_id, true) || !inputIsNumericId($sss_no, true, 10)
+        || !inputIsNumericId($tin_no, true, 12) || !inputIsNumericId($pagibig_no, true, 12)) {
+        $error_message = 'Government ID numbers must match their required formats and length limits.';
+    } elseif ($emergency_name !== '' && !inputIsName($emergency_name)) {
+        $error_message = 'Emergency contact name may contain letters, spaces, hyphens, and periods only.';
+    } elseif ($emergency_relationship !== '' && !inputIsName($emergency_relationship)) {
+        $error_message = 'Emergency relationship may contain letters, spaces, hyphens, and periods only.';
+    } elseif ($emergency_contact !== '' && !inputIsPhone($emergency_contact)) {
+        $error_message = 'Emergency contact number must use a valid Philippine mobile format.';
+    } elseif ($emergency_name !== '' && ($emergency_relationship === '' || $emergency_contact === '' || $emergency_address === '')) {
+        $error_message = 'Please complete all emergency contact details.';
+    }
 
     // Grab current avatar path to preserve it if no new file is uploaded
     $path_query = "SELECT avatar_path FROM user_profiles WHERE user_id = ? LIMIT 1";
@@ -61,13 +95,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $avatar_path = $current_profile['avatar_path'] ?? '';
 
     // Handle profile image file upload
-    if (isset($_FILES['profile_avatar']) && $_FILES['profile_avatar']['error'] === UPLOAD_ERR_OK) {
+    if ($error_message === '' && isset($_FILES['profile_avatar']) && $_FILES['profile_avatar']['error'] !== UPLOAD_ERR_NO_FILE) {
         $file_tmp = $_FILES['profile_avatar']['tmp_name'];
         $file_name = $_FILES['profile_avatar']['name'];
         $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
 
-        $allowed_extensions = ['jpg', 'jpeg', 'png'];
-        if (in_array($file_ext, $allowed_extensions)) {
+        $upload_error = inputUploadedFileError($_FILES['profile_avatar'], ['jpg', 'jpeg', 'png'], ['image/jpeg', 'image/png']);
+        if ($upload_error === null) {
             $upload_dir = __DIR__ . '/../assets/uploads/avatars/';
             if (!is_dir($upload_dir)) {
                 mkdir($upload_dir, 0755, true);
@@ -80,7 +114,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $avatar_path = 'assets/uploads/avatars/' . $new_file_name;
             }
         } else {
-            $error_message = "Invalid file type. Only JPG, JPEG, and PNG files are allowed.";
+            $error_message = $upload_error . ' Only JPG, JPEG, and PNG images are accepted.';
         }
     }
 
@@ -235,7 +269,7 @@ while ($id_row = mysqli_fetch_assoc($gov_res)) {
                             <?php endif; ?>
                         </div>
 
-                        <input type="file" id="real-file-input" name="profile_avatar" accept="image/*" style="display: none;">
+                        <input type="file" id="real-file-input" name="profile_avatar" accept="image/jpeg,image/png" style="display: none;">
                         <label for="real-file-input" class="upload-avatar-action" style="cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;">
                             <i class="fa-solid fa-upload"></i> Upload
                         </label>
@@ -243,10 +277,10 @@ while ($id_row = mysqli_fetch_assoc($gov_res)) {
 
                     <div class="emergency-contact-box">
                         <h3>In Case of Emergency</h3>
-                        <div class="field full"><label>Full Name</label><input type="text" name="emergency_name" value="<?php echo htmlspecialchars($resident_data['emergency_name'] ?? ''); ?>"></div>
-                        <div class="field full"><label>Relationship</label><input type="text" name="emergency_relationship" value="<?php echo htmlspecialchars($resident_data['emergency_relationship'] ?? ''); ?>"></div>
-                        <div class="field full"><label>Contact No.</label><input type="text" name="emergency_contact" value="<?php echo htmlspecialchars($resident_data['emergency_contact'] ?? ''); ?>"></div>
-                        <div class="field full"><label>Address</label><input type="text" name="emergency_address" value="<?php echo htmlspecialchars($resident_data['emergency_address'] ?? ''); ?>"></div>
+                        <div class="field full"><label>Full Name</label><input type="text" name="emergency_name" maxlength="120" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]*" data-input="name" value="<?php echo htmlspecialchars($resident_data['emergency_name'] ?? ''); ?>"></div>
+                        <div class="field full"><label>Relationship</label><input type="text" name="emergency_relationship" maxlength="60" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]*" data-input="name" value="<?php echo htmlspecialchars($resident_data['emergency_relationship'] ?? ''); ?>"></div>
+                        <div class="field full"><label>Contact No.</label><input type="tel" name="emergency_contact" inputmode="numeric" maxlength="11" pattern="09[0-9]{9}" data-input="phone" placeholder="09171234567" value="<?php echo htmlspecialchars($resident_data['emergency_contact'] ?? ''); ?>"></div>
+                        <div class="field full"><label>Address</label><input type="text" name="emergency_address" maxlength="180" value="<?php echo htmlspecialchars($resident_data['emergency_address'] ?? ''); ?>"></div>
                     </div>
                 </div>
 
@@ -254,10 +288,10 @@ while ($id_row = mysqli_fetch_assoc($gov_res)) {
                     <fieldset class="profile-form-section">
                         <legend>Personal Information</legend>
                         <div class="profile-input-grid">
-                            <div class="field"><label>Surname</label><input type="text" name="surname" value="<?php echo htmlspecialchars($resident_data['last_name'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
-                            <div class="field"><label>Given Name</label><input type="text" name="given_name" value="<?php echo htmlspecialchars($resident_data['first_name'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
-                            <div class="field"><label>Middle Name</label><input type="text" name="middle_name" value="<?php echo htmlspecialchars($resident_data['middle_name'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
-                            <div class="field"><label>Suffix</label><input type="text" name="suffix" value="<?php echo htmlspecialchars($resident_data['suffix'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
+                            <div class="field"><label>Surname</label><input type="text" name="surname" maxlength="60" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]+" data-input="name" value="<?php echo htmlspecialchars($resident_data['last_name'] ?? ''); ?>" required></div>
+                            <div class="field"><label>Given Name</label><input type="text" name="given_name" maxlength="60" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]+" data-input="name" value="<?php echo htmlspecialchars($resident_data['first_name'] ?? ''); ?>" required></div>
+                            <div class="field"><label>Middle Name</label><input type="text" name="middle_name" maxlength="60" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]*" data-input="name" value="<?php echo htmlspecialchars($resident_data['middle_name'] ?? ''); ?>"></div>
+                            <div class="field"><label>Suffix</label><input type="text" name="suffix" maxlength="10" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]*" data-input="name" value="<?php echo htmlspecialchars($resident_data['suffix'] ?? ''); ?>"></div>
                             <div class="field">
                                 <label>Sex</label>
                                 <select name="sex" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
@@ -277,21 +311,21 @@ while ($id_row = mysqli_fetch_assoc($gov_res)) {
                                     <option value="SEPARATED" <?php echo ($resident_data['civil_status'] ?? '') === 'SEPARATED' ? 'selected' : ''; ?>>SEPARATED</option>
                                 </select>
                             </div>
-                            <div class="field"><label>Birth Date</label><input type="date" name="birth_date" value="<?php echo htmlspecialchars($resident_data['birth_date'] ?? ''); ?>"></div>
+                            <div class="field"><label>Birth Date</label><input type="date" name="birth_date" max="<?php echo date('Y-m-d'); ?>" value="<?php echo htmlspecialchars($resident_data['birth_date'] ?? ''); ?>"></div>
                             <div class="field"><label>Birth Place</label><input type="text" name="birth_place" value="<?php echo htmlspecialchars($resident_data['birth_place'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
                             <div class="field"><label>Religion</label><input type="text" name="religion" value="<?php echo htmlspecialchars($resident_data['religion'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
                             <div class="field"><label>Nationality</label><input type="text" name="nationality" value="<?php echo htmlspecialchars($resident_data['nationality'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
                             <div class="field double-wide"><label>Email</label><input type="email" name="email" value="<?php echo htmlspecialchars($resident_data['email'] ?? ''); ?>" disabled style="background:#edf2f7; cursor:not-allowed;"></div>
-                            <div class="field double-wide"><label>Mobile Number</label><input type="text" name="mobile_number" value="<?php echo htmlspecialchars($resident_data['mobile_number'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>Mobile Number</label><input type="tel" name="mobile_number" inputmode="numeric" maxlength="11" pattern="09[0-9]{9}" data-input="phone" placeholder="09171234567" value="<?php echo htmlspecialchars($resident_data['mobile_number'] ?? ''); ?>"></div>
                         </div>
                     </fieldset>
 
                     <fieldset class="profile-form-section">
                         <legend>Address</legend>
                         <div class="profile-input-grid">
-                            <div class="field double-wide"><label>House No.</label><input type="text" name="house_no" value="<?php echo htmlspecialchars($resident_data['house_no'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
+                            <div class="field double-wide"><label>House No.</label><input type="number" name="house_no" min="0" max="999999" step="1" data-input="digits" data-max-digits="6" placeholder="123" value="<?php echo htmlspecialchars($resident_data['house_no'] ?? ''); ?>"></div>
                             <div class="field double-wide"><label>Street</label><input type="text" name="street" value="<?php echo htmlspecialchars($resident_data['street'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
-                            <div class="field double-wide"><label>Purok No.</label><input type="text" name="purok_no" value="<?php echo htmlspecialchars($resident_data['purok_no'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
+                            <div class="field double-wide"><label>Purok No.</label><input type="number" name="purok_no" min="1" max="99" step="1" data-input="digits" data-max-digits="2" placeholder="3" value="<?php echo htmlspecialchars($resident_data['purok_no'] ?? ''); ?>"></div>
                             <div class="field double-wide"><label>Subdivision</label><input type="text" name="subdivision" value="<?php echo htmlspecialchars($resident_data['subdivision'] ?? ''); ?>" oninput="this.value = this.value.toUpperCase()"></div>
                         </div>
                     </fieldset>
@@ -299,12 +333,12 @@ while ($id_row = mysqli_fetch_assoc($gov_res)) {
                     <fieldset class="profile-form-section">
                         <legend>Other Details</legend>
                         <div class="profile-input-grid">
-                            <div class="field double-wide"><label>National ID No.</label><input type="text" name="national_id" value="<?php echo htmlspecialchars($resident_data['national_id'] ?? ''); ?>"></div>
-                            <div class="field double-wide"><label>Philhealth No.</label><input type="text" name="philhealth_no" value="<?php echo htmlspecialchars($resident_data['philhealth_no'] ?? ''); ?>"></div>
-                            <div class="field double-wide"><label>Voter's ID No.</label><input type="text" name="voters_id" value="<?php echo htmlspecialchars($resident_data['voters_id'] ?? ''); ?>"></div>
-                            <div class="field double-wide"><label>SSS No.</label><input type="text" name="sss_no" value="<?php echo htmlspecialchars($resident_data['sss_no'] ?? ''); ?>"></div>
-                            <div class="field double-wide"><label>TIN No.</label><input type="text" name="tin_no" value="<?php echo htmlspecialchars($resident_data['tin_no'] ?? ''); ?>"></div>
-                            <div class="field double-wide"><label>Years of Residency</label><input type="text" name="years_residency" value="<?php echo htmlspecialchars($resident_data['years_residency'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>National ID No.</label><input type="text" name="national_id" inputmode="numeric" maxlength="14" pattern="[0-9]{0,12}" data-input="numeric-id" data-max-digits="12" placeholder="5678-1234-9012" value="<?php echo htmlspecialchars($resident_data['national_id'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>Philhealth No.</label><input type="text" name="philhealth_no" inputmode="numeric" maxlength="14" pattern="[0-9]{0,12}" data-input="numeric-id" data-max-digits="12" placeholder="12-345678901-7" value="<?php echo htmlspecialchars($resident_data['philhealth_no'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>Voter's ID No.</label><input type="text" name="voters_id" maxlength="21" pattern="(?:[0-9]{1,12}|[0-9]{4}-[0-9]{6}-[0-9]-[0-9]{3}-[A-Za-z][0-9]{2})" data-input="voter-id" placeholder="1234-123456-1-001-A01" value="<?php echo htmlspecialchars($resident_data['voters_id'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>SSS No.</label><input type="text" name="sss_no" inputmode="numeric" maxlength="12" pattern="[0-9]{0,10}" data-input="numeric-id" data-max-digits="10" placeholder="34-5678901-2" value="<?php echo htmlspecialchars($resident_data['sss_no'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>TIN No.</label><input type="text" name="tin_no" inputmode="numeric" maxlength="15" pattern="[0-9]{0,12}" data-input="numeric-id" data-max-digits="12" placeholder="456-789-123-000" value="<?php echo htmlspecialchars($resident_data['tin_no'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>Years of Residency</label><input type="number" name="years_residency" min="0" max="150" step="1" data-input="digits" data-max-digits="3" placeholder="5" value="<?php echo htmlspecialchars($resident_data['years_residency'] ?? ''); ?>"></div>
                             <div class="field double-wide"><label>Date of Registration</label><input type="text" name="date_registration" value="<?php echo date('M d, Y', strtotime($resident_data['created_at'])); ?>" disabled style="background:#edf2f7;" oninput="this.value = this.value.toUpperCase()"></div>
                             <div class="field double-wide">
                                 <label>Employed?</label>
@@ -315,7 +349,7 @@ while ($id_row = mysqli_fetch_assoc($gov_res)) {
                                     <option value="STUDENT" <?php echo ($resident_data['employed_status'] ?? '') === 'STUDENT' ? 'selected' : ''; ?>>STUDENT</option>
                                 </select>
                             </div>
-                            <div class="field double-wide"><label>Pag-ibig No.</label><input type="text" name="pagibig_no" value="<?php echo htmlspecialchars($resident_data['pagibig_no'] ?? ''); ?>"></div>
+                            <div class="field double-wide"><label>Pag-ibig No.</label><input type="text" name="pagibig_no" inputmode="numeric" maxlength="14" pattern="[0-9]{0,12}" data-input="numeric-id" data-max-digits="12" placeholder="7890-1234-5678" value="<?php echo htmlspecialchars($resident_data['pagibig_no'] ?? ''); ?>"></div>
                         </div>
                     </fieldset>
 
@@ -355,6 +389,7 @@ while ($id_row = mysqli_fetch_assoc($gov_res)) {
         </main>
     </div>
 
+    <script src="../assets/js/input-validation.js?v=20260620a"></script>
     <?php
     $footerBase = '../public/';
     $footerAssetBase = '../assets';

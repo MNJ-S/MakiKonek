@@ -8,6 +8,7 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'Super Admin') 
 
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/prg_flash.php';
+require_once __DIR__ . '/../includes/input_validation.php';
 
 date_default_timezone_set('Asia/Manila');
 
@@ -174,6 +175,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['create_official'])) {
 
     if ($username === '' || $email === '' || $password === '' || $first_name === '' || $last_name === '' || $position === '' || $term_start === '') {
         $error_message = "Please complete the required official account details.";
+    } elseif (!inputIsName($first_name) || !inputIsName($last_name)) {
+        $error_message = 'Official names may contain letters, spaces, hyphens, and periods only.';
+    } elseif (!preg_match('/^[A-Za-z0-9._-]{4,30}$/', $username)) {
+        $error_message = 'Username must be 4-30 characters using letters, numbers, periods, underscores, or hyphens.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || !inputLength($email, 254)) {
+        $error_message = 'Please enter a valid email address.';
+    } elseif (strlen($password) < 8 || strlen($password) > 72) {
+        $error_message = 'Password must be between 8 and 72 characters.';
+    } elseif (!in_array($official_role, ['Opisyal', 'SK'], true)) {
+        $error_message = 'Please choose a valid official role.';
+    } elseif (!inputIsDate($term_start) || ($term_end !== '' && (!inputIsDate($term_end) || $term_end < $term_start))) {
+        $error_message = 'Enter valid term dates; the end date cannot precede the start date.';
     } else {
         mysqli_begin_transaction($conn);
         try {
@@ -386,11 +399,11 @@ $featured = $officials[0] ?? null;
                         </div>
                     </div>
                     <form action="manage_officials.php" method="POST" class="admin-form-grid">
-                        <label>Given Name<input type="text" name="first_name" required></label>
-                        <label>Surname<input type="text" name="last_name" required></label>
-                        <label>Username<input type="text" name="username" required></label>
-                        <label>Email<input type="email" name="email" required></label>
-                        <label>Password<input type="password" name="password" required></label>
+                        <label>Given Name<input type="text" name="first_name" maxlength="60" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]+" data-input="name" required></label>
+                        <label>Surname<input type="text" name="last_name" maxlength="60" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]+" data-input="name" required></label>
+                        <label>Username<input type="text" name="username" minlength="4" maxlength="30" pattern="[A-Za-z0-9._-]+" required></label>
+                        <label>Email<input type="email" name="email" maxlength="254" required></label>
+                        <label>Password<input type="password" name="password" minlength="8" maxlength="72" required></label>
                         <label>Role<select name="official_role">
                                 <option value="Opisyal">Barangay Opisyal</option>
                                 <option value="SK">SK Official</option>
@@ -460,6 +473,7 @@ $featured = $officials[0] ?? null;
     </aside>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/input-validation.js?v=20260620a"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const drawer = document.getElementById('officialDrawer');

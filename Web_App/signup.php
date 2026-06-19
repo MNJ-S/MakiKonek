@@ -2,6 +2,7 @@
 session_start();
 require_once __DIR__ . '/includes/db_connect.php';
 require_once __DIR__ . '/includes/prg_flash.php';
+require_once __DIR__ . '/includes/input_validation.php';
 
 // If they are already logged in, redirect them to the dashboard
 if (isset($_SESSION['resident_id'])) {
@@ -13,17 +14,26 @@ $error_message = '';
 $success_message = prgFlashPull('signup');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $surname = mysqli_real_escape_string($conn, trim($_POST['surname']));
-    $given_name = mysqli_real_escape_string($conn, trim($_POST['given_name']));
-    $middle_name = mysqli_real_escape_string($conn, trim($_POST['middle_name']));
-    $suffix = mysqli_real_escape_string($conn, trim($_POST['suffix']));
-    $username = mysqli_real_escape_string($conn, trim($_POST['username']));
-    $email = mysqli_real_escape_string($conn, trim($_POST['email']));
-    $password = mysqli_real_escape_string($conn, trim($_POST['password']));
-    $confirm_password = mysqli_real_escape_string($conn, trim($_POST['confirm_password']));
+    $surname = trim($_POST['surname'] ?? '');
+    $given_name = trim($_POST['given_name'] ?? '');
+    $middle_name = trim($_POST['middle_name'] ?? '');
+    $suffix = trim($_POST['suffix'] ?? '');
+    $username = trim($_POST['username'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $confirm_password = $_POST['confirm_password'] ?? '';
 
-    // Validate passwords match
-    if ($password !== $confirm_password) {
+    if ($surname === '' || $given_name === '' || $username === '' || $email === '' || $password === '' || $confirm_password === '') {
+        $error_message = 'Please complete all required fields.';
+    } elseif (!inputIsName($surname) || !inputIsName($given_name) || !inputIsName($middle_name, true) || !inputIsName($suffix, true)) {
+        $error_message = 'Names may contain letters, spaces, hyphens, and periods only.';
+    } elseif (!preg_match('/^[A-Za-z0-9._-]{4,30}$/', $username)) {
+        $error_message = 'Username must be 4-30 characters using letters, numbers, periods, underscores, or hyphens.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || !inputLength($email, 254)) {
+        $error_message = 'Please enter a valid email address.';
+    } elseif (strlen($password) < 8 || strlen($password) > 72) {
+        $error_message = 'Password must be between 8 and 72 characters.';
+    } elseif ($password !== $confirm_password) {
         $error_message = "Passwords do not match. Please try again.";
     } else {
         // Check if the username or email is already taken
@@ -108,7 +118,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <!-- Dynamic Alert Messages -->
                 <?php if ($error_message): ?>
                     <div style="background-color: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; text-align: center;">
-                        <?php echo $error_message; ?>
+                        <?php echo htmlspecialchars($error_message); ?>
                     </div>
                 <?php endif; ?>
                 <?php if ($success_message): ?>
@@ -120,33 +130,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="form-grid">
                     <div>
                         <label class="field-label" for="surname">Surname</label>
-                        <input id="surname" name="surname" type="text" placeholder="Dela Cruz" autocomplete="family-name" required>
+                        <input id="surname" name="surname" type="text" placeholder="Dela Cruz" autocomplete="family-name" maxlength="60" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]+" data-input="name" title="Use letters, spaces, hyphens, and periods only." required>
                     </div>
                     <div>
                         <label class="field-label" for="given_name">Given Name</label>
-                        <input id="given_name" name="given_name" type="text" placeholder="Juan" autocomplete="given-name" required>
+                        <input id="given_name" name="given_name" type="text" placeholder="Juan" autocomplete="given-name" maxlength="60" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]+" data-input="name" title="Use letters, spaces, hyphens, and periods only." required>
                     </div>
                     <div>
                         <label class="field-label" for="middle_name">Middle Name</label>
-                        <input id="middle_name" name="middle_name" type="text" placeholder="Santos">
+                        <input id="middle_name" name="middle_name" type="text" placeholder="Santos" maxlength="60" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]*" data-input="name" title="Use letters, spaces, hyphens, and periods only.">
                     </div>
                     <div>
                         <label class="field-label" for="suffix">Suffix</label>
-                        <input id="suffix" name="suffix" type="text" placeholder="Jr.">
+                        <input id="suffix" name="suffix" type="text" placeholder="Jr." maxlength="10" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]*" data-input="name" title="Use letters, spaces, hyphens, and periods only.">
                     </div>
                 </div>
 
                 <label class="field-label" for="username">Username</label>
-                <input id="username" name="username" type="text" placeholder="juandelacruz" autocomplete="username" required>
+                <input id="username" name="username" type="text" placeholder="juandelacruz" autocomplete="username" minlength="4" maxlength="30" pattern="[A-Za-z0-9._-]+" required>
 
                 <label class="field-label" for="signup_email">Email</label>
-                <input id="signup_email" name="email" type="email" placeholder="juan@example.com" autocomplete="email" required>
+                <input id="signup_email" name="email" type="email" placeholder="juan@example.com" autocomplete="email" maxlength="254" required>
 
                 <label class="field-label" for="new_password">Password</label>
-                <input id="new_password" name="password" type="password" placeholder="********" autocomplete="new-password" required>
+                <input id="new_password" name="password" type="password" placeholder="********" autocomplete="new-password" minlength="8" maxlength="72" required>
 
                 <label class="field-label" for="confirm_password">Confirm Password</label>
-                <input id="confirm_password" name="confirm_password" type="password" placeholder="********" autocomplete="new-password" required>
+                <input id="confirm_password" name="confirm_password" type="password" placeholder="********" autocomplete="new-password" minlength="8" maxlength="72" required>
 
                 <button class="btn btn-primary auth-submit" type="submit">Gumawa ng Account</button>
                 <p class="auth-switch">May account na? <a href="login_reg.php" data-auth-transition>Mag-login dito.</a></p>
@@ -154,6 +164,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </form>
         </section>
     </main>
+    <script src="assets/js/input-validation.js?v=20260620a"></script>
 </body>
 
 </html>

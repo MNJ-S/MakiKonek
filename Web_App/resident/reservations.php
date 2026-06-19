@@ -12,6 +12,7 @@ if (!isset($_SESSION['resident_id'])) {
 
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/prg_flash.php';
+require_once __DIR__ . '/../includes/input_validation.php';
 
 $resident_id = (int) $_SESSION['resident_id'];
 $pageTitle = 'Facility Reservations';
@@ -76,16 +77,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error_message = 'Please choose a valid reservation date.';
     } elseif ($reservation_date < $today) {
         $error_message = 'Please choose today or a future date.';
-    } elseif (empty($start_time) || empty($end_time) || $start_time >= $end_time) {
+    } elseif (!inputIsTime($start_time) || !inputIsTime($end_time) || $start_time >= $end_time) {
         $error_message = 'Please choose a valid start and end time.';
     } elseif ($start_time_db < $selectedFacility['open_time'] || $end_time_db > $selectedFacility['close_time']) {
         $error_message = 'Please choose a time within the facility operating hours.';
-    } elseif (!is_numeric($guest_count) || (int) $guest_count < 1) {
-        $error_message = 'Please enter the expected number of guests.';
-    } elseif ((int) $guest_count > (int) $selectedFacility['max_guests']) {
+    } elseif (!inputIsInteger($guest_count, 1)) {
+        $error_message = 'Expected guests must be a positive whole number.';
+    } elseif ((int)$guest_count > (int)$selectedFacility['max_guests']) {
         $error_message = 'The expected guests exceed the facility capacity.';
     } elseif ($purpose === '') {
         $error_message = 'Please enter the purpose of reservation.';
+    } elseif (!inputLength($purpose, 150) || !inputLength($notes, 1000)) {
+        $error_message = 'Purpose or notes exceed the allowed length.';
     }
 
     if ($error_message === '') {
@@ -257,23 +260,23 @@ $minDate = date('Y-m-d');
                         </div>
                         <div class="field">
                             <label>Start Time *</label>
-                            <input type="time" name="start_time" required>
+                            <input type="time" name="start_time" step="60" required>
                         </div>
                         <div class="field">
                             <label>End Time *</label>
-                            <input type="time" name="end_time" required>
+                            <input type="time" name="end_time" step="60" required>
                         </div>
                         <div class="field">
                             <label>Expected Guests *</label>
-                            <input type="number" name="guest_count" min="1" max="200" placeholder="e.g. 25" required>
+                            <input type="number" name="guest_count" min="1" max="120" step="1" data-input="digits" data-max-digits="3" placeholder="30" required>
                         </div>
                         <div class="field full">
                             <label>Purpose *</label>
-                            <input type="text" name="purpose" placeholder="e.g. Basketball practice, birthday, meeting" required oninput="this.value = this.value.toUpperCase()">
+                            <input type="text" name="purpose" maxlength="150" placeholder="e.g. Basketball practice, birthday, meeting" required oninput="this.value = this.value.toUpperCase()">
                         </div>
                         <div class="field full">
                             <label>Additional Notes</label>
-                            <textarea name="notes" rows="4" placeholder="Add setup requests, equipment needs, or other details"></textarea>
+                            <textarea name="notes" rows="4" maxlength="1000" placeholder="Add setup requests, equipment needs, or other details"></textarea>
                         </div>
                     </div>
 

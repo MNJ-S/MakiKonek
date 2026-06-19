@@ -8,6 +8,7 @@ if (!isset($_SESSION['admin_id'])) {
 
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/prg_flash.php';
+require_once __DIR__ . '/../includes/input_validation.php';
 
 date_default_timezone_set('Asia/Manila');
 
@@ -68,22 +69,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_announcement']
     $status = trim($_POST['status'] ?? 'Published');
     $cover_image = null;
 
+    $valid_event_time = $event_time === '' || (bool)preg_match('/^(?:0?[1-9]|1[0-2]):[0-5]\d\s?(?:AM|PM)(?:\s*-\s*(?:0?[1-9]|1[0-2]):[0-5]\d\s?(?:AM|PM))?$/i', $event_time);
     if ($title === '' || $body === '') {
         $error_message = 'Please add an announcement title and content.';
+    } elseif (!inputLength($title, 180) || !inputLength($summary, 255) || !inputLength($location, 160)) {
+        $error_message = 'One or more announcement fields exceed the allowed length.';
+    } elseif (!in_array($category, ['Announcement', 'Program', 'Advisory', 'Event'], true) || !in_array($status, ['Published', 'Draft'], true)) {
+        $error_message = 'Please choose valid category and status options.';
+    } elseif ($event_date !== '' && !inputIsDate($event_date)) {
+        $error_message = 'Please enter a valid event date.';
+    } elseif (!$valid_event_time) {
+        $error_message = 'Use a valid event time such as 8:00 AM or 8:00 AM - 12:00 PM.';
     } else {
         if (!empty($_FILES['cover_image']['name']) && is_uploaded_file($_FILES['cover_image']['tmp_name'])) {
             $extension = strtolower(pathinfo($_FILES['cover_image']['name'], PATHINFO_EXTENSION));
             $allowed = ['jpg', 'jpeg', 'png', 'webp'];
-            if (in_array($extension, $allowed, true)) {
+            $upload_error = inputUploadedFileError($_FILES['cover_image'], $allowed, ['image/jpeg', 'image/png', 'image/webp']);
+            if ($upload_error === null) {
                 $filename = 'announcement_' . time() . '_' . random_int(1000, 9999) . '.' . $extension;
                 $target = $upload_dir . '/' . $filename;
                 if (move_uploaded_file($_FILES['cover_image']['tmp_name'], $target)) {
                     $cover_image = $upload_public_path . $filename;
+                } else {
+                    $error_message = 'Cover image could not be uploaded.';
                 }
+            } else {
+                $error_message = $upload_error . ' Cover image must be JPG, PNG, or WebP.';
             }
         }
 
         $event_date_value = $event_date !== '' ? $event_date : null;
+        if ($error_message !== '') {
+            // Do not save an announcement after a failed upload validation.
+        } else {
         $stmt = mysqli_prepare($conn, "
             INSERT INTO announcements
                 (title, category, summary, body, event_date, event_time, location, cover_image, status, created_by)
@@ -100,6 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_announcement']
             );
         } else {
             $error_message = 'Could not create announcement.';
+        }
         }
     }
 }
@@ -205,18 +224,18 @@ $this_month_count = count(array_filter($announcements, fn($row) => date('Y-m', s
                     </div>
                 </div>
                 <form action="manage_announcements.php" method="POST" enctype="multipart/form-data" class="announcement-composer-form">
-                    <label>Title<input type="text" name="title" placeholder="Enter announcement title" required></label>
+                    <label>Title<input type="text" name="title" maxlength="180" placeholder="Enter announcement title" required></label>
                     <label>Category<select name="category">
                             <option>Announcement</option>
                             <option>Program</option>
                             <option>Advisory</option>
                             <option>Event</option>
                         </select></label>
-                    <label class="span-2">Short Summary<input type="text" name="summary" placeholder="One-line summary for cards"></label>
+                    <label class="span-2">Short Summary<input type="text" name="summary" maxlength="255" placeholder="One-line summary for cards"></label>
                     <label class="span-2">Content<textarea name="body" rows="7" placeholder="Write the announcement details..." required></textarea></label>
                     <label>Date<input type="date" name="event_date"></label>
-                    <label>Time<input type="text" name="event_time" placeholder="e.g. 8:00 AM - 12:00 PM"></label>
-                    <label>Location<input type="text" name="location" placeholder="Barangay Hall"></label>
+                    <label>Time<input type="text" name="event_time" maxlength="30" pattern="(?:0?[1-9]|1[0-2]):[0-5][0-9] ?(?:AM|PM)(?: *- *(?:0?[1-9]|1[0-2]):[0-5][0-9] ?(?:AM|PM))?" placeholder="e.g. 8:00 AM - 12:00 PM"></label>
+                    <label>Location<input type="text" name="location" maxlength="160" placeholder="Barangay Hall"></label>
                     <label>Status<select name="status">
                             <option>Published</option>
                             <option>Draft</option>
