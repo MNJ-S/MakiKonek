@@ -422,18 +422,6 @@ p.srv-desc {
     }
 }
 
-/* Footer */
-.site-footer .copyright {
-    text-align: center !important;
-    width: 100% !important;
-    display: block !important;
-    font-size: 14px !important;
-    color: rgba(255, 255, 255, 0.7) !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-    padding-top: 20px !important;
-    margin: 20px auto 0 !important;
-}
-
 /* Responsive hardening */
 .services-container,
 .services-grid-layout,
