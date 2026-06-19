@@ -231,6 +231,7 @@ while (count($activities) < 5) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
+    <link rel="stylesheet" href="../assets/css/notifications.css">
     <link rel="stylesheet" href="../assets/css/admin.css?v=20260613a">
 </head>
 
@@ -251,12 +252,54 @@ while (count($activities) < 5) {
                         <small><?php echo date('h:i A'); ?></small>
                     </span>
                 </div>
-                <button class="dashboard-notification" type="button" aria-label="Notifications">
-                    <i class="bi bi-bell"></i>
-                    <?php if ($notification_count > 0): ?>
-                        <span><?php echo $notification_count; ?></span>
-                    <?php endif; ?>
-                </button>
+                <div class="dropdown dropdown-notification-wrapper">
+                    <button class="dashboard-notification" type="button" aria-label="Notifications" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                        <i class="bi bi-bell"></i>
+                        <?php if (isset($notification_count) && $notification_count > 0): ?>
+                            <span><?php echo min(9, $notification_count); ?></span>
+                        <?php endif; ?>
+                    </button>
+
+                    <div class="dropdown-menu dropdown-menu-end notification-dropdown">
+                        <div class="notification-header">
+                            <div>
+                                <h6>Notifications</h6>
+                                <small>2 unread updates</small>
+                            </div>
+                            <button type="button" class="mark-read-btn">Mark all as read</button>
+                        </div>
+
+                        <div class="notification-body">
+                            <a href="#" class="notification-item unread">
+                                <div class="notification-icon icon-green-light">
+                                    <i class="bi bi-slash-circle"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <div class="notification-content-header">
+                                        <strong>Reservation Cancelled</strong>
+                                        <time>9 days ago</time>
+                                    </div>
+                                    <p>Your reservation (FR-20260610-76FF05) has been cancelled.</p>
+                                    <span class="notification-badge">RESERVATION UPDATE</span>
+                                </div>
+                            </a>
+
+                            <a href="#" class="notification-item unread">
+                                <div class="notification-icon icon-green-light">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <div class="notification-content-header">
+                                        <strong>Reservation Approved</strong>
+                                        <time>9 days ago</time>
+                                    </div>
+                                    <p>Your reservation request (FR-20260610-34429E) has been approved.</p>
+                                    <span class="notification-badge">RESERVATION UPDATE</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </header>
 

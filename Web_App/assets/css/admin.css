@@ -635,7 +635,6 @@ body {
 }
 
 .dashboard-date-card,
-.dashboard-notification,
 .bento-card {
     border: 1px solid #e5eaf0;
     border-radius: 14px;
@@ -670,30 +669,6 @@ body {
     color: #566074;
 }
 
-.dashboard-notification {
-    position: relative;
-    display: grid;
-    place-items: center;
-    width: 58px;
-    color: #090d1f;
-    font-size: 20px;
-}
-
-.dashboard-notification span {
-    position: absolute;
-    top: 8px;
-    right: 10px;
-    display: grid;
-    place-items: center;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 5px;
-    border-radius: 999px;
-    color: #ffffff;
-    background: #0b7a3a;
-    font-size: 11px;
-    font-weight: 900;
-}
 
 .dashboard-top-grid,
 .dashboard-mid-grid,
