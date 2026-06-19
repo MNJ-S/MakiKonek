@@ -8,6 +8,7 @@ if (!isset($_SESSION['resident_id'])) {
 
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/prg_flash.php';
+require_once __DIR__ . '/../includes/input_validation.php';
 
 $payment_status_column_check = mysqli_query($conn, "SHOW COLUMNS FROM service_requests LIKE 'payment_status'");
 if ($payment_status_column_check && mysqli_num_rows($payment_status_column_check) === 0) {
@@ -64,11 +65,16 @@ $documentGroups = [
         ['name' => 'Incident Report', 'fee' => 'P50.00', 'time' => '1-2 working days'],
     ],
 ];
+$documentFees = [];
+foreach ($documentGroups as $documents) {
+    foreach ($documents as $document) {
+        $documentFees[$document['name']] = (float)preg_replace('/[^0-9.]/', '', $document['fee']);
+    }
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $document_type = trim($_POST['document_type'] ?? '');
-    $document_fee_raw = trim($_POST['document_fee'] ?? '');
-    $document_fee = (float) preg_replace('/[^0-9.]/', '', $document_fee_raw);
+    $document_fee = $documentFees[$document_type] ?? 0.0;
     $payment_method = trim($_POST['payment_method'] ?? 'cash');
     $first_name = trim($_POST['first_name'] ?? '');
     $middle_name = trim($_POST['middle_name'] ?? '');
@@ -174,8 +180,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if ($error_message === '' && ($document_type === '' || $first_name === '' || $last_name === '' || $email === '' || $phone === '' || $birth_date === '' || $gender === '' || $civil_status === '' || $address === '' || $province === '' || $city === '' || $barangay === '' || $purpose === '')) {
+    if ($error_message === '' && !array_key_exists($document_type, $documentFees)) {
+        $error_message = 'Please choose a valid document type.';
+    } elseif ($error_message === '' && ($first_name === '' || $last_name === '' || $email === '' || $phone === '' || $birth_date === '' || $gender === '' || $civil_status === '' || $address === '' || $province === '' || $city === '' || $barangay === '' || $purpose === '')) {
         $error_message = 'Please complete all required request fields.';
+    } elseif ($error_message === '' && (!inputIsName($first_name) || !inputIsName($middle_name, true) || !inputIsName($last_name) || !inputIsName($suffix, true))) {
+        $error_message = 'Names may contain letters, spaces, hyphens, and periods only.';
+    } elseif ($error_message === '' && (!filter_var($email, FILTER_VALIDATE_EMAIL) || !inputLength($email, 254))) {
+        $error_message = 'Please enter a valid email address.';
+    } elseif ($error_message === '' && !inputIsPhone($phone)) {
+        $error_message = 'Phone number must use a valid Philippine mobile format (for example, 09123456789).';
+    } elseif ($error_message === '' && (!inputIsDate($birth_date) || $birth_date > date('Y-m-d'))) {
+        $error_message = 'Please enter a valid birth date that is not in the future.';
+    } elseif ($error_message === '' && (!in_array($gender, ['Male', 'Female', 'Prefer not to say'], true) || !in_array($civil_status, ['Single', 'Married', 'Widowed', 'Separated'], true))) {
+        $error_message = 'Please choose valid personal information options.';
+    } elseif ($error_message === '' && !in_array($payment_method, ['online', 'cash'], true) && $document_fee > 0) {
+        $error_message = 'Please choose a valid payment method.';
+    } elseif ($error_message === '' && empty($_POST['legal_agreement_declaration'])) {
+        $error_message = 'You must accept the Terms and Privacy Policy before submitting.';
+    } elseif ($error_message === '' && $document_type === 'Business Clearance' && !inputIsName((string)$business_operator)) {
+        $error_message = 'Business operator name may contain letters, spaces, hyphens, and periods only.';
+    } elseif ($error_message === '' && $document_type === 'Cedula' && (!inputIsInteger((string)$cedula_tax_year, 1900, (int)date('Y') + 1) || !preg_match('/^\d+(?:[.\'\"]\d+)?$/', (string)$cedula_height) || !is_numeric($cedula_weight) || (float)$cedula_weight <= 0 || !preg_match('/^\d+(?:\.\d{1,2})?$/', (string)$cedula_gross_income) || (float)$cedula_gross_income < 0 || !inputIsNumericId((string)$cedula_tin, true, 12))) {
+        $error_message = 'Enter valid numeric cedula measurements, tax year, income, and TIN.';
+    } elseif ($error_message === '' && $document_type === 'Barangay ID' && (!inputIsName((string)$id_emergency_name) || !inputIsName((string)$id_emergency_relationship) || !inputIsPhone((string)$id_emergency_contact) || !inputIsDate((string)$id_valid_until) || $id_valid_until < date('Y-m-d'))) {
+        $error_message = 'Enter valid emergency contact details and a current or future ID validity date.';
+    } elseif ($error_message === '' && $document_type === 'Incident Report' && (!inputIsDate((string)$incident_date) || $incident_date > date('Y-m-d') || !inputIsTime((string)$incident_time))) {
+        $error_message = 'Incident date and time must be valid, and the incident date cannot be in the future.';
+    } elseif ($error_message === '' && $incident_witness_name !== null && !inputIsName((string)$incident_witness_name, true)) {
+        $error_message = 'Witness name may contain letters, spaces, hyphens, and periods only.';
+    } elseif ($error_message === '' && $incident_witness_contact !== null && !inputIsPhone((string)$incident_witness_contact, true)) {
+        $error_message = 'Witness contact number must use a valid Philippine mobile format.';
     } elseif ($error_message === '' && empty($_FILES['valid_id']['name'])) {
         $error_message = 'Please upload a valid ID.';
     } elseif ($error_message === '' && $payment_method === 'online' && empty($_FILES['payment_receipt']['name'])) {
@@ -187,8 +221,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!is_dir($upload_dir)) mkdir($upload_dir, 0755, true);
 
         $extension = strtolower(pathinfo($_FILES['valid_id']['name'], PATHINFO_EXTENSION));
-        if (!in_array($extension, ['jpg', 'jpeg', 'png', 'pdf'])) {
-            $error_message = 'Valid ID must be a JPG, PNG, or PDF file.';
+        $file_error = inputUploadedFileError($_FILES['valid_id'], ['jpg', 'jpeg', 'png', 'pdf'], ['image/jpeg', 'image/png', 'application/pdf']);
+        if ($file_error !== null) {
+            $error_message = $file_error . ' Valid ID must be a JPG, PNG, or PDF file.';
         } else {
             $file_name = 'id_' . $resident_id . '_' . time() . '.' . $extension;
             if (move_uploaded_file($_FILES['valid_id']['tmp_name'], $upload_dir . $file_name)) {
@@ -204,8 +239,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!is_dir($receipt_dir)) mkdir($receipt_dir, 0755, true);
 
             $receipt_ext = strtolower(pathinfo($_FILES['payment_receipt']['name'], PATHINFO_EXTENSION));
-            if (!in_array($receipt_ext, ['jpg', 'jpeg', 'png', 'pdf'])) {
-                $error_message = 'Receipt must be a JPG, PNG, or PDF file.';
+            $receipt_error = inputUploadedFileError($_FILES['payment_receipt'], ['jpg', 'jpeg', 'png', 'pdf'], ['image/jpeg', 'image/png', 'application/pdf']);
+            if ($receipt_error !== null) {
+                $error_message = $receipt_error . ' Receipt must be a JPG, PNG, or PDF file.';
             } else {
                 $receipt_name = 'receipt_' . $resident_id . '_' . time() . '.' . $receipt_ext;
                 if (move_uploaded_file($_FILES['payment_receipt']['tmp_name'], $receipt_dir . $receipt_name)) {
@@ -376,31 +412,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="form-grid">
                             <div class="field">
                                 <label for="first_name">First Name *</label>
-                                <input id="first_name" name="first_name" type="text" value="<?php echo $pref_fname; ?>" required>
+                                <input id="first_name" name="first_name" type="text" maxlength="60" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]+" data-input="name" value="<?php echo $pref_fname; ?>" required>
                             </div>
                             <div class="field">
                                 <label for="middle_name">Middle Name</label>
-                                <input id="middle_name" name="middle_name" type="text" value="<?php echo $pref_mname; ?>">
+                                <input id="middle_name" name="middle_name" type="text" maxlength="60" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]*" data-input="name" value="<?php echo $pref_mname; ?>">
                             </div>
                             <div class="field">
                                 <label for="last_name">Last Name *</label>
-                                <input id="last_name" name="last_name" type="text" value="<?php echo $pref_lname; ?>" required>
+                                <input id="last_name" name="last_name" type="text" maxlength="60" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]+" data-input="name" value="<?php echo $pref_lname; ?>" required>
                             </div>
                             <div class="field">
                                 <label for="suffix">Suffix</label>
-                                <input id="suffix" name="suffix" type="text" value="<?php echo $pref_suffix; ?>">
+                                <input id="suffix" name="suffix" type="text" maxlength="10" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]*" data-input="name" value="<?php echo $pref_suffix; ?>">
                             </div>
                             <div class="field">
                                 <label for="email">Email Address *</label>
-                                <input id="email" name="email" type="email" value="<?php echo $pref_email; ?>" placeholder="example@email.com" required>
+                                <input id="email" name="email" type="email" maxlength="254" value="<?php echo $pref_email; ?>" placeholder="example@email.com" required>
                             </div>
                             <div class="field">
                                 <label for="phone">Phone Number *</label>
-                                <input id="phone" name="phone" type="tel" value="<?php echo $pref_phone; ?>" placeholder="+63 912 345 6789" required>
+                                <input id="phone" name="phone" type="tel" inputmode="numeric" maxlength="11" pattern="09[0-9]{9}" data-input="phone" value="<?php echo $pref_phone; ?>" placeholder="09171234567" required>
                             </div>
                             <div class="field">
                                 <label for="birth_date">Birth Date *</label>
-                                <input id="birth_date" name="birth_date" type="date" value="<?php echo $pref_bdate; ?>" required>
+                                <input id="birth_date" name="birth_date" type="date" max="<?php echo date('Y-m-d'); ?>" value="<?php echo $pref_bdate; ?>" required>
                             </div>
                             <div class="field">
                                 <label for="gender">Gender *</label>
@@ -453,7 +489,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <div class="field service-extra business-extra" data-service-extra="Business Clearance" style="display:none;">
                                 <label for="business_operator">Operator / Manager *</label>
-                                <input id="business_operator" name="business_operator" type="text" placeholder="Enter operator or manager">
+                                <input id="business_operator" name="business_operator" type="text" maxlength="120" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]+" data-input="name" placeholder="Enter operator or manager">
                             </div>
                             <div class="field service-extra business-extra" data-service-extra="Business Clearance" style="display:none;">
                                 <label for="business_nature">Nature / Type of Business *</label>
@@ -525,7 +561,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <div class="field service-extra cedula-extra" data-service-extra="Cedula" style="display:none;">
                                 <label for="cedula_tax_year">Tax Year *</label>
-                                <input id="cedula_tax_year" name="cedula_tax_year" type="text" placeholder="e.g. 2026">
+                                <input id="cedula_tax_year" name="cedula_tax_year" type="number" min="1900" max="<?php echo (int)date('Y') + 1; ?>" step="1" data-input="digits" data-max-digits="4" placeholder="2026">
                             </div>
                             <div class="field service-extra cedula-extra" data-service-extra="Cedula" style="display:none;">
                                 <label for="cedula_place_issued">Place Issued *</label>
@@ -537,15 +573,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <div class="field service-extra cedula-extra" data-service-extra="Cedula" style="display:none;">
                                 <label for="cedula_height">Height *</label>
-                                <input id="cedula_height" name="cedula_height" type="text" placeholder="e.g. 5'2&quot;">
+                                <input id="cedula_height" name="cedula_height" type="text" inputmode="decimal" maxlength="8" pattern="[0-9]+(?:[.&quot;'][0-9]+)?" placeholder="e.g. 5'2&quot;">
                             </div>
                             <div class="field service-extra cedula-extra" data-service-extra="Cedula" style="display:none;">
                                 <label for="cedula_weight">Weight *</label>
-                                <input id="cedula_weight" name="cedula_weight" type="text" placeholder="e.g. 50 kg">
+                                <input id="cedula_weight" name="cedula_weight" type="number" min="1" max="500" step="0.1" placeholder="e.g. 50">
                             </div>
                             <div class="field service-extra cedula-extra" data-service-extra="Cedula" style="display:none;">
                                 <label for="cedula_gross_income">Gross Annual Income *</label>
-                                <input id="cedula_gross_income" name="cedula_gross_income" type="text" placeholder="Previous year's income">
+                                <input id="cedula_gross_income" name="cedula_gross_income" type="number" min="0" step="0.01" placeholder="Previous year's income">
                             </div>
                             <div class="field service-extra cedula-extra" data-service-extra="Cedula" style="display:none;">
                                 <label for="cedula_income_source">Income / Business Source</label>
@@ -553,7 +589,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <div class="field service-extra cedula-extra" data-service-extra="Cedula" style="display:none;">
                                 <label for="cedula_tin">TIN No.</label>
-                                <input id="cedula_tin" name="cedula_tin" type="text" placeholder="Optional" data-optional="true">
+                                <input id="cedula_tin" name="cedula_tin" type="text" inputmode="numeric" maxlength="15" pattern="[0-9]{0,12}" data-input="numeric-id" data-max-digits="12" placeholder="456-789-123-000" data-optional="true">
                             </div>
 
                             <div class="field full service-extra barangay-id-extra" data-service-extra="Barangay ID" style="display:none;">
@@ -562,15 +598,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <div class="field service-extra barangay-id-extra" data-service-extra="Barangay ID" style="display:none;">
                                 <label for="id_emergency_name">Emergency Contact Name *</label>
-                                <input id="id_emergency_name" name="id_emergency_name" type="text" placeholder="Enter full name">
+                                <input id="id_emergency_name" name="id_emergency_name" type="text" maxlength="120" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]+" data-input="name" placeholder="Enter full name">
                             </div>
                             <div class="field service-extra barangay-id-extra" data-service-extra="Barangay ID" style="display:none;">
                                 <label for="id_emergency_relationship">Relationship *</label>
-                                <input id="id_emergency_relationship" name="id_emergency_relationship" type="text" placeholder="e.g. Parent, sibling">
+                                <input id="id_emergency_relationship" name="id_emergency_relationship" type="text" maxlength="60" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]+" data-input="name" placeholder="e.g. Parent, sibling">
                             </div>
                             <div class="field service-extra barangay-id-extra" data-service-extra="Barangay ID" style="display:none;">
                                 <label for="id_emergency_contact">Emergency Contact Number *</label>
-                                <input id="id_emergency_contact" name="id_emergency_contact" type="tel" placeholder="+63 912 345 6789">
+                                <input id="id_emergency_contact" name="id_emergency_contact" type="tel" inputmode="numeric" maxlength="11" pattern="09[0-9]{9}" data-input="phone" placeholder="09171234567">
                             </div>
                             <div class="field service-extra barangay-id-extra" data-service-extra="Barangay ID" style="display:none;">
                                 <label for="id_blood_type">Blood Type</label>
@@ -578,7 +614,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <div class="field service-extra barangay-id-extra" data-service-extra="Barangay ID" style="display:none;">
                                 <label for="id_valid_until">Valid Until *</label>
-                                <input id="id_valid_until" name="id_valid_until" type="date">
+                                <input id="id_valid_until" name="id_valid_until" type="date" min="<?php echo date('Y-m-d'); ?>">
                             </div>
 
                             <div class="field full service-extra incident-extra" data-service-extra="Incident Report" style="display:none;">
@@ -587,7 +623,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <div class="field service-extra incident-extra" data-service-extra="Incident Report" style="display:none;">
                                 <label for="incident_date">Incident Date *</label>
-                                <input id="incident_date" name="incident_date" type="date">
+                                <input id="incident_date" name="incident_date" type="date" max="<?php echo date('Y-m-d'); ?>">
                             </div>
                             <div class="field service-extra incident-extra" data-service-extra="Incident Report" style="display:none;">
                                 <label for="incident_time">Incident Time *</label>
@@ -615,11 +651,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <div class="field service-extra incident-extra" data-service-extra="Incident Report" style="display:none;">
                                 <label for="incident_witness_name">Witness Full Name</label>
-                                <input id="incident_witness_name" name="incident_witness_name" type="text" placeholder="Optional" data-optional="true">
+                                <input id="incident_witness_name" name="incident_witness_name" type="text" maxlength="120" pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .-]*" data-input="name" placeholder="Optional" data-optional="true">
                             </div>
                             <div class="field service-extra incident-extra" data-service-extra="Incident Report" style="display:none;">
                                 <label for="incident_witness_contact">Witness Contact Number</label>
-                                <input id="incident_witness_contact" name="incident_witness_contact" type="tel" placeholder="Optional" data-optional="true">
+                                <input id="incident_witness_contact" name="incident_witness_contact" type="tel" inputmode="numeric" maxlength="11" pattern="09[0-9]{9}" data-input="phone" placeholder="09171234567" data-optional="true">
                             </div>
                             <div class="field full service-extra incident-extra" data-service-extra="Incident Report" style="display:none;">
                                 <label for="incident_witness_address">Witness Address</label>
@@ -634,7 +670,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <i class="fas fa-cloud-upload-alt"></i>
                                         <p>Click to upload or drag and drop</p>
                                         <p class="upload-sub">SVG, PNG, JPG or PDF (max. 5 MB uploaded)</p>
-                                        <input type="file" id="valid_id" name="valid_id" accept="image/*,.pdf" required style="opacity: 0; position: absolute; z-index: -1; width: 1px; height: 1px;">
+                                        <input type="file" id="valid_id" name="valid_id" accept="image/jpeg,image/png,application/pdf" required style="opacity: 0; position: absolute; z-index: -1; width: 1px; height: 1px;">
                                         <label for="valid_id" class="choose-file-btn">Choose File</label>
                                     </div>
                                 </div>
@@ -682,7 +718,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <i class="fas fa-cloud-upload-alt"></i>
                                         <p>Click to upload or drag and drop</p>
                                         <p class="upload-sub">SVG, PNG, JPG or PDF (max. 5 MB uploaded)</p>
-                                        <input type="file" id="payment_receipt" name="payment_receipt" accept="image/*,application/pdf" style="opacity: 0; position: absolute; z-index: -1; width: 1px; height: 1px;">
+                                        <input type="file" id="payment_receipt" name="payment_receipt" accept="image/jpeg,image/png,application/pdf" style="opacity: 0; position: absolute; z-index: -1; width: 1px; height: 1px;">
                                         <label for="payment_receipt" class="choose-file-btn">Choose File</label>
                                     </div>
 
@@ -762,6 +798,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $footerAssetBase = '../assets';
     include __DIR__ . '/../includes/footer.php';
     ?>
+    <script src="../assets/js/input-validation.js?v=20260620a"></script>
     <script src="../assets/js/resident.js?v=20260530a"></script>
 </body>
 

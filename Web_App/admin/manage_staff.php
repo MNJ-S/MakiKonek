@@ -8,6 +8,7 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'Super Admin') 
 
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/prg_flash.php';
+require_once __DIR__ . '/../includes/input_validation.php';
 
 date_default_timezone_set('Asia/Manila');
 
@@ -38,6 +39,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['add_staff'])) {
 
     if ($new_username === '' || $new_email === '' || $new_password === '') {
         $error_message = "Please complete all staff account fields.";
+    } elseif (!preg_match('/^[A-Za-z0-9._-]{4,30}$/', $new_username)) {
+        $error_message = 'Username must be 4-30 characters using letters, numbers, periods, underscores, or hyphens.';
+    } elseif (!filter_var($new_email, FILTER_VALIDATE_EMAIL) || !inputLength($new_email, 254)) {
+        $error_message = 'Please enter a valid email address.';
+    } elseif (strlen($new_password) < 8 || strlen($new_password) > 72) {
+        $error_message = 'Password must be between 8 and 72 characters.';
+    } elseif (!in_array($new_role, ['Barangay Staff', 'Super Admin'], true)) {
+        $error_message = 'Please choose a valid staff role.';
     } else {
         $insert_query = "INSERT INTO admin_accounts (username, email, password, role) VALUES (?, ?, ?, ?)";
         $stmt = mysqli_prepare($conn, $insert_query);
@@ -59,6 +68,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['update_role'])) {
     $update_id = (int) $_POST['admin_id'];
     $updated_role = trim($_POST['role'] ?? 'Barangay Staff');
 
+    if (!in_array($updated_role, ['Barangay Staff', 'Super Admin'], true) || $update_id < 1) {
+        $error_message = 'Invalid staff role update.';
+    } else {
+
     $update_query = "UPDATE admin_accounts SET role = ? WHERE admin_id = ?";
     $stmt = mysqli_prepare($conn, $update_query);
     mysqli_stmt_bind_param($stmt, "si", $updated_role, $update_id);
@@ -67,6 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['update_role'])) {
         prgRedirect('manage_staff.php', 'admin_staff', 'Role updated successfully.');
     } else {
         $error_message = "Failed to update role.";
+    }
     }
 }
 
@@ -230,9 +244,9 @@ $new_this_month = count(array_filter($staff_accounts, fn($row) => date('Y-m', st
                     </div>
                 </div>
                 <form action="manage_staff.php" method="POST" class="admin-form-grid">
-                    <label>Username<input type="text" name="username" required></label>
-                    <label>Email Address<input type="email" name="email" required></label>
-                    <label>Temporary Password<input type="password" name="password" required></label>
+                    <label>Username<input type="text" name="username" minlength="4" maxlength="30" pattern="[A-Za-z0-9._-]+" required></label>
+                    <label>Email Address<input type="email" name="email" maxlength="254" required></label>
+                    <label>Temporary Password<input type="password" name="password" minlength="8" maxlength="72" required></label>
                     <label>Assign Role<select name="role">
                             <option value="Barangay Staff">Barangay Staff</option>
                             <option value="Super Admin">Super Admin</option>
