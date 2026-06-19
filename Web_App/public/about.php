@@ -332,7 +332,7 @@ $residentLogoutHref = '../resident/logout.php';
                 </div>
                 <p class="gc-subtext">From 2,000 residents in 1980 to 11,669 in 2018 - almost 6x growth!</p>
 
-                <div class="gc-chart" aria-label="Population growth line graph">
+                <div class="gc-chart" data-gc-chart aria-label="Population growth line graph">
                     <svg viewBox="0 0 900 210" role="img" aria-labelledby="gc-chart-title gc-chart-desc">
                         <title id="gc-chart-title">Barangay Makiling population growth</title>
                         <desc id="gc-chart-desc">Population increased from 2,000 residents in 1980 to 11,669 residents in 2018.</desc>
@@ -350,14 +350,30 @@ $residentLogoutHref = '../resident/logout.php';
                         <path class="gc-chart-grid" d="M20 190 H880 M20 130 H880 M20 70 H880" />
                         <path class="gc-chart-line" d="M20 168 L143 145 L266 129 L389 115 L512 82 L635 75 L758 20 L880 5" />
                         <g class="gc-chart-points">
-                            <circle cx="20" cy="168" r="5" />
-                            <circle cx="143" cy="145" r="5" />
-                            <circle cx="266" cy="129" r="5" />
-                            <circle cx="389" cy="115" r="5" />
-                            <circle cx="512" cy="82" r="5" />
-                            <circle cx="635" cy="75" r="5" />
-                            <circle cx="758" cy="20" r="5" />
-                            <circle cx="880" cy="5" r="5" />
+                            <circle cx="20" cy="168" r="5" tabindex="0" aria-label="1980 population: 2,000 residents">
+                                <title>1980 - 2,000 residents</title>
+                            </circle>
+                            <circle cx="143" cy="145" r="5" tabindex="0" aria-label="1990 population: 3,382 residents">
+                                <title>1990 - 3,382 residents</title>
+                            </circle>
+                            <circle cx="266" cy="129" r="5" tabindex="0" aria-label="1995 population: 4,326 residents">
+                                <title>1995 - 4,326 residents</title>
+                            </circle>
+                            <circle cx="389" cy="115" r="5" tabindex="0" aria-label="2000 population: 5,130 residents">
+                                <title>2000 - 5,130 residents</title>
+                            </circle>
+                            <circle cx="512" cy="82" r="5" tabindex="0" aria-label="2007 population: 7,100 residents">
+                                <title>2007 - 7,100 residents</title>
+                            </circle>
+                            <circle cx="635" cy="75" r="5" tabindex="0" aria-label="2010 population: 7,510 residents">
+                                <title>2010 - 7,510 residents</title>
+                            </circle>
+                            <circle cx="758" cy="20" r="5" tabindex="0" aria-label="2015 population: 10,760 residents">
+                                <title>2015 - 10,760 residents</title>
+                            </circle>
+                            <circle cx="880" cy="5" r="5" tabindex="0" aria-label="2018 population: 11,669 residents">
+                                <title>2018 - 11,669 residents</title>
+                            </circle>
                         </g>
                     </svg>
                 </div>

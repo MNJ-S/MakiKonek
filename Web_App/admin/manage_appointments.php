@@ -191,6 +191,19 @@ foreach ($reservations as $row) {
 
 $today_reservations = array_values(array_filter($reservations, fn($row) => $row['reservation_date'] === $today));
 $upcoming_reservations = array_values(array_filter($reservations, fn($row) => $row['reservation_date'] >= $today));
+$upcoming_status_counts = [
+    'all' => count($upcoming_reservations),
+    'pending' => 0,
+    'approved' => 0,
+    'cancelled' => 0,
+    'rejected' => 0,
+];
+foreach ($upcoming_reservations as $row) {
+    $status_key = strtolower((string)$row['status']);
+    if (array_key_exists($status_key, $upcoming_status_counts)) {
+        $upcoming_status_counts[$status_key]++;
+    }
+}
 $active_calendar_reservations = array_values(array_filter(
     $reservations,
     fn($row) => in_array(strtolower($row['status']), ['approved', 'completed'], true)
@@ -274,12 +287,6 @@ foreach ($active_calendar_reservations as $row) {
             </article>
         </section>
 
-        <nav class="appointment-filter-pills" aria-label="Reservation type filters">
-            <button type="button" class="is-active" data-appointment-filter="All">All Reservations</button>
-            <button type="button" data-appointment-filter="Events Hall Reservation">Events Hall Reservation</button>
-            <button type="button" data-appointment-filter="Court Reservation">Court Reservation</button>
-        </nav>
-
         <section class="appointments-grid">
             <article class="appointment-card appointment-schedule-card">
                 <div class="appointment-card-heading">
@@ -354,10 +361,33 @@ foreach ($active_calendar_reservations as $row) {
                 <div class="appointment-card-heading">
                     <h2>Upcoming Reservations</h2>
                 </div>
+                <nav class="appointment-status-filter-bar" aria-label="Filter upcoming reservations by status">
+                    <button type="button" class="is-active" data-status-filter="all">
+                        <span>All</span>
+                        <strong><?php echo $upcoming_status_counts['all']; ?></strong>
+                    </button>
+                    <button type="button" class="status-pending" data-status-filter="pending">
+                        <span>Pending</span>
+                        <strong><?php echo $upcoming_status_counts['pending']; ?></strong>
+                    </button>
+                    <button type="button" class="status-approved" data-status-filter="approved">
+                        <span>Approved</span>
+                        <strong><?php echo $upcoming_status_counts['approved']; ?></strong>
+                    </button>
+                    <button type="button" class="status-cancelled" data-status-filter="cancelled">
+                        <span>Cancelled</span>
+                        <strong><?php echo $upcoming_status_counts['cancelled']; ?></strong>
+                    </button>
+                    <button type="button" class="status-rejected" data-status-filter="rejected">
+                        <span>Rejected</span>
+                        <strong><?php echo $upcoming_status_counts['rejected']; ?></strong>
+                    </button>
+                </nav>
                 <div class="appointment-upcoming-list">
                     <?php foreach ($upcoming_reservations as $row):
                         $resident_name = appointmentResidentName($row);
                         $type = reservationTypeLabel($row['facility_name']);
+                        $status_key = strtolower((string)$row['status']);
                     ?>
                         <button class="appointment-upcoming-item appointment-open-trigger"
                             type="button"
@@ -373,12 +403,18 @@ foreach ($active_calendar_reservations as $row) {
                             data-notes="<?php echo h($row['additional_notes'] ?? ''); ?>"
                             data-status="<?php echo h($row['status']); ?>"
                             data-filter-type="<?php echo h($type); ?>"
+                            data-filter-status="<?php echo h($status_key); ?>"
                             data-id="<?php echo (int)$row['reservation_id']; ?>">
                             <time><strong><?php echo appointmentDate($row['reservation_date'], 'M d'); ?></strong><span><?php echo appointmentTime($row['start_time']); ?></span></time>
                             <span><strong><?php echo h($type); ?></strong><small><?php echo h($resident_name); ?> · <?php echo appointmentTime($row['start_time']); ?> - <?php echo appointmentTime($row['end_time']); ?></small></span>
                             <em class="<?php echo appointmentStatusClass($row['status']); ?>"><?php echo h($row['status']); ?></em>
                         </button>
                     <?php endforeach; ?>
+                    <div class="appointment-filter-empty" data-status-filter-empty <?php echo empty($upcoming_reservations) ? '' : 'hidden'; ?>>
+                        <i class="bi bi-funnel"></i>
+                        <strong>No reservations found.</strong>
+                        <span>Try another status filter.</span>
+                    </div>
                 </div>
             </article>
 
@@ -495,14 +531,27 @@ foreach ($active_calendar_reservations as $row) {
                 drawer.classList.remove('is-open');
             });
 
-            document.querySelectorAll('[data-appointment-filter]').forEach(button => {
+            document.querySelectorAll('[data-status-filter]').forEach(button => {
                 button.addEventListener('click', function() {
-                    const filter = this.dataset.appointmentFilter;
-                    document.querySelectorAll('[data-appointment-filter]').forEach(item => item.classList.remove('is-active'));
+                    const filter = this.dataset.statusFilter;
+                    const upcomingItems = Array.from(document.querySelectorAll('.appointment-upcoming-item'));
+                    const emptyState = document.querySelector('[data-status-filter-empty]');
+                    let visibleCount = 0;
+
+                    document.querySelectorAll('[data-status-filter]').forEach(item => item.classList.remove('is-active'));
                     this.classList.add('is-active');
-                    document.querySelectorAll('.appointment-upcoming-item').forEach(item => {
-                        item.hidden = filter !== 'All' && item.dataset.filterType !== filter;
+
+                    upcomingItems.forEach(item => {
+                        const isVisible = filter === 'all' || item.dataset.filterStatus === filter;
+                        item.hidden = !isVisible;
+                        if (isVisible) {
+                            visibleCount++;
+                        }
                     });
+
+                    if (emptyState) {
+                        emptyState.hidden = visibleCount > 0;
+                    }
                 });
             });
 

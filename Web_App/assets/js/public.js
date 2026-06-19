@@ -142,6 +142,31 @@ document.addEventListener("DOMContentLoaded", () => {
         renderCalendar();
     }
 
+    const growingCommunityChart = document.querySelector("[data-gc-chart]");
+
+    if (growingCommunityChart) {
+        const revealChart = () => {
+            growingCommunityChart.classList.add("is-animated");
+        };
+
+        if (!("IntersectionObserver" in window)) {
+            revealChart();
+        } else {
+            const chartObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        revealChart();
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.35,
+            });
+
+            chartObserver.observe(growingCommunityChart);
+        }
+    }
+
     if (document.body.classList.contains("auth-page")) {
         requestAnimationFrame(() => {
             document.body.classList.add("auth-ready");

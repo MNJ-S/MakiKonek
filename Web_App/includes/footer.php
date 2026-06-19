@@ -6,7 +6,7 @@ $footerAssetBase = $footerAssetBase ?? '../assets';
 <footer class="site-footer">
     <div class="footer-grid">
         <div>
-            <img class="footer-logo" src="<?php echo $footerAssetBase; ?>/img/logo-makikonek.png" alt="MakiKonek Logo">
+            <img class="footer-logo" src="<?php echo $footerAssetBase; ?>/img/logo2-makikonek.png" alt="MakiKonek Logo">
             <p>MakiKonek is your digital gateway to faster, easier, and more transparent barangay service.</p>
             
             <div class="social-row">
