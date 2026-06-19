@@ -133,6 +133,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         if (mysqli_stmt_execute($insert_stmt)) {
+            $name_stmt = mysqli_prepare($conn, "SELECT first_name, last_name FROM user_profiles WHERE user_id = ? LIMIT 1");
+            mysqli_stmt_bind_param($name_stmt, "i", $resident_id);
+            mysqli_stmt_execute($name_stmt);
+            $name_row = mysqli_fetch_assoc(mysqli_stmt_get_result($name_stmt)) ?: [];
+            mysqli_stmt_close($name_stmt);
+
+            $resident_name = trim(($name_row['first_name'] ?? '') . ' ' . ($name_row['last_name'] ?? ''));
+            if ($resident_name === '') {
+                $resident_name = 'A resident';
+            }
+
+            createAdminNotification(
+                $conn,
+                'New Facility Reservation',
+                $resident_name . ' requested the ' . $facility . ' for ' . date('M j, Y', strtotime($reservation_date)) . ' (' . $reference_no . ').',
+                'Appointment',
+                'bi-calendar-event',
+                'manage_appointments.php'
+            );
+
             prgRedirect(
                 'reservations.php',
                 'resident_reservations',

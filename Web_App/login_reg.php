@@ -116,6 +116,8 @@ else {
     <title>Login | MakiKonek</title>
     <link rel="stylesheet" href="assets/css/login.css?v=20260529m">
     <script defer src="assets/js/public.js?v=20260529c"></script>
+    <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
+
 </head>
 
 <body class="auth-page">

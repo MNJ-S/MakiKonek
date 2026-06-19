@@ -35,6 +35,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['approve_user'])) {
         mysqli_stmt_execute($notif_stmt);
 
         mysqli_commit($conn);
+        createAdminNotification(
+            $conn,
+            "Resident Verified",
+            "A resident account has been verified and approved.",
+            "Account",
+            "bi-person-check",
+            "manage_residents.php"
+        );
         prgRedirect(
             'manage_residents.php',
             'admin_residents',
@@ -82,6 +90,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['archive_user'])) {
         mysqli_stmt_execute($stmt_delete);
 
         mysqli_commit($conn);
+        createAdminNotification(
+            $conn,
+            "Resident Archived",
+            "A resident account was archived.",
+            "Account",
+            "bi-person-x",
+            "manage_residents.php"
+        );
         prgRedirect(
             'manage_residents.php',
             'admin_residents',
@@ -288,6 +304,7 @@ $verified_percent = $total_residents > 0 ? round(($verified_residents / $total_r
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/notifications.css">
     <link rel="stylesheet" href="../assets/css/admin.css?v=20260613a">
 </head>
 
@@ -310,12 +327,26 @@ $verified_percent = $total_residents > 0 ? round(($verified_residents / $total_r
                                 <small><?php echo date('l, h:i A'); ?></small>
                             </span>
                         </div>
-                        <button class="dashboard-notification" type="button" aria-label="Notifications">
-                            <i class="bi bi-bell"></i>
-                            <?php if ($pending_residents > 0): ?>
-                                <span><?php echo min(9, $pending_residents); ?></span>
-                            <?php endif; ?>
-                        </button>
+                        <div class="dropdown dropdown-notification-wrapper">
+                            <button class="dashboard-notification" type="button" aria-label="Notifications" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                                <i class="bi bi-bell"></i>
+                                <span id="admin-notif-badge" style="display: none;">0</span>
+                            </button>
+
+                            <div class="dropdown-menu dropdown-menu-end notification-dropdown">
+                                <div class="notification-header">
+                                    <div>
+                                        <h6>Notifications</h6>
+                                        <small id="admin-notif-count-text">0 unread updates</small>
+                                    </div>
+                                    <button type="button" class="mark-read-btn" id="markAllReadBtn" style="display: none;">Mark all as read</button>
+                                </div>
+
+                                <div class="notification-body" id="admin-notification-body">
+                                    <div class="p-3 text-center text-muted"><small>Loading...</small></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </header>
 
@@ -592,6 +623,7 @@ $verified_percent = $total_residents > 0 ? round(($verified_residents / $total_r
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/admin_notifications.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const rows = Array.from(document.querySelectorAll('.resident-row'));

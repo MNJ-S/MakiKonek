@@ -124,7 +124,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_reservation_st
                         mysqli_stmt_close($notif_stmt);
                     }
                 }
-
+                createAdminNotification(
+                    $conn,
+                    "Reservation " . $new_status,
+                    "Facility reservation ({$reference_no}) was marked as {$new_status}.",
+                    "Appointment",
+                    "bi-calendar-check",
+                    "manage_appointments.php"
+                );
                 prgRedirect(
                     'manage_appointments.php',
                     'admin_appointments',
@@ -230,6 +237,7 @@ foreach ($active_calendar_reservations as $row) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/notifications.css">
     <link rel="stylesheet" href="../assets/css/admin.css?v=20260613a">
 </head>
 
@@ -250,10 +258,26 @@ foreach ($active_calendar_reservations as $row) {
                         <small><?php echo date('l, h:i A'); ?></small>
                     </span>
                 </div>
-                <button class="dashboard-notification" type="button" aria-label="Notifications">
-                    <i class="bi bi-bell"></i>
-                    <?php if ($pending_count > 0): ?><span><?php echo min(9, $pending_count); ?></span><?php endif; ?>
-                </button>
+                <div class="dropdown dropdown-notification-wrapper">
+                    <button class="dashboard-notification" type="button" aria-label="Notifications" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                        <i class="bi bi-bell"></i>
+                        <span id="admin-notif-badge" style="display: none;">0</span>
+                    </button>
+
+                    <div class="dropdown-menu dropdown-menu-end notification-dropdown">
+                        <div class="notification-header">
+                            <div>
+                                <h6>Notifications</h6>
+                                <small id="admin-notif-count-text">0 unread updates</small>
+                            </div>
+                            <button type="button" class="mark-read-btn" id="markAllReadBtn" style="display: none;">Mark all as read</button>
+                        </div>
+
+                        <div class="notification-body" id="admin-notification-body">
+                            <div class="p-3 text-center text-muted"><small>Loading...</small></div>
+                        </div>
+                    </div>
+                </div>
                 <a href="../resident/reservations.php" class="appointment-primary-action"><i class="bi bi-plus-lg"></i> New Reservation</a>
             </div>
         </header>
@@ -513,6 +537,7 @@ foreach ($active_calendar_reservations as $row) {
     </aside>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/admin_notifications.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const drawer = document.getElementById('appointmentDrawer');

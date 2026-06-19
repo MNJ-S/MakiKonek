@@ -163,6 +163,7 @@ $this_month_count = count(array_filter($announcements, fn($row) => date('Y-m', s
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/notifications.css">
     <link rel="stylesheet" href="../assets/css/admin.css?v=20260613a">
 </head>
 
@@ -183,6 +184,7 @@ $this_month_count = count(array_filter($announcements, fn($row) => date('Y-m', s
                         <small><?php echo date('l, h:i A'); ?></small>
                     </span>
                 </div>
+                <?php include __DIR__ . '/partials/admin_notification_dropdown.php'; ?>
                 <a href="#announcementComposer" class="admin-primary-btn"><i class="bi bi-plus-lg"></i> Create Announcement</a>
             </div>
         </header>
@@ -293,6 +295,7 @@ $this_month_count = count(array_filter($announcements, fn($row) => date('Y-m', s
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/admin_notifications.js"></script>
 </body>
 
 </html>

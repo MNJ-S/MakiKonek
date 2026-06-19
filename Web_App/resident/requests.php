@@ -314,6 +314,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 mysqli_stmt_execute($stmt_inc);
             }
 
+            $resident_name = trim($first_name . ' ' . $last_name);
+            createAdminNotification(
+                $conn,
+                'New Service Request',
+                $resident_name . ' submitted a ' . $document_type . ' request (' . $reference_no . ').',
+                'Service Request',
+                'bi-file-earmark-text',
+                'manage_requests.php'
+            );
+
             mysqli_commit($conn);
             prgRedirect(
                 'requests.php',

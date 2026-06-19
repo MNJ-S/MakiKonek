@@ -190,6 +190,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
             }
 
+            createAdminNotification(
+                $conn,
+                'Resident Profile Updated',
+                trim($given_name . ' ' . $surname) . ' updated their resident profile.',
+                'Account',
+                'bi-person-lines-fill',
+                'manage_residents.php'
+            );
+
             mysqli_commit($conn);
             prgRedirect('profile.php', 'resident_profile', 'SAVED SUCCESSFULLY!');
         } catch (Exception $e) {

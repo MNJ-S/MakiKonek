@@ -62,6 +62,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 mysqli_stmt_bind_param($stmt_profile, "issss", $new_user_id, $given_name, $surname, $middle_name, $suffix);
                 mysqli_stmt_execute($stmt_profile);
 
+                createAdminNotification(
+                    $conn,
+                    'New Resident Account',
+                    trim($given_name . ' ' . $surname) . ' created a resident account.',
+                    'Account',
+                    'bi-person-plus',
+                    'manage_residents.php'
+                );
+
                 mysqli_commit($conn);
                 prgRedirect('signup.php', 'signup', 'Account created successfully! You can now log in.');
             } catch (Exception $e) {

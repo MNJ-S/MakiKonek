@@ -56,6 +56,29 @@ INSERT INTO `admin_accounts` (`admin_id`, `username`, `email`, `password`, `role
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `admin_notifications`
+--
+
+DROP TABLE IF EXISTS `admin_notifications`;
+CREATE TABLE IF NOT EXISTS `admin_notifications` (
+  `notification_id` int(11) NOT NULL AUTO_INCREMENT,
+  `admin_id` int(11) DEFAULT NULL,
+  `title` varchar(150) NOT NULL,
+  `message` text NOT NULL,
+  `type` varchar(50) NOT NULL DEFAULT 'System',
+  `icon` varchar(50) NOT NULL DEFAULT 'bi-bell',
+  `action_url` varchar(255) DEFAULT NULL,
+  `is_read` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`notification_id`),
+  KEY `idx_admin_id` (`admin_id`),
+  KEY `idx_is_read` (`is_read`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `announcements`
 --
 
