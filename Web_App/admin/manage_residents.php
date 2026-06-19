@@ -16,7 +16,7 @@ $error_message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['approve_user'])) {
     $target_user_id = (int)$_POST['user_id'];
-    
+
     mysqli_begin_transaction($conn);
     try {
         $update_query = "UPDATE users SET account_status = 'Verified' WHERE user_id = ?";
@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['approve_user'])) {
         $notif_message = "Your resident account has been verified and approved by the admin. You can now access full features.";
         $notif_type = "System Alert";
         $notif_icon = "fa-solid fa-circle-check";
-        
+
         $notif_query = "INSERT INTO user_notifications (user_id, title, message, type, icon) VALUES (?, ?, ?, ?, ?)";
         $notif_stmt = mysqli_prepare($conn, $notif_query);
         mysqli_stmt_bind_param($notif_stmt, "issss", $target_user_id, $notif_title, $notif_message, $notif_type, $notif_icon);
@@ -286,6 +286,7 @@ $verified_percent = $total_residents > 0 ? round(($verified_residents / $total_r
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Residents | MakiKonek</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../assets/css/admin.css?v=20260613a">
 </head>
@@ -552,11 +553,26 @@ $verified_percent = $total_residents > 0 ? round(($verified_residents / $total_r
                 <section class="drawer-tab-panel is-active" data-drawer-panel="profile">
                     <h3>Personal Information</h3>
                     <dl>
-                        <div><dt>Email Address</dt><dd id="drawerEmail">N/A</dd></div>
-                        <div><dt>Contact Number</dt><dd id="drawerMobile">N/A</dd></div>
-                        <div><dt>Date of Birth</dt><dd id="drawerBirthdate">N/A</dd></div>
-                        <div><dt>Gender</dt><dd id="drawerGender">N/A</dd></div>
-                        <div><dt>Civil Status</dt><dd id="drawerCivil">N/A</dd></div>
+                        <div>
+                            <dt>Email Address</dt>
+                            <dd id="drawerEmail">N/A</dd>
+                        </div>
+                        <div>
+                            <dt>Contact Number</dt>
+                            <dd id="drawerMobile">N/A</dd>
+                        </div>
+                        <div>
+                            <dt>Date of Birth</dt>
+                            <dd id="drawerBirthdate">N/A</dd>
+                        </div>
+                        <div>
+                            <dt>Gender</dt>
+                            <dd id="drawerGender">N/A</dd>
+                        </div>
+                        <div>
+                            <dt>Civil Status</dt>
+                            <dd id="drawerCivil">N/A</dd>
+                        </div>
                     </dl>
                     <h3>Residential Address</h3>
                     <p class="drawer-text" id="drawerAddress">N/A</p>

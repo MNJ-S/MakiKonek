@@ -19,6 +19,7 @@ $activePage = 'notifications';
     <title><?php echo $pageTitle; ?> | MakiKonek</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/header.css?v=20260613e">
+    <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260613b">
     <link rel="stylesheet" href="../assets/css/resident.css?v=20260613a">
 </head>
@@ -33,8 +34,8 @@ $activePage = 'notifications';
     ?>
 
     <div class="resident-shell">
-        <?php include __DIR__ . '/partials/resident_sidebar.php'; 
-        
+        <?php include __DIR__ . '/partials/resident_sidebar.php';
+
         // Fetch all notifications for the page view instead of limiting to 10 from header
         $allPageNotifications = [];
         $page_notif_query = "SELECT notification_id, title, message, type, icon, is_read, created_at FROM user_notifications WHERE user_id = ? ORDER BY created_at DESC";
@@ -58,7 +59,7 @@ $activePage = 'notifications';
                     $days = floor($time_diff / 86400);
                     $time_str = $days . " day" . ($days > 1 ? "s" : "") . " ago";
                 }
-                
+
                 $allPageNotifications[] = [
                     'id' => $row['notification_id'],
                     'title' => $row['title'],
@@ -90,12 +91,12 @@ $activePage = 'notifications';
                         <p>You're all caught up! Check back later for updates.</p>
                     </div>
                 <?php else: ?>
-                    <?php foreach ($allPageNotifications as $notification): 
+                    <?php foreach ($allPageNotifications as $notification):
                         $bg_class = 'bg-light-blue';
                         $border_class = 'border-blue-line';
                         $pill_class = 'pill-blue';
                         $icon_bg = 'bg-solid-blue';
-                        
+
                         if ($notification['type'] === 'Request Update') {
                             $bg_class = 'bg-light-green';
                             $border_class = 'border-green-line';
@@ -140,7 +141,7 @@ $activePage = 'notifications';
         document.addEventListener('DOMContentLoaded', function() {
             const markAllBtn = document.querySelector('.mark-read-btn');
             const cards = document.querySelectorAll('.page-notification-card');
-            
+
             if (markAllBtn) {
                 markAllBtn.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -148,12 +149,14 @@ $activePage = 'notifications';
                         card.style.fontWeight = 'normal';
                         card.style.opacity = '0.8';
                     });
-                    
-                    fetch('mark_notifications_read.php', { method: 'POST' })
+
+                    fetch('mark_notifications_read.php', {
+                            method: 'POST'
+                        })
                         .catch(err => console.error(err));
-                        
+
                     this.style.display = 'none';
-                    
+
                     // Trigger the header's mark as read if it exists to sync UI
                     const headerMarkRead = document.querySelector('[data-mark-all-read]');
                     if (headerMarkRead && headerMarkRead !== this) {

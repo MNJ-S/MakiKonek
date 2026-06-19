@@ -22,10 +22,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = mysqli_real_escape_string($conn, trim($_POST['password']));
     $confirm_password = mysqli_real_escape_string($conn, trim($_POST['confirm_password']));
 
-// Validate passwords match
-if ($password !== $confirm_password) {
-    $error_message = "Passwords do not match. Please try again.";
-} else {
+    // Validate passwords match
+    if ($password !== $confirm_password) {
+        $error_message = "Passwords do not match. Please try again.";
+    } else {
         // Check if the username or email is already taken
         $check_query = "SELECT user_id FROM users WHERE email = ? OR username = ?";
         $stmt = mysqli_prepare($conn, $check_query);
@@ -70,6 +70,7 @@ if ($password !== $confirm_password) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up | MakiKonek</title>
     <link rel="stylesheet" href="assets/css/signup.css?v=20260529j">
+    <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <script defer src="assets/js/public.js?v=20260529c"></script>
 </head>
 

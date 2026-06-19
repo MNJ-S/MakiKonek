@@ -19,6 +19,7 @@ $serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <link rel="stylesheet" href="../assets/css/home.css?v=20260613a">
+    <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <link rel="stylesheet" href="../assets/css/header.css?v=20260613e">
     <link rel="stylesheet" href="../assets/css/services.css?v=20260613a">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260613b">
@@ -38,7 +39,7 @@ $serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login
                     <p>Request clearances, certificates, permits, and other barangay documents without visiting the hall. Submit requirements, upload files, and track your application progress anytime.</p>
                 </div>
 
-                </div>
+            </div>
         </header>
 
         <section class="services-grid-layout">

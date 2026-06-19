@@ -255,6 +255,7 @@ $featured = $officials[0] ?? null;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Officials | MakiKonek</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../assets/css/admin.css?v=20260613a">
 </head>
@@ -294,15 +295,21 @@ $featured = $officials[0] ?? null;
         <section class="official-kpi-grid" aria-label="Officials analytics">
             <article class="admin-kpi-panel">
                 <span><i class="bi bi-people"></i></span>
-                <div><p>Barangay Officials</p><strong><?php echo $barangay_count; ?></strong><small>Active officials</small></div>
+                <div>
+                    <p>Barangay Officials</p><strong><?php echo $barangay_count; ?></strong><small>Active officials</small>
+                </div>
             </article>
             <article class="admin-kpi-panel admin-kpi-blue">
                 <span><i class="bi bi-person-hearts"></i></span>
-                <div><p>SK Officials</p><strong><?php echo $sk_count; ?></strong><small>Active youth council</small></div>
+                <div>
+                    <p>SK Officials</p><strong><?php echo $sk_count; ?></strong><small>Active youth council</small>
+                </div>
             </article>
             <article class="admin-kpi-panel">
                 <span><i class="bi bi-person-badge"></i></span>
-                <div><p>Total Officials</p><strong><?php echo $total_officials; ?></strong><small>Across all groups</small></div>
+                <div>
+                    <p>Total Officials</p><strong><?php echo $total_officials; ?></strong><small>Across all groups</small>
+                </div>
             </article>
         </section>
 
@@ -384,7 +391,10 @@ $featured = $officials[0] ?? null;
                         <label>Username<input type="text" name="username" required></label>
                         <label>Email<input type="email" name="email" required></label>
                         <label>Password<input type="password" name="password" required></label>
-                        <label>Role<select name="official_role"><option value="Opisyal">Barangay Opisyal</option><option value="SK">SK Official</option></select></label>
+                        <label>Role<select name="official_role">
+                                <option value="Opisyal">Barangay Opisyal</option>
+                                <option value="SK">SK Official</option>
+                            </select></label>
                         <label>Position<input type="text" name="position" required></label>
                         <label>Committee<input type="text" name="committee"></label>
                         <label>Term Start<input type="date" name="term_start" required></label>
@@ -426,11 +436,26 @@ $featured = $officials[0] ?? null;
             <button type="button" id="officialDrawerClose" aria-label="Close profile"><i class="bi bi-x-lg"></i></button>
         </div>
         <dl>
-            <div><dt>Position</dt><dd id="drawerOfficialPosition"></dd></div>
-            <div><dt>Group</dt><dd id="drawerOfficialRole"></dd></div>
-            <div><dt>Email</dt><dd id="drawerOfficialEmail"></dd></div>
-            <div><dt>Committee</dt><dd id="drawerOfficialCommittee"></dd></div>
-            <div><dt>Term</dt><dd id="drawerOfficialTerm"></dd></div>
+            <div>
+                <dt>Position</dt>
+                <dd id="drawerOfficialPosition"></dd>
+            </div>
+            <div>
+                <dt>Group</dt>
+                <dd id="drawerOfficialRole"></dd>
+            </div>
+            <div>
+                <dt>Email</dt>
+                <dd id="drawerOfficialEmail"></dd>
+            </div>
+            <div>
+                <dt>Committee</dt>
+                <dd id="drawerOfficialCommittee"></dd>
+            </div>
+            <div>
+                <dt>Term</dt>
+                <dd id="drawerOfficialTerm"></dd>
+            </div>
         </dl>
     </aside>
 

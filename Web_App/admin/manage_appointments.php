@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_reservation_st
                 $notif_title = 'Reservation ' . $new_status;
                 $notif_msg = '';
                 $notif_icon = 'fa-regular fa-bell';
-                
+
                 if ($new_status === 'Approved') {
                     $notif_msg = "Your reservation request ($reference_no) has been approved.";
                     $notif_icon = 'fa-regular fa-circle-check';
@@ -228,6 +228,7 @@ foreach ($active_calendar_reservations as $row) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Appointments | MakiKonek</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../assets/css/admin.css?v=20260613a">
 </head>
@@ -267,22 +268,30 @@ foreach ($active_calendar_reservations as $row) {
         <section class="appointment-kpi-grid" aria-label="Reservation analytics">
             <article class="appointment-kpi-card">
                 <span><i class="bi bi-calendar-week"></i></span>
-                <div><p>Upcoming</p><strong><?php echo $upcoming_count; ?></strong><small>Scheduled this week</small></div>
+                <div>
+                    <p>Upcoming</p><strong><?php echo $upcoming_count; ?></strong><small>Scheduled this week</small>
+                </div>
                 <em><i style="width: <?php echo min(100, $upcoming_count * 12); ?>%;"></i></em>
             </article>
             <article class="appointment-kpi-card">
                 <span><i class="bi bi-calendar-day"></i></span>
-                <div><p>Today</p><strong><?php echo $today_count; ?></strong><small>Reservations today</small></div>
+                <div>
+                    <p>Today</p><strong><?php echo $today_count; ?></strong><small>Reservations today</small>
+                </div>
                 <em><i style="width: <?php echo min(100, $today_count * 25); ?>%;"></i></em>
             </article>
             <article class="appointment-kpi-card appointment-kpi-amber">
                 <span><i class="bi bi-hourglass-split"></i></span>
-                <div><p>Pending Approval</p><strong><?php echo $pending_count; ?></strong><small>Awaiting admin review</small></div>
+                <div>
+                    <p>Pending Approval</p><strong><?php echo $pending_count; ?></strong><small>Awaiting admin review</small>
+                </div>
                 <em><i style="width: <?php echo min(100, $pending_count * 20); ?>%;"></i></em>
             </article>
             <article class="appointment-kpi-card">
                 <span><i class="bi bi-check2-circle"></i></span>
-                <div><p>Completed</p><strong><?php echo $completed_count; ?></strong><small>Completed reservations</small></div>
+                <div>
+                    <p>Completed</p><strong><?php echo $completed_count; ?></strong><small>Completed reservations</small>
+                </div>
                 <em><i style="width: <?php echo min(100, $completed_count * 10); ?>%;"></i></em>
             </article>
         </section>
@@ -447,11 +456,26 @@ foreach ($active_calendar_reservations as $row) {
         <section>
             <h3>Reservation Information</h3>
             <dl>
-                <div><dt>Reservation ID</dt><dd id="drawerRef">N/A</dd></div>
-                <div><dt>Date</dt><dd id="drawerDate">N/A</dd></div>
-                <div><dt>Time</dt><dd id="drawerTime">N/A</dd></div>
-                <div><dt>Expected Guests</dt><dd id="drawerGuests">N/A</dd></div>
-                <div><dt>Status</dt><dd id="drawerStatus">N/A</dd></div>
+                <div>
+                    <dt>Reservation ID</dt>
+                    <dd id="drawerRef">N/A</dd>
+                </div>
+                <div>
+                    <dt>Date</dt>
+                    <dd id="drawerDate">N/A</dd>
+                </div>
+                <div>
+                    <dt>Time</dt>
+                    <dd id="drawerTime">N/A</dd>
+                </div>
+                <div>
+                    <dt>Expected Guests</dt>
+                    <dd id="drawerGuests">N/A</dd>
+                </div>
+                <div>
+                    <dt>Status</dt>
+                    <dd id="drawerStatus">N/A</dd>
+                </div>
             </dl>
         </section>
         <section>
@@ -567,8 +591,14 @@ foreach ($active_calendar_reservations as $row) {
                 const events = document.getElementById('calendarSummaryEvents');
                 events.replaceChildren(...rows.map(row => {
                     const item = document.createElement('p');
-                    const start = new Date('1970-01-01T' + row.start_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-                    const end = new Date('1970-01-01T' + row.end_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                    const start = new Date('1970-01-01T' + row.start_time).toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit'
+                    });
+                    const end = new Date('1970-01-01T' + row.end_time).toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit'
+                    });
                     item.textContent = 'Reserved: ' + row.facility_name + ' - ' + start + ' - ' + end;
                     return item;
                 }));

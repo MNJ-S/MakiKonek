@@ -142,6 +142,7 @@ $this_month_count = count(array_filter($announcements, fn($row) => date('Y-m', s
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Announcements | MakiKonek</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../assets/css/admin.css?v=20260613a">
 </head>
@@ -177,15 +178,21 @@ $this_month_count = count(array_filter($announcements, fn($row) => date('Y-m', s
         <section class="official-kpi-grid" aria-label="Announcement summary">
             <article class="admin-kpi-panel">
                 <span><i class="bi bi-megaphone"></i></span>
-                <div><p>Published</p><strong><?php echo $published_count; ?></strong><small>Visible to residents</small></div>
+                <div>
+                    <p>Published</p><strong><?php echo $published_count; ?></strong><small>Visible to residents</small>
+                </div>
             </article>
             <article class="admin-kpi-panel admin-kpi-blue">
                 <span><i class="bi bi-pencil-square"></i></span>
-                <div><p>Drafts</p><strong><?php echo $draft_count; ?></strong><small>Needs final review</small></div>
+                <div>
+                    <p>Drafts</p><strong><?php echo $draft_count; ?></strong><small>Needs final review</small>
+                </div>
             </article>
             <article class="admin-kpi-panel">
                 <span><i class="bi bi-calendar-event"></i></span>
-                <div><p>This Month</p><strong><?php echo $this_month_count; ?></strong><small>Created announcements</small></div>
+                <div>
+                    <p>This Month</p><strong><?php echo $this_month_count; ?></strong><small>Created announcements</small>
+                </div>
             </article>
         </section>
 
@@ -199,13 +206,21 @@ $this_month_count = count(array_filter($announcements, fn($row) => date('Y-m', s
                 </div>
                 <form action="manage_announcements.php" method="POST" enctype="multipart/form-data" class="announcement-composer-form">
                     <label>Title<input type="text" name="title" placeholder="Enter announcement title" required></label>
-                    <label>Category<select name="category"><option>Announcement</option><option>Program</option><option>Advisory</option><option>Event</option></select></label>
+                    <label>Category<select name="category">
+                            <option>Announcement</option>
+                            <option>Program</option>
+                            <option>Advisory</option>
+                            <option>Event</option>
+                        </select></label>
                     <label class="span-2">Short Summary<input type="text" name="summary" placeholder="One-line summary for cards"></label>
                     <label class="span-2">Content<textarea name="body" rows="7" placeholder="Write the announcement details..." required></textarea></label>
                     <label>Date<input type="date" name="event_date"></label>
                     <label>Time<input type="text" name="event_time" placeholder="e.g. 8:00 AM - 12:00 PM"></label>
                     <label>Location<input type="text" name="location" placeholder="Barangay Hall"></label>
-                    <label>Status<select name="status"><option>Published</option><option>Draft</option></select></label>
+                    <label>Status<select name="status">
+                            <option>Published</option>
+                            <option>Draft</option>
+                        </select></label>
                     <label class="span-2">Cover Image<input type="file" name="cover_image" accept="image/png,image/jpeg,image/webp"></label>
                     <button type="submit" name="create_announcement"><i class="bi bi-send"></i> Publish Announcement</button>
                 </form>

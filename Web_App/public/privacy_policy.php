@@ -9,16 +9,19 @@ $residentLogoutHref = '../resident/logout.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy | MakiKonek</title>
     <link rel="stylesheet" href="../assets/css/home.css?v=20260613a">
     <link rel="stylesheet" href="../assets/css/header.css?v=20260613e">
+    <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260613b">
     <link rel="stylesheet" href="../assets/css/public-info.css?v=20260619a">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
 </head>
+
 <body class="info-page">
     <?php include __DIR__ . '/../includes/header.php'; ?>
 
@@ -63,4 +66,5 @@ $residentLogoutHref = '../resident/logout.php';
 
     <?php include __DIR__ . '/../includes/footer.php'; ?>
 </body>
+
 </html>

@@ -44,14 +44,16 @@ function normalizeDashboardStatus(string $status, string $process_status = ''): 
         return 'Under Review';
     }
 
-    foreach ([
-        'PENDING' => 'Pending',
-        'UNDER REVIEW' => 'Under Review',
-        'PROCESSING' => 'Processing',
-        'READY FOR PICKUP' => 'Ready for Pickup',
-        'COMPLETED' => 'Completed',
-        'REJECTED' => 'Rejected',
-    ] as $key => $label) {
+    foreach (
+        [
+            'PENDING' => 'Pending',
+            'UNDER REVIEW' => 'Under Review',
+            'PROCESSING' => 'Processing',
+            'READY FOR PICKUP' => 'Ready for Pickup',
+            'COMPLETED' => 'Completed',
+            'REJECTED' => 'Rejected',
+        ] as $key => $label
+    ) {
         if ($normalized === $key) {
             return $label;
         }
@@ -228,6 +230,7 @@ while (count($activities) < 5) {
     <title>Admin Dashboard | MakiKonek</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <link rel="stylesheet" href="../assets/css/admin.css?v=20260613a">
 </head>
 

@@ -170,6 +170,7 @@ $minDate = date('Y-m-d');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $pageTitle; ?> | MakiKonek</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <link rel="stylesheet" href="../assets/css/header.css?v=20260613e">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260613b">
     <link rel="stylesheet" href="../assets/css/resident.css?v=20260613a">
@@ -196,27 +197,27 @@ $minDate = date('Y-m-d');
 
             <div class="facility-grid">
                 <?php foreach ($facilityOptions as $facilityName => $facility): ?>
-                <article class="facility-card <?php echo htmlspecialchars($facility['class']); ?>">
-                    <div class="facility-icon">
-                        <i class="<?php echo htmlspecialchars($facility['icon']); ?>"></i>
-                    </div>
-                    <h2><?php echo htmlspecialchars($facilityName); ?></h2>
-                    <p><?php echo htmlspecialchars($facility['description']); ?></p>
-                    <ul class="facility-meta">
-                        <li><i class="fa-regular fa-clock"></i><?php echo htmlspecialchars($facility['hours']); ?></li>
-                        <li><i class="fa-solid fa-users"></i><?php echo htmlspecialchars($facility['capacity']); ?></li>
-                    </ul>
-                    <button
-                        class="book-now-btn"
-                        type="button"
-                        data-facility-name="<?php echo htmlspecialchars($facilityName); ?>"
-                        data-facility-fee="<?php echo htmlspecialchars($facility['fee']); ?>"
-                        data-facility-hours="<?php echo htmlspecialchars($facility['hours']); ?>"
-                        data-facility-capacity="<?php echo htmlspecialchars($facility['capacity']); ?>"
-                        data-facility-accent="<?php echo htmlspecialchars($facility['accent']); ?>">
-                        Book Now
-                    </button>
-                </article>
+                    <article class="facility-card <?php echo htmlspecialchars($facility['class']); ?>">
+                        <div class="facility-icon">
+                            <i class="<?php echo htmlspecialchars($facility['icon']); ?>"></i>
+                        </div>
+                        <h2><?php echo htmlspecialchars($facilityName); ?></h2>
+                        <p><?php echo htmlspecialchars($facility['description']); ?></p>
+                        <ul class="facility-meta">
+                            <li><i class="fa-regular fa-clock"></i><?php echo htmlspecialchars($facility['hours']); ?></li>
+                            <li><i class="fa-solid fa-users"></i><?php echo htmlspecialchars($facility['capacity']); ?></li>
+                        </ul>
+                        <button
+                            class="book-now-btn"
+                            type="button"
+                            data-facility-name="<?php echo htmlspecialchars($facilityName); ?>"
+                            data-facility-fee="<?php echo htmlspecialchars($facility['fee']); ?>"
+                            data-facility-hours="<?php echo htmlspecialchars($facility['hours']); ?>"
+                            data-facility-capacity="<?php echo htmlspecialchars($facility['capacity']); ?>"
+                            data-facility-accent="<?php echo htmlspecialchars($facility['accent']); ?>">
+                            Book Now
+                        </button>
+                    </article>
                 <?php endforeach; ?>
             </div>
 
@@ -291,45 +292,45 @@ $minDate = date('Y-m-d');
             <section class="reservations-container">
                 <h2>My Reservations</h2>
                 <?php if (empty($myReservations)): ?>
-                <div class="empty-reservations">
-                    <i class="fa-regular fa-calendar"></i>
-                    <h3>No reservations yet</h3>
-                    <p>Book a facility to see your reservations here</p>
-                </div>
+                    <div class="empty-reservations">
+                        <i class="fa-regular fa-calendar"></i>
+                        <h3>No reservations yet</h3>
+                        <p>Book a facility to see your reservations here</p>
+                    </div>
                 <?php else: ?>
-                <div class="reservation-list">
-                    <?php foreach ($myReservations as $reservation): ?>
-                    <article class="reservation-item">
-                        <div class="reservation-item-icon <?php echo $reservation['facility'] === 'Basketball Court' ? 'court' : 'hall'; ?>">
-                            <i class="<?php echo $reservation['facility'] === 'Basketball Court' ? 'fa-solid fa-basketball' : 'fa-regular fa-building'; ?>"></i>
-                        </div>
-                        <div class="reservation-item-body">
-                            <div class="reservation-item-top">
-                                <div>
-                                    <h3><?php echo htmlspecialchars($reservation['facility']); ?></h3>
-                                    <span><?php echo htmlspecialchars($reservation['reference_no']); ?> • Submitted <?php echo htmlspecialchars($reservation['created_at']); ?></span>
+                    <div class="reservation-list">
+                        <?php foreach ($myReservations as $reservation): ?>
+                            <article class="reservation-item">
+                                <div class="reservation-item-icon <?php echo $reservation['facility'] === 'Basketball Court' ? 'court' : 'hall'; ?>">
+                                    <i class="<?php echo $reservation['facility'] === 'Basketball Court' ? 'fa-solid fa-basketball' : 'fa-regular fa-building'; ?>"></i>
                                 </div>
-                                <strong class="status <?php echo htmlspecialchars(strtolower($reservation['status'])); ?>"><?php echo htmlspecialchars($reservation['status']); ?></strong>
-                            </div>
-                            <div class="reservation-details">
-                                <span><i class="fa-regular fa-calendar"></i><?php echo date('M d, Y', strtotime($reservation['reservation_date'])); ?></span>
-                                <span><i class="fa-regular fa-clock"></i><?php echo date('g:i A', strtotime($reservation['start_time'])); ?> - <?php echo date('g:i A', strtotime($reservation['end_time'])); ?></span>
-                                <span><i class="fa-solid fa-users"></i><?php echo htmlspecialchars((string) $reservation['expected_guests']); ?> guests</span>
-                            </div>
-                            <p><?php echo htmlspecialchars($reservation['purpose']); ?></p>
-                            <?php if (!empty($reservation['additional_notes'])): ?>
-                            <small><?php echo htmlspecialchars($reservation['additional_notes']); ?></small>
-                            <?php endif; ?>
-                            <?php if (strtolower($reservation['status']) === 'rejected'): ?>
-                            <div class="reservation-note-box" style="margin-top: 1rem; background-color: #fce8e8; border: 1px solid #f8b4b4; padding: 0.75rem; border-radius: 0.5rem;">
-                                <i class="fa-solid fa-circle-info" style="color: #d9534f; margin-right: 0.5rem;"></i>
-                                <span style="color: #b52b27; font-size: 0.9rem;">Your reservation request has been rejected due to full scheduling or overlapping appointments.</span>
-                            </div>
-                            <?php endif; ?>
-                        </div>
-                    </article>
-                    <?php endforeach; ?>
-                </div>
+                                <div class="reservation-item-body">
+                                    <div class="reservation-item-top">
+                                        <div>
+                                            <h3><?php echo htmlspecialchars($reservation['facility']); ?></h3>
+                                            <span><?php echo htmlspecialchars($reservation['reference_no']); ?> • Submitted <?php echo htmlspecialchars($reservation['created_at']); ?></span>
+                                        </div>
+                                        <strong class="status <?php echo htmlspecialchars(strtolower($reservation['status'])); ?>"><?php echo htmlspecialchars($reservation['status']); ?></strong>
+                                    </div>
+                                    <div class="reservation-details">
+                                        <span><i class="fa-regular fa-calendar"></i><?php echo date('M d, Y', strtotime($reservation['reservation_date'])); ?></span>
+                                        <span><i class="fa-regular fa-clock"></i><?php echo date('g:i A', strtotime($reservation['start_time'])); ?> - <?php echo date('g:i A', strtotime($reservation['end_time'])); ?></span>
+                                        <span><i class="fa-solid fa-users"></i><?php echo htmlspecialchars((string) $reservation['expected_guests']); ?> guests</span>
+                                    </div>
+                                    <p><?php echo htmlspecialchars($reservation['purpose']); ?></p>
+                                    <?php if (!empty($reservation['additional_notes'])): ?>
+                                        <small><?php echo htmlspecialchars($reservation['additional_notes']); ?></small>
+                                    <?php endif; ?>
+                                    <?php if (strtolower($reservation['status']) === 'rejected'): ?>
+                                        <div class="reservation-note-box" style="margin-top: 1rem; background-color: #fce8e8; border: 1px solid #f8b4b4; padding: 0.75rem; border-radius: 0.5rem;">
+                                            <i class="fa-solid fa-circle-info" style="color: #d9534f; margin-right: 0.5rem;"></i>
+                                            <span style="color: #b52b27; font-size: 0.9rem;">Your reservation request has been rejected due to full scheduling or overlapping appointments.</span>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </article>
+                        <?php endforeach; ?>
+                    </div>
                 <?php endif; ?>
             </section>
         </main>
@@ -380,7 +381,10 @@ $minDate = date('Y-m-d');
                 form.dataset.accent = button.dataset.facilityAccent;
                 emptyState.style.display = 'none';
                 form.classList.add('is-visible');
-                form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                form.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
             };
 
             const resetForm = () => {

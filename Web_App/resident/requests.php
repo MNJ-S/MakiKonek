@@ -300,6 +300,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title><?php echo $pageTitle; ?> | MakiKonek</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/header.css?v=20260613e">
+    <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260613b">
     <link rel="stylesheet" href="../assets/css/resident.css?v=20260613a">
 </head>
@@ -715,14 +716,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <input type="checkbox" id="legal_agreement_declaration" name="legal_agreement_declaration" required>
                                 <span class="custom-ui-checkbox"></span>
                                 <span class="legal-text-content">
-                                    <span class="required-asterisk">*</span> I've read and accept the 
-                                    <a href="../public/terms_conditions.php" target="_blank" class="legal-hyperlink">Terms & Conditions</a> 
-                                    and 
+                                    <span class="required-asterisk">*</span> I've read and accept the
+                                    <a href="../public/terms_conditions.php" target="_blank" class="legal-hyperlink">Terms & Conditions</a>
+                                    and
                                     <a href="../public/privacy_policy.php" target="_blank" class="legal-hyperlink">Privacy Policy</a>.
                                 </span>
                             </label>
                         </div>
-          
+
                         <div class="form-actions">
                             <button class="cancel-btn" type="button" data-clear-request>Cancel</button>
                             <button class="submit-btn" type="submit">Submit Request</button>

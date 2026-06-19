@@ -60,6 +60,7 @@ function publicAnnouncementExcerpt(string $value, int $limit = 155): string
     <title>Announcements | MakiKonek Digital Service Portal</title>
     <link rel="stylesheet" href="../assets/css/home.css?v=20260613a">
     <link rel="stylesheet" href="../assets/css/header.css?v=20260613e">
+    <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260613b">
     <link rel="stylesheet" href="../assets/css/announcements.css?v=20260613a">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
@@ -146,89 +147,89 @@ function publicAnnouncementExcerpt(string $value, int $limit = 155): string
                         </article>
                     <?php endforeach; ?>
                 <?php else: ?>
-                <article class="announcement-post" data-category="program">
-                    <div class="post-media cleanup-poster" role="img" aria-label="Barangay cleanup drive poster">
-                        <i class="fa-solid fa-broom"></i>
-                        <strong>Community Cleanup</strong>
-                        <span>Program</span>
-                    </div>
-                    <div class="post-body">
-                        <div class="post-top">
-                            <span class="tag green">Programs</span>
-                            <button type="button" aria-label="Save announcement"><i class="fa-regular fa-bookmark"></i></button>
+                    <article class="announcement-post" data-category="program">
+                        <div class="post-media cleanup-poster" role="img" aria-label="Barangay cleanup drive poster">
+                            <i class="fa-solid fa-broom"></i>
+                            <strong>Community Cleanup</strong>
+                            <span>Program</span>
                         </div>
-                        <h3>Barangay Cleanup Drive 2026</h3>
-                        <p>Tara, makiisa sa paglilinis ng ating komunidad para sa mas malinis at ligtas na Barangay Makiling.</p>
-                        <div class="post-meta">
-                            <span><i class="fa-regular fa-calendar"></i> May 30, 2026</span>
-                            <span><i class="fa-regular fa-clock"></i> 6:00 AM</span>
-                            <span><i class="fa-solid fa-location-dot"></i> Covered Court</span>
+                        <div class="post-body">
+                            <div class="post-top">
+                                <span class="tag green">Programs</span>
+                                <button type="button" aria-label="Save announcement"><i class="fa-regular fa-bookmark"></i></button>
+                            </div>
+                            <h3>Barangay Cleanup Drive 2026</h3>
+                            <p>Tara, makiisa sa paglilinis ng ating komunidad para sa mas malinis at ligtas na Barangay Makiling.</p>
+                            <div class="post-meta">
+                                <span><i class="fa-regular fa-calendar"></i> May 30, 2026</span>
+                                <span><i class="fa-regular fa-clock"></i> 6:00 AM</span>
+                                <span><i class="fa-solid fa-location-dot"></i> Covered Court</span>
+                            </div>
                         </div>
-                    </div>
-                </article>
+                    </article>
 
-                <article class="announcement-post" data-category="advisory">
-                    <div class="post-media power-poster" role="img" aria-label="Scheduled power interruption poster">
-                        <i class="fa-solid fa-bolt"></i>
-                        <strong>Power Advisory</strong>
-                        <span>Advisory</span>
-                    </div>
-                    <div class="post-body">
-                        <div class="post-top">
-                            <span class="tag orange">Advisory</span>
-                            <button type="button" aria-label="Save announcement"><i class="fa-regular fa-bookmark"></i></button>
+                    <article class="announcement-post" data-category="advisory">
+                        <div class="post-media power-poster" role="img" aria-label="Scheduled power interruption poster">
+                            <i class="fa-solid fa-bolt"></i>
+                            <strong>Power Advisory</strong>
+                            <span>Advisory</span>
                         </div>
-                        <h3>Scheduled Power Interruption</h3>
-                        <p>Magkakaroon ng power interruption sa ilang bahagi ng Barangay Makiling sa darating na Sabado.</p>
-                        <div class="post-meta">
-                            <span><i class="fa-regular fa-calendar"></i> May 31, 2026</span>
-                            <span><i class="fa-regular fa-clock"></i> 9:00 AM - 3:00 PM</span>
-                            <span><i class="fa-solid fa-location-dot"></i> Zone 1, 2, 3</span>
+                        <div class="post-body">
+                            <div class="post-top">
+                                <span class="tag orange">Advisory</span>
+                                <button type="button" aria-label="Save announcement"><i class="fa-regular fa-bookmark"></i></button>
+                            </div>
+                            <h3>Scheduled Power Interruption</h3>
+                            <p>Magkakaroon ng power interruption sa ilang bahagi ng Barangay Makiling sa darating na Sabado.</p>
+                            <div class="post-meta">
+                                <span><i class="fa-regular fa-calendar"></i> May 31, 2026</span>
+                                <span><i class="fa-regular fa-clock"></i> 9:00 AM - 3:00 PM</span>
+                                <span><i class="fa-solid fa-location-dot"></i> Zone 1, 2, 3</span>
+                            </div>
                         </div>
-                    </div>
-                </article>
+                    </article>
 
-                <article class="announcement-post" data-category="program">
-                    <div class="post-media food-poster" role="img" aria-label="Food pack distribution poster">
-                        <i class="fa-solid fa-box-open"></i>
-                        <strong>Community Assistance</strong>
-                        <span>Program</span>
-                    </div>
-                    <div class="post-body">
-                        <div class="post-top">
-                            <span class="tag green">Programs</span>
-                            <button type="button" aria-label="Save announcement"><i class="fa-regular fa-bookmark"></i></button>
+                    <article class="announcement-post" data-category="program">
+                        <div class="post-media food-poster" role="img" aria-label="Food pack distribution poster">
+                            <i class="fa-solid fa-box-open"></i>
+                            <strong>Community Assistance</strong>
+                            <span>Program</span>
                         </div>
-                        <h3>Pamamahagi ng Food Packs</h3>
-                        <p>Para sa mga benepisyaryo ng 4Ps at senior citizens. Dalhin ang valid ID para sa verification.</p>
-                        <div class="post-meta">
-                            <span><i class="fa-regular fa-calendar"></i> June 3, 2026</span>
-                            <span><i class="fa-regular fa-clock"></i> 1:00 PM</span>
-                            <span><i class="fa-solid fa-location-dot"></i> Barangay Hall</span>
+                        <div class="post-body">
+                            <div class="post-top">
+                                <span class="tag green">Programs</span>
+                                <button type="button" aria-label="Save announcement"><i class="fa-regular fa-bookmark"></i></button>
+                            </div>
+                            <h3>Pamamahagi ng Food Packs</h3>
+                            <p>Para sa mga benepisyaryo ng 4Ps at senior citizens. Dalhin ang valid ID para sa verification.</p>
+                            <div class="post-meta">
+                                <span><i class="fa-regular fa-calendar"></i> June 3, 2026</span>
+                                <span><i class="fa-regular fa-clock"></i> 1:00 PM</span>
+                                <span><i class="fa-solid fa-location-dot"></i> Barangay Hall</span>
+                            </div>
                         </div>
-                    </div>
-                </article>
+                    </article>
 
-                <article class="announcement-post" data-category="event">
-                    <div class="post-media flag-poster" role="img" aria-label="Independence day event poster">
-                        <i class="fa-solid fa-flag"></i>
-                        <strong>Kalayaan Day</strong>
-                        <span>Event</span>
-                    </div>
-                    <div class="post-body">
-                        <div class="post-top">
-                            <span class="tag purple">Events</span>
-                            <button type="button" aria-label="Save announcement"><i class="fa-regular fa-bookmark"></i></button>
+                    <article class="announcement-post" data-category="event">
+                        <div class="post-media flag-poster" role="img" aria-label="Independence day event poster">
+                            <i class="fa-solid fa-flag"></i>
+                            <strong>Kalayaan Day</strong>
+                            <span>Event</span>
                         </div>
-                        <h3>Kalayaan Day Community Program</h3>
-                        <p>Ipagdiwang natin ang Araw ng Kalayaan kasama ang buong komunidad ng Barangay Makiling.</p>
-                        <div class="post-meta">
-                            <span><i class="fa-regular fa-calendar"></i> June 12, 2026</span>
-                            <span><i class="fa-regular fa-clock"></i> 7:00 AM</span>
-                            <span><i class="fa-solid fa-location-dot"></i> Barangay Plaza</span>
+                        <div class="post-body">
+                            <div class="post-top">
+                                <span class="tag purple">Events</span>
+                                <button type="button" aria-label="Save announcement"><i class="fa-regular fa-bookmark"></i></button>
+                            </div>
+                            <h3>Kalayaan Day Community Program</h3>
+                            <p>Ipagdiwang natin ang Araw ng Kalayaan kasama ang buong komunidad ng Barangay Makiling.</p>
+                            <div class="post-meta">
+                                <span><i class="fa-regular fa-calendar"></i> June 12, 2026</span>
+                                <span><i class="fa-regular fa-clock"></i> 7:00 AM</span>
+                                <span><i class="fa-solid fa-location-dot"></i> Barangay Plaza</span>
+                            </div>
                         </div>
-                    </div>
-                </article>
+                    </article>
                 <?php endif; ?>
 
                 <div class="ann-pagination" aria-label="Pagination">

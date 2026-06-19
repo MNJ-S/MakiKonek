@@ -123,6 +123,7 @@ $new_this_month = count(array_filter($staff_accounts, fn($row) => date('Y-m', st
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Management | MakiKonek</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../assets/css/admin.css?v=20260613a">
 </head>
@@ -158,15 +159,21 @@ $new_this_month = count(array_filter($staff_accounts, fn($row) => date('Y-m', st
         <section class="official-kpi-grid" aria-label="Staff analytics">
             <article class="admin-kpi-panel">
                 <span><i class="bi bi-shield-check"></i></span>
-                <div><p>Super Admins</p><strong><?php echo $super_admin_count; ?></strong><small>Full access accounts</small></div>
+                <div>
+                    <p>Super Admins</p><strong><?php echo $super_admin_count; ?></strong><small>Full access accounts</small>
+                </div>
             </article>
             <article class="admin-kpi-panel admin-kpi-blue">
                 <span><i class="bi bi-person-workspace"></i></span>
-                <div><p>Barangay Staff</p><strong><?php echo $staff_count; ?></strong><small>Operational users</small></div>
+                <div>
+                    <p>Barangay Staff</p><strong><?php echo $staff_count; ?></strong><small>Operational users</small>
+                </div>
             </article>
             <article class="admin-kpi-panel">
                 <span><i class="bi bi-person-plus"></i></span>
-                <div><p>New This Month</p><strong><?php echo $new_this_month; ?></strong><small>Recently added</small></div>
+                <div>
+                    <p>New This Month</p><strong><?php echo $new_this_month; ?></strong><small>Recently added</small>
+                </div>
             </article>
         </section>
 
@@ -226,7 +233,10 @@ $new_this_month = count(array_filter($staff_accounts, fn($row) => date('Y-m', st
                     <label>Username<input type="text" name="username" required></label>
                     <label>Email Address<input type="email" name="email" required></label>
                     <label>Temporary Password<input type="password" name="password" required></label>
-                    <label>Assign Role<select name="role"><option value="Barangay Staff">Barangay Staff</option><option value="Super Admin">Super Admin</option></select></label>
+                    <label>Assign Role<select name="role">
+                            <option value="Barangay Staff">Barangay Staff</option>
+                            <option value="Super Admin">Super Admin</option>
+                        </select></label>
                     <button type="submit" name="add_staff">Create Staff Account</button>
                 </form>
             </aside>
