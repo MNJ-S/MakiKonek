@@ -1,36 +1,71 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$isResidentHeader = isset($_SESSION['resident_id']);
+$residentProfileHref = '../resident/profile.php';
+$residentLogoutHref = '../resident/logout.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terms and Conditions | MakiKonek</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f9fa; color: #212529; }
-        .legal-container { max-width: 800px; margin: 50px auto; background: #ffffff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        h1 { color: #198754; font-weight: 700; }
-        h2 { font-size: 1.25rem; color: #1a1a1a; margin-top: 25px; font-weight: 600; }
-    </style>
+    <link rel="stylesheet" href="../assets/css/home.css?v=20260613a">
+    <link rel="stylesheet" href="../assets/css/header.css?v=20260613e">
+    <link rel="stylesheet" href="../assets/css/footer.css?v=20260613b">
+    <link rel="stylesheet" href="../assets/css/public-info.css?v=20260619a">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
 </head>
-<body>
-    <div class="legal-container">
-        <h1>Terms and Conditions</h1>
-        <p class="text-muted">Last Updated: June 2026</p>
-        <hr>
-        <p>Welcome to <strong>MakiKonek</strong>, the official digital service portal of Barangay Makiling, City of Calamba, Laguna. By accessing this platform, you agree to comply with and be bound by the following terms.</p>
-        
-        <h2>1. Account Responsibility</h2>
-        <p>Only verified residents of Barangay Makiling are authorized to register and request institutional clearances or permits. You are responsible for maintaining the confidentiality of your account credentials.</p>
-        
-        <h2>2. Document Requests & Fees</h2>
-        <p>All service requests submitted through this platform are subject to verification. Applicable transaction fees (e.g., Barangay ID, Document Fees) must be settled through official payment channels (GCash/Cash on Pickup) before or upon document collection.</p>
-        
-        <h2>3. Fraudulent Submissions</h2>
-        <p>Any submission of falsified digital receipts, incorrect personal profile data, or misleading information will result in the immediate rejection of the request, suspension of the user account, and potential legal actions under applicable Philippine laws.</p>
-        
-        <div class="text-center mt-4">
-            <button onclick="window.close();" class="btn btn-success px-4">Close Window</button>
+<body class="info-page">
+    <?php include __DIR__ . '/../includes/header.php'; ?>
+
+    <main class="info-main">
+        <section class="info-hero" aria-labelledby="terms-title">
+            <h1 id="terms-title">Terms and Conditions</h1>
+            <p>Review the rules, responsibilities, and guidelines for using the MakiKonek Digital Service Portal.</p>
+        </section>
+
+        <div class="info-list">
+            <section class="info-card">
+                <h2>Account Responsibility</h2>
+                <p>Users are responsible for providing accurate account information, protecting login credentials, and ensuring that their MakiKonek account is used only for legitimate barangay service transactions.</p>
+            </section>
+
+            <section class="info-card">
+                <h2>Service Requests</h2>
+                <p>All service requests submitted through the portal are subject to barangay review, validation, and approval based on the submitted information and required documents.</p>
+            </section>
+
+            <section class="info-card">
+                <h2>Payments and Fees</h2>
+                <p>Applicable fees must be paid through the official payment options provided by the barangay. Requests may be delayed or rejected if payment information is incomplete or invalid.</p>
+            </section>
+
+            <section class="info-card">
+                <h2>User Conduct</h2>
+                <p>Users must not misuse the portal, submit misleading information, interfere with system functions, or use MakiKonek for unauthorized, harmful, or unlawful activities.</p>
+            </section>
+
+            <section class="info-card">
+                <h2>Fraudulent Submissions</h2>
+                <p>Falsified documents, incorrect profile data, fake payment proofs, or misleading submissions may result in request rejection, account suspension, and possible legal action under applicable laws.</p>
+            </section>
+
+            <section class="info-card">
+                <h2>Limitation of Liability</h2>
+                <p>MakiKonek supports digital access to barangay services, but processing timelines may vary depending on verification requirements, office schedules, system availability, and official barangay procedures.</p>
+            </section>
+
+            <section class="info-card">
+                <h2>Changes to Terms</h2>
+                <p>Barangay Makiling may update these terms when needed to reflect service changes, policy updates, legal requirements, or improvements to the MakiKonek portal.</p>
+            </section>
         </div>
-    </div>
+    </main>
+
+    <?php include __DIR__ . '/../includes/footer.php'; ?>
 </body>
 </html>

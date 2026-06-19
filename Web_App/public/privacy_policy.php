@@ -1,36 +1,66 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$isResidentHeader = isset($_SESSION['resident_id']);
+$residentProfileHref = '../resident/profile.php';
+$residentLogoutHref = '../resident/logout.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy | MakiKonek</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f9fa; color: #212529; }
-        .legal-container { max-width: 800px; margin: 50px auto; background: #ffffff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        h1 { color: #198754; font-weight: 700; }
-        h2 { font-size: 1.25rem; color: #1a1a1a; margin-top: 25px; font-weight: 600; }
-    </style>
+    <link rel="stylesheet" href="../assets/css/home.css?v=20260613a">
+    <link rel="stylesheet" href="../assets/css/header.css?v=20260613e">
+    <link rel="stylesheet" href="../assets/css/footer.css?v=20260613b">
+    <link rel="stylesheet" href="../assets/css/public-info.css?v=20260619a">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
 </head>
-<body>
-    <div class="legal-container">
-        <h1>Privacy Policy</h1>
-        <p class="text-muted">Last Updated: June 2026</p>
-        <hr>
-        <p>Barangay Makiling is highly committed to protecting your personal data in strict compliance with the <strong>Republic Act No. 10173</strong>, otherwise known as the <em>Data Privacy Act of 2012</em>.</p>
-        
-        <h2>1. Information We Collect</h2>
-        <p>We collect essential personal credentials necessary for local document processing, which includes your full name, birthdate, resident address, valid identification cards, and dynamic digital transaction proofs (e.g., GCash payment receipts).</p>
-        
-        <h2>2. Purpose of Collection</h2>
-        <p>Collected data is used strictly to verify local residency, process governmental document requests (e.g., Barangay Clearance, Indigency, Cedula), and coordinate local administrative schedules.</p>
-        
-        <h2>3. Data Retention & Security</h2>
-        <p>Your data is stored securely within the system and is encrypted against unauthorized third-party intrusions. Inactive personal records or transactional receipts are securely deleted after fulfillment or when the legal storage purpose is completed.</p>
-        
-        <div class="text-center mt-4">
-            <button onclick="window.close();" class="btn btn-success px-4">Close Window</button>
+<body class="info-page">
+    <?php include __DIR__ . '/../includes/header.php'; ?>
+
+    <main class="info-main">
+        <section class="info-hero" aria-labelledby="privacy-title">
+            <h1 id="privacy-title">Privacy Policy</h1>
+            <p>Learn how MakiKonek collects, uses, stores, and protects resident information in compliance with the Data Privacy Act of 2012.</p>
+        </section>
+
+        <div class="info-list">
+            <section class="info-card">
+                <h2>Information We Collect</h2>
+                <p>We collect information needed to verify residency and process barangay services, including name, contact details, address, birthdate, submitted IDs, request details, and payment or transaction references when required.</p>
+            </section>
+
+            <section class="info-card">
+                <h2>How We Use Your Information</h2>
+                <p>Your information is used to confirm your identity, process document requests, coordinate barangay services, send service updates, maintain request records, and support transparent local government transactions.</p>
+            </section>
+
+            <section class="info-card">
+                <h2>Data Protection and Security</h2>
+                <p>MakiKonek applies reasonable technical and administrative safeguards to protect resident information from unauthorized access, misuse, alteration, disclosure, or loss.</p>
+            </section>
+
+            <section class="info-card">
+                <h2>Data Retention</h2>
+                <p>Resident records and transaction information are kept only for as long as needed for service processing, legal compliance, audit requirements, and official barangay recordkeeping.</p>
+            </section>
+
+            <section class="info-card">
+                <h2>User Rights</h2>
+                <p>You may request access, correction, or clarification regarding your personal information, subject to verification and applicable requirements under the Data Privacy Act of 2012.</p>
+            </section>
+
+            <section class="info-card">
+                <h2>Contact Information</h2>
+                <p>For privacy-related questions or requests, contact Barangay Makiling through the official contact details provided on this website or visit the barangay office during office hours.</p>
+            </section>
         </div>
-    </div>
+    </main>
+
+    <?php include __DIR__ . '/../includes/footer.php'; ?>
 </body>
 </html>
