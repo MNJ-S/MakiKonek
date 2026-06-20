@@ -126,9 +126,9 @@ while ($row = mysqli_fetch_assoc($announcement_calendar_result)) {
                     <h2>Online Barangay Services</h2>
                     <p>Fast, convenient, and reliable services for every resident of Barangay Makiling.</p>
                 </div>
-                <form class="service-search" action="#services" role="search">
+                <form class="service-search" action="#services" role="search" onsubmit="event.preventDefault();">
                     <label for="service_search">Search services</label>
-                    <input id="service_search" type="search" placeholder="Search services...">
+                    <input id="service_search" type="search" placeholder="Search services..." onkeyup="filterServices()">
                     <button type="submit">Search</button>
                 </form>
             </div>
