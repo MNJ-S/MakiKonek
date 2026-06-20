@@ -248,4 +248,41 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+    const termsModal = document.getElementById("termsModal");
+    const privacyModal = document.getElementById("privacyModal");
+    const openTermsLink = document.getElementById("openTermsLink");
+    const openPrivacyLink = document.getElementById("openPrivacyLink");
+    
+    const closeTermsModalBtn = document.getElementById("closeTermsModalBtn");
+    const closePrivacyModalBtn = document.getElementById("closePrivacyModalBtn");
+
+    openTermsLink?.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (termsModal) {
+            termsModal.style.display = "flex";
+            document.body.style.overflow = "hidden";
+        }
+    });
+
+    closeTermsModalBtn?.addEventListener("click", () => {
+        if (termsModal) {
+            termsModal.style.display = "none";
+            document.body.style.overflow = "";
+        }
+    });
+
+    openPrivacyLink?.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (privacyModal) {
+            privacyModal.style.display = "flex";
+            document.body.style.overflow = "hidden";
+        }
+    });
+
+    closePrivacyModalBtn?.addEventListener("click", () => {
+        if (privacyModal) {
+            privacyModal.style.display = "none";
+            document.body.style.overflow = "";
+        }
+    });
 });

@@ -52,6 +52,24 @@ $residentLogoutHref = '../resident/logout.php';
                 <p>Contact the barangay office or update your profile information before submitting a new request to avoid delays.</p>
             </section>
         </div>
+        <div style="text-align: center; margin: 40px 0 20px 0;">
+            <button onclick="history.back();" style="
+                background-color: var(--green-dark); 
+                color: #ffffff; 
+                border: none; 
+                padding: 12px 32px; 
+                font-size: 14px; 
+                font-weight: 600; 
+                border-radius: var(--radius); 
+                cursor: pointer; 
+                box-shadow: var(--shadow-light);
+                transition: background 0.2s ease, transform 0.2s ease;
+            " onmouseover="this.style.backgroundColor='#3f9f25'; this.style.transform='translateY(-2px)';" 
+               onmouseout="this.style.backgroundColor='var(--green-dark)'; this.style.transform='translateY(0)';">
+                Go Back
+            </button>
+        </div>
+
     </main>
 
     <?php include __DIR__ . '/../includes/footer.php'; ?>

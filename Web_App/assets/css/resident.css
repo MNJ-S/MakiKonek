@@ -2339,3 +2339,20 @@ body.resident-page button {
 .legal-hyperlink:hover {
     text-decoration: underline;
 }
+
+.legal-modal-body header,
+.legal-modal-body footer,
+.legal-modal-body .footer,
+.legal-modal-body nav,
+.legal-modal-body button {
+    display: none !important;
+}
+
+.legal-modal-body main {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+.legal-modal-body {
+    padding: 10px 0 !important;
+}

@@ -30,8 +30,8 @@ $footerAssetBase = $footerAssetBase ?? '../assets';
 
         <div>
             <h3>Other Links</h3>
-            <a href="<?php echo $footerBase; ?>privacy_policy.php" target="_blank" class="text-white text-decoration-none opacity-75">Privacy Policy</a>
-            <a href="<?php echo $footerBase; ?>terms_conditions.php" target="_blank" class="text-white text-decoration-none opacity-75">Terms and Conditions</a>
+            <a href="<?php echo $footerBase; ?>privacy_policy.php" class="text-white text-decoration-none opacity-75">Privacy Policy</a>
+            <a href="<?php echo $footerBase; ?>terms_conditions.php" class="text-white text-decoration-none opacity-75">Terms and Conditions</a>
             <a href="<?php echo $footerBase; ?>faq.php" class="text-white text-decoration-none opacity-75">FAQ</a>
         </div>
 

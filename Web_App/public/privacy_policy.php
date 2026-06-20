@@ -62,6 +62,28 @@ $residentLogoutHref = '../resident/logout.php';
                 <p>For privacy-related questions or requests, contact Barangay Makiling through the official contact details provided on this website or visit the barangay office during office hours.</p>
             </section>
         </div>
+            <section class="info-card">
+                <h2>Contact Information</h2>
+                <p>For privacy-related questions or requests, contact Barangay Makiling through the official contact details provided on this website or visit the barangay office during office hours.</p>
+            </section>
+        </div> <div style="text-align: center; margin: 40px 0 20px 0;">
+            <button onclick="history.back();" style="
+                background-color: var(--green-dark); 
+                color: #ffffff; 
+                border: none; 
+                padding: 12px 32px; 
+                font-size: 14px; 
+                font-weight: 600; 
+                border-radius: var(--radius); 
+                cursor: pointer; 
+                box-shadow: var(--shadow-light);
+                transition: background 0.2s ease, transform 0.2s ease;
+            " onmouseover="this.style.backgroundColor='#3f9f25'; this.style.transform='translateY(-2px)';" 
+               onmouseout="this.style.backgroundColor='var(--green-dark)'; this.style.transform='translateY(0)';">
+                Go Back
+            </button>
+        </div>
+
     </main>
 
     <?php include __DIR__ . '/../includes/footer.php'; ?>

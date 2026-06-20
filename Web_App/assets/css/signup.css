@@ -231,6 +231,74 @@ input {
     background: rgba(255, 255, 255, 0.88);
 }
 
+.auth-form input[type="password"]::-ms-reveal,
+.auth-form input[type="password"]::-ms-clear,
+.auth-form input[type="password"]::-webkit-textfield-decoration-container {
+    display: none !important;
+}
+
+.password-input-wrap {
+    position: relative;
+}
+
+.password-input-wrap input {
+    padding-right: 66px;
+}
+
+.password-input-wrap .password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(63, 159, 37, 0.22);
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--green-dark);
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    border-radius: 999px;
+    box-shadow: 0 10px 22px rgba(15, 82, 62, 0.08);
+    transition: background 180ms ease, color 180ms ease, transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.password-input-wrap .password-toggle:hover,
+.password-input-wrap .password-toggle:focus-visible {
+    background: rgba(63, 159, 37, 0.12);
+    color: #0f5830;
+    border-color: rgba(63, 159, 37, 0.34);
+    outline: none;
+    transform: translateY(-50%) scale(1.03);
+    box-shadow: 0 14px 26px rgba(15, 82, 62, 0.12);
+}
+
+.password-toggle-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.password-toggle-icon .toggle-open,
+.password-toggle-icon .toggle-closed {
+    transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.password-toggle-icon .toggle-closed {
+    opacity: 0;
+    transform: scale(0.9);
+}
+
+.password-toggle.is-active .toggle-open {
+    opacity: 0;
+    transform: scale(0.9);
+}
+
+.password-toggle.is-active .toggle-closed {
+    opacity: 1;
+    transform: scale(1);
+}
+
 .auth-form input:focus-visible {
     border-color: var(--blue);
     outline: 3px solid rgba(17, 121, 214, 0.18);

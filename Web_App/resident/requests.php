@@ -764,9 +764,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <span class="custom-ui-checkbox"></span>
                                 <span class="legal-text-content">
                                     <span class="required-asterisk">*</span> I've read and accept the
-                                    <a href="../public/terms_conditions.php" target="_blank" class="legal-hyperlink">Terms & Conditions</a>
+                                    <a href="javascript:void(0)" id="openTermsLink" class="legal-hyperlink">Terms & Conditions</a>
                                     and
-                                    <a href="../public/privacy_policy.php" target="_blank" class="legal-hyperlink">Privacy Policy</a>.
+                                    <a href="javascript:void(0)" id="openPrivacyLink" class="legal-hyperlink">Privacy Policy</a>.
                                 </span>
                             </label>
                         </div>
@@ -804,13 +804,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
     </div>
+
+    <div id="termsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; padding: 20px;">
+        <div style="background: white; width: min(100%, 700px); height: 85vh; border-radius: var(--radius); padding: 24px; display: flex; flex-direction: column; box-shadow: var(--shadow);">
+            
+            <h2 style="margin-top: 0; color: var(--green-dark); border-bottom: 2px solid #eee; padding-bottom: 10px; font-size: 20px; font-weight: 600; margin-bottom: 15px;">Terms & Conditions</h2>
+            
+            <iframe src="../public/terms_conditions.php" style="width: 100%; flex: 1; border: none; margin-bottom: 15px; border-radius: 4px;"></iframe>
+            
+            <div style="text-align: center; border-top: 2px solid #eee; padding-top: 15px;">
+                <button id="closeTermsModalBtn" type="button" style="background-color: var(--green-dark); color: white; border: none; padding: 12px 32px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer;">Go Back</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="privacyModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; padding: 20px;">
+        <div style="background: white; width: min(100%, 700px); height: 85vh; border-radius: var(--radius); padding: 24px; display: flex; flex-direction: column; box-shadow: var(--shadow);">
+            
+            <h2 style="margin-top: 0; color: var(--green-dark); border-bottom: 2px solid #eee; padding-bottom: 10px; font-size: 20px; font-weight: 600; margin-bottom: 15px;">Privacy Policy</h2>
+            
+            <iframe src="../public/privacy_policy.php" style="width: 100%; flex: 1; border: none; margin-bottom: 15px; border-radius: 4px;"></iframe>
+            
+            <div style="text-align: center; border-top: 2px solid #eee; padding-top: 15px;">
+                <button id="closePrivacyModalBtn" type="button" style="background-color: var(--green-dark); color: white; border: none; padding: 12px 32px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer;">Go Back</button>
+            </div>
+        </div>
+    </div>
     <?php
     $footerBase = '../public/';
     $footerAssetBase = '../assets';
     include __DIR__ . '/../includes/footer.php';
     ?>
     <script src="../assets/js/input-validation.js?v=20260620a"></script>
-    <script src="../assets/js/resident.js?v=20260530a"></script>
+    <script src="../assets/js/resident.js?v=20260530a"></script> 
 </body>
 
 </html>

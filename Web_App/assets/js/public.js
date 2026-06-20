@@ -189,7 +189,23 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    window.filterServices = () => {
+        const passwordToggles = document.querySelectorAll('.password-toggle');
+        passwordToggles.forEach((toggle) => {
+            const targetSelector = toggle.dataset.toggleTarget;
+            const input = targetSelector ? document.querySelector(targetSelector) : toggle.previousElementSibling;
+            if (!input) return;
+
+            toggle.addEventListener('click', () => {
+                const isCurrentlyPassword = input.type === 'password';
+                input.type = isCurrentlyPassword ? 'text' : 'password';
+                const isVisible = input.type === 'text';
+                toggle.setAttribute('aria-label', isVisible ? 'Hide password' : 'Show password');
+                toggle.setAttribute('aria-pressed', String(isVisible));
+                toggle.classList.toggle('is-active', isVisible);
+            });
+        });
+
+        window.filterServices = () => {
         const input = document.getElementById('service_search');
         if (!input) return;
         
