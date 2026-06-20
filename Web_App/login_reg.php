@@ -99,9 +99,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | MakiKonek</title>
-    <link rel="stylesheet" href="assets/css/login.css?v=20260620o">
+    <link rel="stylesheet" href="assets/css/login.css?v=20260620p">
     <link rel="icon" href="assets/img/Barangay_Makiling_Seal.png" type="image/png">
-    <script defer src="assets/js/public.js?v=20260529c"></script>
+    <script defer src="assets/js/public.js?v=20260620d"></script>
     <script defer src="assets/js/password-visibility.js?v=20260620a"></script>
 </head>
 

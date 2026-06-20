@@ -189,25 +189,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-<<<<<<< HEAD
-        const passwordToggles = document.querySelectorAll('.password-toggle');
-        passwordToggles.forEach((toggle) => {
-            const targetSelector = toggle.dataset.toggleTarget;
-            const input = targetSelector ? document.querySelector(targetSelector) : toggle.previousElementSibling;
-            if (!input) return;
-
-            toggle.addEventListener('click', () => {
-                const isCurrentlyPassword = input.type === 'password';
-                input.type = isCurrentlyPassword ? 'text' : 'password';
-                const isVisible = input.type === 'text';
-                toggle.setAttribute('aria-label', isVisible ? 'Hide password' : 'Show password');
-                toggle.setAttribute('aria-pressed', String(isVisible));
-                toggle.classList.toggle('is-active', isVisible);
-            });
-        });
-
-        window.filterServices = () => {
-=======
     const contactOpenButton = document.querySelector("[data-contact-open]");
     const contactModal = document.querySelector("[data-contact-modal]");
     const contactForm = document.querySelector("[data-contact-form]");
@@ -251,7 +232,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     window.filterServices = () => {
->>>>>>> 7d69c3ad45484a7987dda2ee9f775588e6ffca39
         const input = document.getElementById('service_search');
         if (!input) return;
         
