@@ -13,7 +13,7 @@ if (empty($_SESSION['forgot_password_csrf'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nakalimutan ang Password | MakiKonek</title>
     <link rel="stylesheet" href="assets/css/login.css?v=20260620n">
-    <link rel="stylesheet" href="assets/css/forgot-password.css?v=20260620b">
+    <link rel="stylesheet" href="assets/css/forgot-password.css?v=20260620c">
     <link rel="icon" href="assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <script defer src="assets/js/public.js?v=20260529c"></script>
     <script defer src="assets/js/forgot-password.js?v=20260620b"></script>
