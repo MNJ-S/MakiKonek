@@ -39,7 +39,7 @@ $footerAssetBase = $footerAssetBase ?? '../assets';
             <h3>Contact Us</h3>
             <p>Purok 1, Barangay Makiling, City of Calamba, Laguna</p>
             <p>(049) 123-4567</p>
-            <p>makiling.barangay@gmail.com</p>
+            <p>makikonek.support@gmail.com</p>
             <p>Monday - Friday<br>8:00 AM - 5:00 PM</p>
         </div>
     </div>

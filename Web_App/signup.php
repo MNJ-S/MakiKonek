@@ -116,7 +116,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="assistance-info">
                     <strong>Need Assistance?</strong>
                     <span>☎ (049) 123-4567</span>
-                    <span>✉ makiling.barangay@gmail.com</span>
+                    <span>✉ makikonek.support@gmail.com</span>
                     <span>◷ Monday - Friday, 8:00 AM - 5:00 PM</span>
                 </div>
             </div>
