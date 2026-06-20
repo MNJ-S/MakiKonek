@@ -48,9 +48,6 @@ if ($admin_initials === '') {
                 <a href="manage_staff.php" class="nav-link <?php echo $currentPage === 'manage_staff.php' ? 'active' : ''; ?>">
                     <i class="bi bi-people"></i> Staff Management
                 </a>
-                <a href="#" class="nav-link">
-                    <i class="bi bi-gear"></i> Settings
-                </a>
             </section>
         <?php endif; ?>
     </div>
