@@ -9,7 +9,6 @@ $isResidentHeader = isset($_SESSION['resident_id']);
 $residentProfileHref = '../resident/profile.php';
 $residentLogoutHref = '../resident/logout.php';
 $serviceRequestHref = $isResidentHeader ? '../resident/requests.php' : '../login_reg.php';
-$contactActionHref = $isResidentHeader ? '../resident/dashboard.php' : '../login_reg.php';
 
 $calendar_stmt = mysqli_prepare($conn, "
     SELECT fr.reservation_date, fr.start_time, fr.end_time, fr.status, f.name AS facility_name
@@ -57,7 +56,7 @@ while ($row = mysqli_fetch_assoc($announcement_calendar_result)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MakiKonek | Barangay Makiling Digital Service Portal</title>
-    <link rel="stylesheet" href="../assets/css/home.css?v=20260613a">
+    <link rel="stylesheet" href="../assets/css/home.css?v=20260620a">
     <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <link rel="stylesheet" href="../assets/css/header.css?v=20260613e">
     <link rel="stylesheet" href="../assets/css/footer.css?v=20260613b">
@@ -65,7 +64,7 @@ while ($row = mysqli_fetch_assoc($announcement_calendar_result)) {
     <script>
         window.publicCalendarEvents = <?php echo json_encode($calendar_events, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
     </script>
-    <script defer src="../assets/js/public.js?v=20260609b"></script>
+    <script defer src="../assets/js/public.js?v=20260620a"></script>
 </head>
 
 <body>
@@ -314,10 +313,42 @@ while ($row = mysqli_fetch_assoc($announcement_calendar_result)) {
                     <h2>Have a concern or suggestion?</h2>
                     <p>We are here to listen and help.</p>
                 </div>
-                <a class="btn btn-secondary" href="<?php echo $contactActionHref; ?>">Send a Message</a>
+                <button class="btn btn-secondary" type="button" data-contact-open>Send a Message</button>
             </div>
         </section>
     </main>
+
+    <div class="contact-modal" data-contact-modal hidden>
+        <div class="contact-modal-panel" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title">
+            <button class="contact-modal-close" type="button" data-contact-close aria-label="Close contact form">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+            <div class="contact-modal-heading">
+                <span><i class="fa-regular fa-envelope" aria-hidden="true"></i></span>
+                <div>
+                    <p class="eyebrow">Public assistance</p>
+                    <h2 id="contact-modal-title">Send a Message</h2>
+                    <p>Share your concern or suggestion with Barangay Makiling.</p>
+                </div>
+            </div>
+            <form class="contact-modal-form" data-contact-form>
+                <label for="contact-name">Name
+                    <input id="contact-name" name="name" type="text" autocomplete="name" required>
+                </label>
+                <label for="contact-email">Email
+                    <input id="contact-email" name="email" type="email" autocomplete="email" required>
+                </label>
+                <label class="contact-modal-full" for="contact-subject">Subject
+                    <input id="contact-subject" name="subject" type="text" required>
+                </label>
+                <label class="contact-modal-full" for="contact-message">Message
+                    <textarea id="contact-message" name="message" rows="5" required></textarea>
+                </label>
+                <p class="contact-modal-success contact-modal-full" data-contact-success role="status" tabindex="-1" hidden>Your message has been submitted successfully.</p>
+                <button class="btn btn-primary contact-modal-submit contact-modal-full" type="submit">Submit Message</button>
+            </form>
+        </div>
+    </div>
 
     <?php include '../includes/footer.php'; ?>
 </body>
