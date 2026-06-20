@@ -56,6 +56,13 @@ function adminOfficialAssetUrl(?string $path): ?string
 
 function adminOfficialPortrait(array $official): string
 {
+    if (stripos((string)($official['position'] ?? ''), 'Captain') !== false) {
+        $captain_portrait = adminOfficialAssetUrl('assets/img/officials/barangay_capt.png');
+        if ($captain_portrait !== null) {
+            return $captain_portrait;
+        }
+    }
+
     $uploaded_portrait = adminOfficialAssetUrl($official['avatar_path'] ?? null);
     if ($uploaded_portrait !== null) {
         return $uploaded_portrait;
@@ -276,6 +283,11 @@ $fetch_query = "
     JOIN user_profiles p ON u.user_id = p.user_id
     JOIN barangay_officials bo ON u.user_id = bo.user_id
     WHERE bo.is_active = 1
+      AND NOT (
+          u.username = 'BC_Kapitana'
+          AND LOWER(TRIM(p.first_name)) = 'barangay'
+          AND LOWER(TRIM(p.last_name)) = 'captain'
+      )
     ORDER BY
         CASE WHEN UPPER(u.role) = 'SK' THEN 2 ELSE 1 END,
         CASE
@@ -305,6 +317,9 @@ $ending_terms = array_values(array_filter($officials, function ($row) {
     return !empty($row['term_end']) && strtotime($row['term_end']) !== false && strtotime($row['term_end']) <= strtotime('+90 days');
 }));
 $featured = $officials[0] ?? null;
+$directory_officials = $featured
+    ? array_values(array_filter($officials, fn($row) => (int)$row['user_id'] !== (int)$featured['user_id']))
+    : $officials;
 ?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
@@ -419,15 +434,15 @@ $featured = $officials[0] ?? null;
                         </div>
                         <select id="officialPositionFilter" aria-label="Filter by position">
                             <option value="all">All Positions</option>
-                            <?php foreach (array_unique(array_map(fn($row) => $row['position'], $officials)) as $position): ?>
+                            <?php foreach (array_unique(array_map(fn($row) => $row['position'], $directory_officials)) as $position): ?>
                                 <option value="<?php echo adminOfficialEscape($position); ?>"><?php echo adminOfficialEscape($position); ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
 
-                    <?php if (!empty($officials)): ?>
+                    <?php if (!empty($directory_officials)): ?>
                         <div class="official-card-grid">
-                            <?php foreach ($officials as $row):
+                            <?php foreach ($directory_officials as $row):
                                 $group = strtoupper($row['role']) === 'SK' ? 'sk' : 'barangay';
                             ?>
                                 <article class="official-person-card" data-official-group="<?php echo $group; ?>" data-official-position="<?php echo adminOfficialEscape($row['position']); ?>">

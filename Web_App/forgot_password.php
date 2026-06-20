@@ -94,7 +94,7 @@ if (empty($_SESSION['forgot_password_csrf'])) {
                     <input class="fp-otp-box" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" data-fp-otp-input>
                     <input class="fp-otp-box" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" data-fp-otp-input>
                 </div>
-
+    
                 <div class="fp-resend-row">
                     <span>Hindi nakatanggap ng code?</span>
                     <button type="button" class="fp-resend-btn" data-fp-resend>Magpadala ulit ng OTP</button>

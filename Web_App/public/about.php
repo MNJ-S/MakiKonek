@@ -189,7 +189,7 @@ $residentLogoutHref = '../resident/logout.php';
                 <div class="leaders-grid-5-cols">
                     <!-- Row 1 -->
                     <div class="leader-card">
-                        <div class="leader-avatar"><img src="../assets/img/officials/official-aigrette.webp" alt="Aigrette Panganiban Lajara" loading="lazy" decoding="async"></div>
+                        <div class="leader-avatar"><img src="../assets/img/officials/barangay_capt.png" alt="Aigrette Panganiban Lajara" loading="lazy" decoding="async"></div>
                         <h4 class="leader-name">Aigrette Panganiban Lajara</h4>
                         <span class="leader-position text-green">Barangay Captain</span>
                     </div>
