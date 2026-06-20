@@ -484,21 +484,65 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_remark'])) {
     $remark = trim($_POST['remark'] ?? '');
     $admin_id = (int)($_SESSION['admin_id'] ?? 0);
 
-    if ($remark === '') {
+    if ($req_id <= 0) {
+        $error_message = "Invalid request selected.";
+    } elseif ($remark === '') {
         $error_message = "Please enter a note before saving.";
     } else {
-        $insert_remark = "INSERT INTO request_remarks (request_id, admin_id, admin_name, remark) VALUES (?, ?, ?, ?)";
-        $stmt_remark = mysqli_prepare($conn, $insert_remark);
-        mysqli_stmt_bind_param($stmt_remark, "iiss", $req_id, $admin_id, $admin_username, $remark);
+        $request_query = "
+            SELECT sr.user_id, sr.reference_no, dt.name AS document_type
+            FROM service_requests sr
+            JOIN document_types dt ON sr.document_type_id = dt.document_type_id
+            WHERE sr.request_id = ?
+            LIMIT 1
+        ";
+        $stmt_request = mysqli_prepare($conn, $request_query);
+        mysqli_stmt_bind_param($stmt_request, "i", $req_id);
+        mysqli_stmt_execute($stmt_request);
+        $request = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt_request));
 
-        if (mysqli_stmt_execute($stmt_remark)) {
-            prgRedirect(
-                'manage_requests.php',
-                'admin_requests',
-                'Remark saved to the request log.'
-            );
+        if (!$request) {
+            $error_message = "Request could not be found.";
         } else {
-            $error_message = "Failed to save remark.";
+            mysqli_begin_transaction($conn);
+
+            try {
+                $insert_remark = "INSERT INTO request_remarks (request_id, admin_id, admin_name, remark) VALUES (?, ?, ?, ?)";
+                $stmt_remark = mysqli_prepare($conn, $insert_remark);
+                mysqli_stmt_bind_param($stmt_remark, "iiss", $req_id, $admin_id, $admin_username, $remark);
+                mysqli_stmt_execute($stmt_remark);
+
+                $notification_remark = $remark;
+                if (strlen($notification_remark) > 600) {
+                    $notification_remark = function_exists('mb_substr')
+                        ? mb_substr($notification_remark, 0, 600) . '...'
+                        : substr($notification_remark, 0, 600) . '...';
+                }
+
+                $user_id = (int)$request['user_id'];
+                $reference_no = (string)$request['reference_no'];
+                $document_type = (string)$request['document_type'];
+                $notif_title = "Admin Remark: {$reference_no}";
+                $notif_message = "The barangay office added a remark to your {$document_type} request ({$reference_no}): {$notification_remark}";
+                $notif_type = "Request Update";
+                $notif_icon = "fa-regular fa-comment-dots";
+
+                $notif_query = "INSERT INTO user_notifications (user_id, title, message, type, icon) VALUES (?, ?, ?, ?, ?)";
+                $notif_stmt = mysqli_prepare($conn, $notif_query);
+                mysqli_stmt_bind_param($notif_stmt, "issss", $user_id, $notif_title, $notif_message, $notif_type, $notif_icon);
+                mysqli_stmt_execute($notif_stmt);
+
+                mysqli_commit($conn);
+
+                prgRedirect(
+                    'manage_requests.php',
+                    'admin_requests',
+                    'Remark saved and the resident has been notified.'
+                );
+            } catch (mysqli_sql_exception $e) {
+                mysqli_rollback($conn);
+                $error_message = "Failed to save the remark and notify the resident.";
+            }
         }
     }
 }
