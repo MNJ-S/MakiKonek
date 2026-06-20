@@ -1250,14 +1250,18 @@ body {
 }
 
 .service-tabs-card {
+    position: relative;
+    z-index: 20;
     margin-bottom: 16px;
     padding: 16px;
+    overflow: visible;
 }
 
 .service-category-tabs {
     display: flex;
+    flex-wrap: wrap;
     gap: 12px;
-    overflow-x: auto;
+    overflow: visible;
 }
 
 .service-tab {
@@ -1300,6 +1304,7 @@ body {
 }
 
 .service-more-menu {
+    z-index: 1080;
     min-width: 230px;
     padding: 8px;
     border: 1px solid #e5e7eb;
@@ -1405,8 +1410,18 @@ body {
 }
 
 .service-table-wrap {
+    position: relative;
     overflow: auto;
     border-radius: 12px;
+}
+
+.service-table-wrap.has-open-dropdown {
+    z-index: 30;
+    overflow: visible;
+}
+
+.service-table-wrap.has-open-dropdown .dropdown-menu {
+    z-index: 1080;
 }
 
 .service-request-table {

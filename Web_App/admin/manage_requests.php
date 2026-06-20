@@ -653,7 +653,7 @@ if (!empty($request_ids)) {
                 <?php endforeach; ?>
                 <?php if (count($category_order) > 6): ?>
                     <div class="dropdown">
-                        <button class="service-tab service-more-tab" type="button" data-bs-toggle="dropdown">More <i class="bi bi-chevron-down"></i></button>
+                        <button class="service-tab service-more-tab" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false">More <i class="bi bi-chevron-down"></i></button>
                         <div class="dropdown-menu service-more-menu">
                             <?php foreach (array_slice($category_order, 6) as $category): ?>
                                 <button class="dropdown-item service-more-item" type="button" data-category="<?php echo h($category); ?>">
@@ -812,7 +812,7 @@ if (!empty($request_ids)) {
                                             View
                                         </button>
                                         <div class="dropdown">
-                                            <button class="service-dots-btn" type="button" data-bs-toggle="dropdown" aria-label="More actions"><i class="bi bi-three-dots-vertical"></i></button>
+                                            <button class="service-dots-btn" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false" aria-label="More actions"><i class="bi bi-three-dots-vertical"></i></button>
                                             <div class="dropdown-menu service-action-menu">
                                                 <a class="dropdown-item" href="print_document.php?req_id=<?php echo (int)$row['request_id']; ?>" target="_blank"><i class="bi bi-printer"></i> Print Document</a>
                                                 <button class="dropdown-item view-details-trigger" type="button" data-bs-toggle="modal" data-bs-target="#requestDetailsModal"
@@ -996,6 +996,16 @@ if (!empty($request_ids)) {
             const tableWrap = document.getElementById('requestTableWrap');
             const resultCount = document.getElementById('requestResultCount');
             let activeCategory = 'All Requests';
+
+            tableWrap.addEventListener('show.bs.dropdown', function() {
+                this.classList.add('has-open-dropdown');
+            });
+
+            tableWrap.addEventListener('hidden.bs.dropdown', function() {
+                if (!this.querySelector('.dropdown-menu.show')) {
+                    this.classList.remove('has-open-dropdown');
+                }
+            });
 
             function applyFilters() {
                 const query = (searchInput.value || '').toLowerCase().trim();
