@@ -96,6 +96,10 @@ $id_emergency_relationship = $request['id_emergency_relationship'] ?? '';
 $id_emergency_contact = $request['id_emergency_contact'] ?? '';
 $id_blood_type = $request['id_blood_type'] ?? '';
 $id_valid_until = $request['id_valid_until'] ?? '';
+if ($is_barangay_id && !empty($request['created_at'])) {
+    $id_valid_until = (new DateTimeImmutable($request['created_at']))->modify('+1 year')->format('Y-m-d');
+}
+$id_valid_until_display = $id_valid_until !== '' ? date('F d, Y', strtotime($id_valid_until)) : '';
 $incident_date = $request['incident_date'] ?? '';
 $incident_time = $request['incident_time'] ?? '';
 $incident_location = $request['incident_location'] ?? '';
@@ -192,7 +196,7 @@ if ($is_barangay_clearance) {
 
                     <div class="actual-id-back-header">In case of loss, please return to this barangay</div>
                     <div class="actual-id-valid editable" contenteditable="true">
-                        <?php echo $id_valid_until ? htmlspecialchars(date('F d, Y', strtotime($id_valid_until))) : ''; ?>
+                        VALID UNTIL: <?php echo htmlspecialchars($id_valid_until_display); ?>
                     </div>
 
                     <div class="actual-id-signature">
@@ -343,7 +347,7 @@ if ($is_barangay_clearance) {
                                         <span class="editable" contenteditable="true"><?php echo htmlspecialchars($id_emergency_contact); ?></span>
                                     </div>
                                     <div class="barangay-id-valid editable" contenteditable="true">
-                                        <?php echo $id_valid_until ? htmlspecialchars(date('F d, Y', strtotime($id_valid_until))) : ''; ?>
+                                        VALID UNTIL: <?php echo htmlspecialchars($id_valid_until_display); ?>
                                     </div>
                                     <div class="summary-signature" style="margin-top:0;">
                                         <strong>HON. AIGRETTE PANGANIBAN LAJARA</strong>

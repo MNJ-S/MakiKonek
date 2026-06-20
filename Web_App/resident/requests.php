@@ -19,6 +19,7 @@ $pageTitle = 'My Requests';
 $activePage = 'requests';
 $success_message = prgFlashPull('resident_requests');
 $error_message = '';
+$barangay_id_valid_until = (new DateTimeImmutable('today'))->modify('+1 year')->format('Y-m-d');
 
 $resident_id = (int) $_SESSION['resident_id'];
 $profile_query = "SELECT u.email, p.* FROM users u LEFT JOIN user_profiles p ON u.user_id = p.user_id WHERE u.user_id = ? LIMIT 1";
@@ -153,9 +154,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id_emergency_relationship = trim($_POST['id_emergency_relationship'] ?? '');
         $id_emergency_contact = trim($_POST['id_emergency_contact'] ?? '');
         $id_blood_type = trim($_POST['id_blood_type'] ?? '');
-        $id_valid_until = trim($_POST['id_valid_until'] ?? '');
+        $id_valid_until = $barangay_id_valid_until;
 
-        if ($id_emergency_name === '' || $id_emergency_relationship === '' || $id_emergency_contact === '' || $id_valid_until === '') {
+        if ($id_emergency_name === '' || $id_emergency_relationship === '' || $id_emergency_contact === '') {
             $error_message = 'Please complete all required Barangay ID fields.';
         } else if ($purpose === '') {
             $purpose = 'BARANGAY IDENTIFICATION';
@@ -202,8 +203,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error_message = 'Business operator name may contain letters, spaces, hyphens, and periods only.';
     } elseif ($error_message === '' && $document_type === 'Cedula' && (!inputIsInteger((string)$cedula_tax_year, 1900, (int)date('Y') + 1) || !preg_match('/^\d+(?:[.\'\"]\d+)?$/', (string)$cedula_height) || !is_numeric($cedula_weight) || (float)$cedula_weight <= 0 || !preg_match('/^\d+(?:\.\d{1,2})?$/', (string)$cedula_gross_income) || (float)$cedula_gross_income < 0 || !inputIsNumericId((string)$cedula_tin, true, 12))) {
         $error_message = 'Enter valid numeric cedula measurements, tax year, income, and TIN.';
-    } elseif ($error_message === '' && $document_type === 'Barangay ID' && (!inputIsName((string)$id_emergency_name) || !inputIsName((string)$id_emergency_relationship) || !inputIsPhone((string)$id_emergency_contact) || !inputIsDate((string)$id_valid_until) || $id_valid_until < date('Y-m-d'))) {
-        $error_message = 'Enter valid emergency contact details and a current or future ID validity date.';
+    } elseif ($error_message === '' && $document_type === 'Barangay ID' && (!inputIsName((string)$id_emergency_name) || !inputIsName((string)$id_emergency_relationship) || !inputIsPhone((string)$id_emergency_contact))) {
+        $error_message = 'Enter valid emergency contact details.';
     } elseif ($error_message === '' && $document_type === 'Incident Report' && (!inputIsDate((string)$incident_date) || $incident_date > date('Y-m-d') || !inputIsTime((string)$incident_time))) {
         $error_message = 'Incident date and time must be valid, and the incident date cannot be in the future.';
     } elseif ($error_message === '' && $incident_witness_name !== null && !inputIsName((string)$incident_witness_name, true)) {
@@ -624,7 +625,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <div class="field service-extra barangay-id-extra" data-service-extra="Barangay ID" style="display:none;">
                                 <label for="id_valid_until">Valid Until *</label>
-                                <input id="id_valid_until" name="id_valid_until" type="date" min="<?php echo date('Y-m-d'); ?>">
+                                <input id="id_valid_until" name="id_valid_until" type="date" value="<?php echo htmlspecialchars($barangay_id_valid_until); ?>" readonly aria-readonly="true">
                             </div>
 
                             <div class="field full service-extra incident-extra" data-service-extra="Incident Report" style="display:none;">
