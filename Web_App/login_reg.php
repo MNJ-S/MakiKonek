@@ -99,9 +99,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | MakiKonek</title>
-    <link rel="stylesheet" href="assets/css/login.css?v=20260620n">
+    <link rel="stylesheet" href="assets/css/login.css?v=20260620o">
     <link rel="icon" href="assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <script defer src="assets/js/public.js?v=20260529c"></script>
+    <script defer src="assets/js/password-visibility.js?v=20260620a"></script>
 </head>
 
 <body class="auth-page">
@@ -188,7 +189,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <input id="email" name="email" type="text" placeholder="Ilagay ang username o email" autocomplete="username" value="<?php echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
 
                 <label class="field-label" for="password">Password</label>
-                <input id="password" name="password" type="password" placeholder="Ilagay ang iyong password" autocomplete="current-password" required>
+                <div class="password-field">
+                    <input id="password" name="password" type="password" placeholder="Ilagay ang iyong password" autocomplete="current-password" required>
+                    <button class="password-toggle" type="button" data-password-toggle="password" aria-label="Ipakita ang password" aria-pressed="false">
+                        <svg class="eye-open" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <svg class="eye-closed" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m3 3 18 18"></path>
+                            <path d="M10.6 10.7a2 2 0 0 0 2.7 2.7"></path>
+                            <path d="M9.9 4.2A11.8 11.8 0 0 1 12 4c6.5 0 10 8 10 8a18.5 18.5 0 0 1-2.1 3.2"></path>
+                            <path d="M6.6 6.6C3.6 8.6 2 12 2 12s3.5 8 10 8a9.8 9.8 0 0 0 4.1-.9"></path>
+                        </svg>
+                    </button>
+                </div>
 
                 <div class="form-row">
                     <label class="check-label"><input type="checkbox" name="remember"> Tandaan ako</label>

@@ -326,11 +326,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
 
             mysqli_commit($conn);
-            prgRedirect(
-                'requests.php',
-                'resident_requests',
-                'Your request has been submitted under Reference Number: ' . $reference_no
-            );
+            $_SESSION['claim_stub_names'][$reference_no] = trim(implode(' ', array_filter([
+                $first_name,
+                $middle_name,
+                $last_name,
+                $suffix,
+            ])));
+            header('Location: print_stub.php?ref=' . rawurlencode($reference_no) . '&download=1');
+            exit();
         } catch (Exception $e) {
             mysqli_rollback($conn);
             $error_message = 'Database error. Failed to submit request.';

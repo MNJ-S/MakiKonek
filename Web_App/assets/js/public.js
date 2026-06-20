@@ -189,6 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+<<<<<<< HEAD
         const passwordToggles = document.querySelectorAll('.password-toggle');
         passwordToggles.forEach((toggle) => {
             const targetSelector = toggle.dataset.toggleTarget;
@@ -206,6 +207,51 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         window.filterServices = () => {
+=======
+    const contactOpenButton = document.querySelector("[data-contact-open]");
+    const contactModal = document.querySelector("[data-contact-modal]");
+    const contactForm = document.querySelector("[data-contact-form]");
+    const contactSuccess = document.querySelector("[data-contact-success]");
+    const contactCloseButton = contactModal?.querySelector("[data-contact-close]");
+
+    if (contactOpenButton && contactModal && contactForm && contactSuccess) {
+        const closeContactModal = () => {
+            contactModal.hidden = true;
+            document.body.classList.remove("contact-modal-open");
+            contactOpenButton.focus();
+        };
+
+        contactOpenButton.addEventListener("click", () => {
+            contactModal.hidden = false;
+            document.body.classList.add("contact-modal-open");
+            contactSuccess.hidden = true;
+            contactForm.querySelector("input")?.focus();
+        });
+
+        contactCloseButton?.addEventListener("click", closeContactModal);
+
+        contactModal.addEventListener("click", (event) => {
+            if (event.target === contactModal) {
+                closeContactModal();
+            }
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && !contactModal.hidden) {
+                closeContactModal();
+            }
+        });
+
+        contactForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            contactForm.reset();
+            contactSuccess.hidden = false;
+            contactSuccess.focus?.();
+        });
+    }
+
+    window.filterServices = () => {
+>>>>>>> 7d69c3ad45484a7987dda2ee9f775588e6ffca39
         const input = document.getElementById('service_search');
         if (!input) return;
         

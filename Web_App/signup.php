@@ -90,9 +90,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up | MakiKonek</title>
-    <link rel="stylesheet" href="assets/css/signup.css?v=20260529j">
+    <link rel="stylesheet" href="assets/css/signup.css?v=20260620a">
     <link rel="icon" href="../assets/img/Barangay_Makiling_Seal.png" type="image/png">
     <script defer src="assets/js/public.js?v=20260529c"></script>
+    <script defer src="assets/js/password-visibility.js?v=20260620a"></script>
 </head>
 
 <body class="auth-page">
@@ -164,10 +165,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input id="signup_email" name="email" type="email" placeholder="juan@example.com" autocomplete="email" maxlength="254" required>
 
                 <label class="field-label" for="new_password">Password</label>
-                <input id="new_password" name="password" type="password" placeholder="********" autocomplete="new-password" minlength="8" maxlength="72" required>
+                <div class="password-field">
+                    <input id="new_password" name="password" type="password" placeholder="********" autocomplete="new-password" minlength="8" maxlength="72" required>
+                    <button class="password-toggle" type="button" data-password-toggle="new_password" aria-label="Ipakita ang password" aria-pressed="false">
+                        <svg class="eye-open" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <svg class="eye-closed" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m3 3 18 18"></path>
+                            <path d="M10.6 10.7a2 2 0 0 0 2.7 2.7"></path>
+                            <path d="M9.9 4.2A11.8 11.8 0 0 1 12 4c6.5 0 10 8 10 8a18.5 18.5 0 0 1-2.1 3.2"></path>
+                            <path d="M6.6 6.6C3.6 8.6 2 12 2 12s3.5 8 10 8a9.8 9.8 0 0 0 4.1-.9"></path>
+                        </svg>
+                    </button>
+                </div>
 
                 <label class="field-label" for="confirm_password">Confirm Password</label>
-                <input id="confirm_password" name="confirm_password" type="password" placeholder="********" autocomplete="new-password" minlength="8" maxlength="72" required>
+                <div class="password-field">
+                    <input id="confirm_password" name="confirm_password" type="password" placeholder="********" autocomplete="new-password" minlength="8" maxlength="72" required>
+                    <button class="password-toggle" type="button" data-password-toggle="confirm_password" aria-label="Ipakita ang password" aria-pressed="false">
+                        <svg class="eye-open" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <svg class="eye-closed" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m3 3 18 18"></path>
+                            <path d="M10.6 10.7a2 2 0 0 0 2.7 2.7"></path>
+                            <path d="M9.9 4.2A11.8 11.8 0 0 1 12 4c6.5 0 10 8 10 8a18.5 18.5 0 0 1-2.1 3.2"></path>
+                            <path d="M6.6 6.6C3.6 8.6 2 12 2 12s3.5 8 10 8a9.8 9.8 0 0 0 4.1-.9"></path>
+                        </svg>
+                    </button>
+                </div>
 
                 <button class="btn btn-primary auth-submit" type="submit">Gumawa ng Account</button>
                 <p class="auth-switch">May account na? <a href="login_reg.php" data-auth-transition>Mag-login dito.</a></p>
