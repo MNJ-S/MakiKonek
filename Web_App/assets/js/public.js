@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
             calendarTitle.textContent = visibleDate.toLocaleDateString("en-US", {
                 month: "long",
                 year: "numeric",
-            });
+                });
             calendarGrid.setAttribute("aria-label", `${calendarTitle.textContent} activities calendar`);
 
             dayLabels.forEach((label) => {
@@ -188,4 +188,26 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
     }
+
+    window.filterServices = () => {
+        const input = document.getElementById('service_search');
+        if (!input) return;
+        
+        const filterValue = input.value.toLowerCase();
+        const cards = document.querySelectorAll('.service-grid .service-card');
+        
+        cards.forEach(card => {
+            const titleNode = card.querySelector('h3');
+            const descNode = card.querySelector('p');
+            
+            const title = titleNode ? titleNode.innerText.toLowerCase() : "";
+            const desc = descNode ? descNode.innerText.toLowerCase() : "";
+            
+            if (title.includes(filterValue) || desc.includes(filterValue)) {
+                card.style.display = "";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    };
 });
