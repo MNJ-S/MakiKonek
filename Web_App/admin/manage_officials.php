@@ -26,8 +26,41 @@ function adminOfficialName(array $row): string
     return trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? '')) ?: ($row['username'] ?? 'Official');
 }
 
-function adminOfficialPortrait($seed): string
+function adminOfficialAssetUrl(?string $path): ?string
 {
+    $path = str_replace('\\', '/', trim((string)$path));
+    if ($path === '') {
+        return null;
+    }
+
+    $assets_position = strpos($path, 'assets/');
+    if ($assets_position === false) {
+        return null;
+    }
+
+    $relative_path = substr($path, $assets_position);
+    $assets_root = realpath(__DIR__ . '/../assets');
+    $file_path = realpath(__DIR__ . '/../' . $relative_path);
+    if ($assets_root === false || $file_path === false || !is_file($file_path)) {
+        return null;
+    }
+
+    $assets_prefix = rtrim(str_replace('\\', '/', $assets_root), '/') . '/';
+    $normalized_file = str_replace('\\', '/', $file_path);
+    if (stripos($normalized_file, $assets_prefix) !== 0) {
+        return null;
+    }
+
+    return '../' . implode('/', array_map('rawurlencode', explode('/', $relative_path)));
+}
+
+function adminOfficialPortrait(array $official): string
+{
+    $uploaded_portrait = adminOfficialAssetUrl($official['avatar_path'] ?? null);
+    if ($uploaded_portrait !== null) {
+        return $uploaded_portrait;
+    }
+
     $portrait_map = [
         'Aigrette Panganiban Lajara' => 'aigrette',
         'Teona Lizardo Noprada' => 'teona',
@@ -49,12 +82,15 @@ function adminOfficialPortrait($seed): string
         'Jhenie Lee Siman Laude' => 'jhenie-lee',
     ];
 
-    if (isset($portrait_map[(string)$seed])) {
-        return '../assets/img/officials/official-' . $portrait_map[(string)$seed] . '.webp';
+    $name = adminOfficialName($official);
+    if (isset($portrait_map[$name])) {
+        $mapped_portrait = adminOfficialAssetUrl('assets/img/officials/official-' . $portrait_map[$name] . '.webp');
+        if ($mapped_portrait !== null) {
+            return $mapped_portrait;
+        }
     }
 
-    $index = ((abs(crc32((string)$seed)) % 20) + 1);
-    return sprintf('../assets/img/officials/official-%02d.webp', $index);
+    return '../assets/img/iconlogo-makikonek.png';
 }
 
 function adminOfficialGroup(string $role): string
@@ -234,7 +270,7 @@ seedAboutPageOfficials($conn);
 
 $fetch_query = "
     SELECT u.user_id, u.username, u.email, u.role, u.created_at,
-           p.first_name, p.last_name, p.mobile_number,
+           p.first_name, p.last_name, p.mobile_number, p.avatar_path,
            bo.position, bo.committee, bo.term_start, bo.term_end
     FROM users u
     JOIN user_profiles p ON u.user_id = p.user_id
@@ -363,7 +399,7 @@ $featured = $officials[0] ?? null;
             <div class="officials-directory">
                 <?php if ($featured): ?>
                     <article class="official-feature-card" data-official-group="<?php echo strtoupper($featured['role']) === 'SK' ? 'sk' : 'barangay'; ?>">
-                        <img src="<?php echo adminOfficialPortrait(adminOfficialName($featured)); ?>" alt="<?php echo adminOfficialEscape(adminOfficialName($featured)); ?>" width="112" height="112" loading="lazy" decoding="async">
+                        <img src="<?php echo adminOfficialEscape(adminOfficialPortrait($featured)); ?>" alt="<?php echo adminOfficialEscape(adminOfficialName($featured)); ?>" width="112" height="112" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='../assets/img/iconlogo-makikonek.png';">
                         <div>
                             <span><?php echo adminOfficialEscape($featured['position']); ?></span>
                             <h2><?php echo adminOfficialEscape(adminOfficialName($featured)); ?></h2>
@@ -395,7 +431,7 @@ $featured = $officials[0] ?? null;
                                 $group = strtoupper($row['role']) === 'SK' ? 'sk' : 'barangay';
                             ?>
                                 <article class="official-person-card" data-official-group="<?php echo $group; ?>" data-official-position="<?php echo adminOfficialEscape($row['position']); ?>">
-                                    <img src="<?php echo adminOfficialPortrait(adminOfficialName($row)); ?>" alt="<?php echo adminOfficialEscape(adminOfficialName($row)); ?>" width="74" height="74" loading="lazy" decoding="async">
+                                    <img src="<?php echo adminOfficialEscape(adminOfficialPortrait($row)); ?>" alt="<?php echo adminOfficialEscape(adminOfficialName($row)); ?>" width="74" height="74" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='../assets/img/iconlogo-makikonek.png';">
                                     <span><?php echo adminOfficialEscape($row['position']); ?></span>
                                     <h3><?php echo adminOfficialEscape(adminOfficialName($row)); ?></h3>
                                     <p><?php echo adminOfficialEscape($row['committee'] ?: adminOfficialGroup($row['role'])); ?></p>
@@ -454,7 +490,7 @@ $featured = $officials[0] ?? null;
                         <?php if (!empty($ending_terms)): ?>
                             <?php foreach (array_slice($ending_terms, 0, 5) as $row): ?>
                                 <div>
-                                    <img src="<?php echo adminOfficialPortrait(adminOfficialName($row)); ?>" alt="" width="42" height="42" loading="lazy" decoding="async">
+                                    <img src="<?php echo adminOfficialEscape(adminOfficialPortrait($row)); ?>" alt="" width="42" height="42" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='../assets/img/iconlogo-makikonek.png';">
                                     <span><strong><?php echo adminOfficialEscape(adminOfficialName($row)); ?></strong><small>Term ends on <?php echo adminOfficialEscape(date('M d, Y', strtotime($row['term_end']))); ?></small></span>
                                 </div>
                             <?php endforeach; ?>
