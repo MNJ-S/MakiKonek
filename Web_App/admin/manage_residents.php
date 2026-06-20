@@ -54,6 +54,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['approve_user'])) {
     }
 }
 
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_user'])) {
+    $target_user_id = (int)$_POST['user_id'];
+
+    mysqli_begin_transaction($conn);
+    try {
+        $update_query = "UPDATE users SET account_status = 'Rejected' WHERE user_id = ?";
+        $stmt_update = mysqli_prepare($conn, $update_query);
+        mysqli_stmt_bind_param($stmt_update, "i", $target_user_id);
+        mysqli_stmt_execute($stmt_update);
+
+        $notif_title = "Verification Rejected";
+        $notif_message = "Your resident account verification was rejected by the admin. Please review your information and contact the barangay office for assistance.";
+        $notif_type = "System Alert";
+        $notif_icon = "fa-solid fa-circle-xmark";
+
+        $notif_query = "INSERT INTO user_notifications (user_id, title, message, type, icon) VALUES (?, ?, ?, ?, ?)";
+        $notif_stmt = mysqli_prepare($conn, $notif_query);
+        mysqli_stmt_bind_param($notif_stmt, "issss", $target_user_id, $notif_title, $notif_message, $notif_type, $notif_icon);
+        mysqli_stmt_execute($notif_stmt);
+
+        mysqli_commit($conn);
+        createAdminNotification(
+            $conn,
+            "Resident Verification Rejected",
+            "A resident account verification was rejected.",
+            "Account",
+            "bi-person-x",
+            "manage_residents.php"
+        );
+        prgRedirect(
+            'manage_residents.php',
+            'admin_residents',
+            'Resident verification has been rejected.'
+        );
+    } catch (Exception $e) {
+        mysqli_rollback($conn);
+        $error_message = "System error: Could not reject the resident verification.";
+    }
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['archive_user'])) {
     $target_user_id = (int)$_POST['user_id'];
     $reason = mysqli_real_escape_string($conn, $_POST['archive_reason'] ?? 'Suspended Account');
@@ -507,14 +547,17 @@ $verified_percent = $total_residents > 0 ? round(($verified_residents / $total_r
                                                 <div class="dropdown">
                                                     <button class="resident-dots-btn" type="button" data-bs-toggle="dropdown" aria-label="More resident actions"><i class="bi bi-three-dots-vertical"></i></button>
                                                     <div class="dropdown-menu resident-action-menu">
-                                                        <button class="dropdown-item resident-open-trigger" type="button" data-name="<?php echo h($full_name); ?>" data-initials="<?php echo h($initials); ?>" data-avatar="<?php echo h($avatar); ?>" data-status="<?php echo h($status); ?>" data-email="<?php echo h($row['email']); ?>" data-mobile="<?php echo h($row['mobile_number'] ?? 'N/A'); ?>" data-birthdate="<?php echo h(formatResidentDate($row['birth_date'] ?? '', 'F d, Y')); ?>" data-gender="<?php echo h(ucwords(strtolower((string)($row['sex'] ?? 'N/A')))); ?>" data-civil="<?php echo h(ucwords(strtolower((string)($row['civil_status'] ?? 'N/A')))); ?>" data-address="<?php echo h($address); ?>" data-purok="<?php echo h($purok); ?>" data-registered="<?php echo h(formatResidentDate($row['created_at'], 'M d, Y \a\t h:i A')); ?>" data-residentid="RES-<?php echo str_pad((string)$user_id, 6, '0', STR_PAD_LEFT); ?>" data-emergency="<?php echo h(trim(($emergency['name'] ?? 'N/A') . ' (' . ($emergency['relationship'] ?? 'N/A') . ')')); ?>" data-emergencyphone="<?php echo h($emergency['contact_number'] ?? 'N/A'); ?>" data-documents="<?php echo h(json_encode($documents)); ?>" data-activities="<?php echo h(json_encode(array_slice($activities, 0, 8))); ?>"><i class="bi bi-person"></i> Open Profile</button>
+                                                        <button class="dropdown-item resident-open-trigger" type="button" data-userid="<?php echo $user_id; ?>" data-name="<?php echo h($full_name); ?>" data-initials="<?php echo h($initials); ?>" data-avatar="<?php echo h($avatar); ?>" data-status="<?php echo h($status); ?>" data-email="<?php echo h($row['email']); ?>" data-mobile="<?php echo h($row['mobile_number'] ?? 'N/A'); ?>" data-birthdate="<?php echo h(formatResidentDate($row['birth_date'] ?? '', 'F d, Y')); ?>" data-gender="<?php echo h(ucwords(strtolower((string)($row['sex'] ?? 'N/A')))); ?>" data-civil="<?php echo h(ucwords(strtolower((string)($row['civil_status'] ?? 'N/A')))); ?>" data-address="<?php echo h($address); ?>" data-purok="<?php echo h($purok); ?>" data-registered="<?php echo h(formatResidentDate($row['created_at'], 'M d, Y \a\t h:i A')); ?>" data-residentid="RES-<?php echo str_pad((string)$user_id, 6, '0', STR_PAD_LEFT); ?>" data-emergency="<?php echo h(trim(($emergency['name'] ?? 'N/A') . ' (' . ($emergency['relationship'] ?? 'N/A') . ')')); ?>" data-emergencyphone="<?php echo h($emergency['contact_number'] ?? 'N/A'); ?>" data-documents="<?php echo h(json_encode($documents)); ?>" data-activities="<?php echo h(json_encode(array_slice($activities, 0, 8))); ?>"><i class="bi bi-person"></i> Open Profile</button>
                                                         <button class="dropdown-item resident-doc-tab-trigger" type="button"><i class="bi bi-file-earmark"></i> View Documents</button>
                                                         <?php if ($status !== 'Verified'): ?>
                                                             <form action="manage_residents.php" method="POST" onsubmit="return confirm('Approve verification for <?php echo h($full_name); ?>?');" style="margin:0;">
                                                                 <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
                                                                 <button type="submit" name="approve_user" class="dropdown-item"><i class="bi bi-check-circle"></i> Approve Resident</button>
                                                             </form>
-                                                            <span class="dropdown-item-text text-muted"><i class="bi bi-x-circle"></i> Reject Verification</span>
+                                                            <form action="manage_residents.php" method="POST" onsubmit="return confirm('Reject verification for <?php echo h($full_name); ?>?');" style="margin:0;">
+                                                                <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
+                                                                <button type="submit" name="reject_user" class="dropdown-item resident-danger-action"><i class="bi bi-x-circle"></i> Reject Verification</button>
+                                                            </form>
                                                         <?php endif; ?>
                                                         <form action="manage_residents.php" method="POST" onsubmit="return confirm('Archive <?php echo h($full_name); ?> and move this account to archives?');">
                                                             <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
@@ -563,8 +606,8 @@ $verified_percent = $total_residents > 0 ? round(($verified_residents / $total_r
                     <p><span>Registered:</span> <strong id="drawerRegistered">N/A</strong></p>
                 </div>
                 <div class="drawer-actions">
-                    <button type="button" class="drawer-approve" disabled><i class="bi bi-check-circle"></i> Approve Resident</button>
-                    <button type="button" class="drawer-reject" disabled><i class="bi bi-x-circle"></i> Reject Verification</button>
+                    <button type="submit" name="approve_user" class="drawer-approve" form="drawerApproveForm"><i class="bi bi-check-circle"></i> Approve Resident</button>
+                    <button type="submit" name="reject_user" class="drawer-reject" form="drawerRejectForm"><i class="bi bi-x-circle"></i> Reject Verification</button>
                     <form action="manage_residents.php" method="POST" id="drawerArchiveForm" class="d-inline">
                         <input type="hidden" name="user_id" id="drawerArchiveId">
                         <input type="hidden" name="archive_reason" value="Archived Account">
@@ -576,6 +619,12 @@ $verified_percent = $total_residents > 0 ? round(($verified_residents / $total_r
                         <button type="submit" name="archive_user" class="drawer-suspend"><i class="bi bi-slash-circle"></i> Suspend</button>
                     </form>
                 </div>
+                <form action="manage_residents.php" method="POST" id="drawerApproveForm" hidden>
+                    <input type="hidden" name="user_id" id="drawerApproveId">
+                </form>
+                <form action="manage_residents.php" method="POST" id="drawerRejectForm" hidden>
+                    <input type="hidden" name="user_id" id="drawerRejectId">
+                </form>
                 <nav class="drawer-tabs" aria-label="Resident profile sections">
                     <button type="button" class="is-active" data-drawer-tab="profile"><i class="bi bi-person"></i> Profile</button>
                     <button type="button" data-drawer-tab="documents"><i class="bi bi-file-earmark-text"></i> Documents</button>
@@ -717,6 +766,8 @@ $verified_percent = $total_residents > 0 ? round(($verified_residents / $total_r
                 document.getElementById('drawerEmergencyPhone').textContent = button.dataset.emergencyphone || 'N/A';
                 document.getElementById('drawerSuspendId').value = button.dataset.userid || '';
                 document.getElementById('drawerArchiveId').value = button.dataset.userid || '';
+                document.getElementById('drawerApproveId').value = button.dataset.userid || '';
+                document.getElementById('drawerRejectId').value = button.dataset.userid || '';
 
                 const documents = JSON.parse(button.dataset.documents || '[]');
                 document.getElementById('drawerDocuments').innerHTML = documents.length ?
@@ -761,6 +812,20 @@ $verified_percent = $total_residents > 0 ? round(($verified_residents / $total_r
 
             document.getElementById('drawerSuspendForm').addEventListener('submit', function(event) {
                 if (!confirm('Suspend this resident account and move it to archives?')) {
+                    event.preventDefault();
+                }
+            });
+
+            document.getElementById('drawerApproveForm').addEventListener('submit', function(event) {
+                const residentName = document.getElementById('drawerName').textContent || 'this resident';
+                if (!this.elements.user_id.value || !confirm(`Approve verification for ${residentName}?`)) {
+                    event.preventDefault();
+                }
+            });
+
+            document.getElementById('drawerRejectForm').addEventListener('submit', function(event) {
+                const residentName = document.getElementById('drawerName').textContent || 'this resident';
+                if (!this.elements.user_id.value || !confirm(`Reject verification for ${residentName}?`)) {
                     event.preventDefault();
                 }
             });
